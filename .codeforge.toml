@@ -1,0 +1,17 @@
+[commands.syntax]
+program = "python"
+args = ["scripts/verify_web.py", "typecheck"]
+cwd = "."
+timeout_secs = 600
+
+[commands.test]
+program = "python"
+args = ["-m", "pytest", "-q"]
+cwd = "apps/api"
+timeout_secs = 600
+
+[commands.build]
+program = "python"
+args = ["scripts/verify_web.py", "build"]
+cwd = "."
+timeout_secs = 900
