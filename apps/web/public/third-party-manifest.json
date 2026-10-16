@@ -305,7 +305,7 @@
       "id": "npm:@capacitor/android",
       "name": "@capacitor/android",
       "category": "locked-production-dependency",
-      "version": "8.4.3",
+      "version": "8.5.3",
       "source_uri": "https://www.npmjs.com/package/@capacitor/android",
       "license": "MIT",
       "license_text": {
@@ -319,7 +319,7 @@
       "id": "npm:@capacitor/core",
       "name": "@capacitor/core",
       "category": "locked-production-dependency",
-      "version": "8.4.3",
+      "version": "8.5.3",
       "source_uri": "https://www.npmjs.com/package/@capacitor/core",
       "license": "MIT",
       "license_text": {
@@ -333,7 +333,7 @@
       "id": "npm:@capacitor/filesystem",
       "name": "@capacitor/filesystem",
       "category": "locked-production-dependency",
-      "version": "8.1.3",
+      "version": "8.1.4",
       "source_uri": "https://www.npmjs.com/package/@capacitor/filesystem",
       "license": "MIT",
       "license_text": {
@@ -347,7 +347,7 @@
       "id": "npm:@capacitor/share",
       "name": "@capacitor/share",
       "category": "locked-production-dependency",
-      "version": "8.0.2",
+      "version": "8.0.3",
       "source_uri": "https://www.npmjs.com/package/@capacitor/share",
       "license": "MIT",
       "license_text": {
@@ -389,7 +389,7 @@
       "id": "npm:@radix-ui/react-slot",
       "name": "@radix-ui/react-slot",
       "category": "locked-production-dependency",
-      "version": "1.3.3",
+      "version": "1.4.0",
       "source_uri": "https://www.npmjs.com/package/@radix-ui/react-slot",
       "license": "MIT",
       "license_text": {
@@ -487,7 +487,7 @@
       "id": "npm:harfbuzzjs",
       "name": "harfbuzzjs",
       "category": "locked-production-dependency",
-      "version": "1.6.2",
+      "version": "1.6.3",
       "source_uri": "https://www.npmjs.com/package/harfbuzzjs",
       "license": "MIT",
       "license_text": {
