@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import case, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.models import Calligrapher, Dynasty, Glyph, GlyphSource, Style
@@ -19,8 +19,12 @@ def glyph_to_schema(glyph: Glyph) -> GlyphRead:
     return GlyphRead(
         id=glyph.id,
         character=glyph.character,
+        identity=glyph.identity or None,
+        variant=glyph.variant or {},
+        metadata=glyph.metadata_json or {},
         source=GlyphSourceSchema(
             dataset=glyph.source.dataset,
+            source_role=(glyph.metadata_json or {}).get("source_role"),
             calligrapher=glyph.calligrapher.name if glyph.calligrapher else None,
             style=glyph.style.name if glyph.style else None,
             dynasty=glyph.dynasty.name if glyph.dynasty else None,
@@ -28,6 +32,11 @@ def glyph_to_schema(glyph: Glyph) -> GlyphRead:
             license=glyph.source.license,
             license_url=glyph.source.license_url,
             rights=glyph.source.rights or {},
+            language=glyph.language, locale=glyph.locale, script=glyph.script,
+            writing_tradition=glyph.writing_tradition, orthography=glyph.orthography,
+            period=glyph.period, region=glyph.region,
+            source_uri=(glyph.metadata_json or {}).get("source_uri") or glyph.source.source_uri,
+            **{key: (glyph.metadata_json or {}).get(key) for key in ["attribution", "designer", "dataset_version", "source_checksum", "license_text", "source_collection"]},
         ),
         asset=GlyphAssetSchema(
             type=glyph.asset_type,
@@ -35,6 +44,8 @@ def glyph_to_schema(glyph: Glyph) -> GlyphRead:
             width=glyph.width,
             height=glyph.height,
             bbox=glyph.bbox,
+            checksum=glyph.checksum,
+            processing=(glyph.metadata_json or {}).get("processing"),
         ),
         transform=GlyphTransformSchema(),
         appearance=GlyphAppearanceSchema(),
@@ -56,6 +67,18 @@ class GlyphService:
         dynasty: str | None = None,
         work: str | None = None,
         dataset: str | None = None,
+        language: str | None = None,
+        locale: str | None = None,
+        script: str | None = None,
+        writing_tradition: str | None = None,
+        variant_type: str | None = None,
+        orthography: str | None = None,
+        period: str | None = None,
+        region: str | None = None,
+        provenance_type: str | None = None,
+        commercial_only: bool = False,
+        mode: str = "strict",
+        designer: str | None = None,
     ):
         statement = (
             select(Glyph)
@@ -95,6 +118,21 @@ class GlyphService:
             statement = statement.where(Glyph.source.has(work=work))
         if dataset:
             statement = statement.join(GlyphSource).where(GlyphSource.dataset == dataset)
+        for name, value in {"language": language, "locale": locale, "script": script, "writing_tradition": writing_tradition, "variant_type": variant_type, "orthography": orthography, "period": period, "region": region, "provenance_type": provenance_type}.items():
+            if value:
+                if name in {"writing_tradition", "locale", "language"} and mode == "cross-tradition":
+                    continue
+                if name == "locale" and writing_tradition:
+                    statement = statement.where(or_(Glyph.locale == value, Glyph.locale.is_(None)))
+                    continue
+                statement = statement.where(getattr(Glyph, name) == value)
+        if writing_tradition == "Japanese" and mode == "strict" and not variant_type:
+            statement = statement.where(or_(Glyph.variant_type.is_(None), Glyph.variant_type != "hentaigana"))
+            statement = statement.where(or_(Glyph.orthography.is_(None), Glyph.orthography != 'historical-kana'))
+        if commercial_only:
+            statement = statement.where(Glyph.source.has(GlyphSource.rights["commercial_use"].as_boolean() == True))
+        if designer:
+            statement = statement.where(Calligrapher.name == designer)
         return statement
 
     def list(
@@ -108,6 +146,18 @@ class GlyphService:
         dynasty: str | None = None,
         work: str | None = None,
         dataset: str | None = None,
+        language: str | None = None,
+        locale: str | None = None,
+        script: str | None = None,
+        writing_tradition: str | None = None,
+        variant_type: str | None = None,
+        orthography: str | None = None,
+        period: str | None = None,
+        region: str | None = None,
+        provenance_type: str | None = None,
+        commercial_only: bool = False,
+        mode: str = "strict",
+        designer: str | None = None,
         limit: int = 60,
         offset: int = 0,
     ) -> GlyphListResponse:
@@ -119,11 +169,29 @@ class GlyphService:
             dynasty=dynasty,
             work=work,
             dataset=dataset,
+            language=language,
+            locale=locale,
+            script=script,
+            writing_tradition=writing_tradition,
+            variant_type=variant_type,
+            orthography=orthography,
+            period=period,
+            region=region,
+            provenance_type=provenance_type,
+            commercial_only=commercial_only, mode=mode, designer=designer,
         )
         total = session.scalar(select(func.count()).select_from(statement.subquery())) or 0
-        rows = session.scalars(
-            statement.order_by(Glyph.created_at.desc(), Glyph.id).limit(limit).offset(offset)
-        ).all()
+        if writing_tradition == "Japanese":
+            role_order = case(
+                (Glyph.metadata_json["source_role"].as_string() == "handwriting", 1),
+                (Glyph.metadata_json["source_role"].as_string() == "coverage-fallback", 2),
+                (Glyph.provenance_type == "original", 3),
+                else_=0,
+            )
+            statement = statement.order_by(role_order, Glyph.created_at.desc(), Glyph.id)
+        else:
+            statement = statement.order_by(Glyph.created_at.desc(), Glyph.id)
+        rows = session.scalars(statement.limit(limit).offset(offset)).all()
         return GlyphListResponse(
             items=[glyph_to_schema(row) for row in rows],
             total=total,
