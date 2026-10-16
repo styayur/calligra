@@ -39,14 +39,14 @@ def main():
                 # No network is needed by the packaged workbench.
                 page.route('https://**',lambda route:route.abort());page.route('http://**',lambda route:route.abort())
                 page.get_by_label('项目菜单').click()
-                expect(page.get_by_test_id('app-version')).to_have_text('0.7.0')
+                expect(page.get_by_test_id('app-version')).to_have_text('0.7.1')
                 page.get_by_role('button',name='第三方许可 / Third-party licences',exact=True).click()
                 frame=page.frame_locator('iframe[title="Bundled third-party licence texts"]')
                 notice_count=len(json.loads((ROOT/'third_party/manifest.json').read_text(encoding='utf-8'))['components'])
                 expect(frame.locator('details')).to_have_count(notice_count)
                 expect(frame.locator('body')).to_contain_text('CODH Kuzushiji')
                 page.get_by_label('关闭第三方许可').click();page.get_by_label('项目菜单').click()
-                checks.append(f'version 0.7.0 and offline {notice_count}-component licence viewer')
+                checks.append(f'version 0.7.1 and offline {notice_count}-component licence viewer')
                 composer=page.locator('.composer')
                 composer.get_by_label('字形来源',exact=True).select_option('fonts')
                 def compose(text,count):
@@ -75,8 +75,14 @@ def main():
                 expect(page.locator('.variant-grid')).to_contain_text('Yuji Boku',timeout=60000)
                 expect(page.locator('.variant-grid')).to_contain_text('Yuji Mai')
                 expect(page.locator('.variant-grid')).to_contain_text('Yuji Syuku')
+                expect(page.locator('.variant-grid')).to_contain_text('Klee One')
                 page.get_by_label('关闭字形调整').click()
-                checks.append('three Japanese modern fonts / HarfBuzz glyph IDs')
+                checks.append('Yuji and Klee candidates / HarfBuzz glyph IDs')
+                compose('㐆',1)
+                rare=save('japanese-coverage.json')['glyphs'][0]
+                assert rare['source']['source_role']=='coverage-fallback' and rare['source']['locale']=='ja-JP'
+                assert rare['source']['license']=='OFL-1.1' and rare['metadata']['shaping']['direction']=='ttb'
+                checks.append('Japanese-only rare kanji coverage fallback')
                 composer.locator('summary').filter(has_text='字形与跨传统探索').click()
                 composer.get_by_label('Variant type').select_option('hentaigana');compose('ああ',2)
                 assert all(g['variant']['type']=='hentaigana' for g in save('hentaigana.json')['glyphs'])
