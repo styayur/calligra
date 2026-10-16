@@ -16,7 +16,7 @@ function license(source,target) {
 function add(id,name,category,version,source,licenseId,sourceText,target,notes='') {
   components.push({id,name,category,version,source_uri:source,license:licenseId,license_text:license(sourceText,target),notes})
 }
-add('application','Calligraphy Studio','application',readJson('apps/web/package.json').version,'https://github.com/styayur/calligraphy-studio','MIT','LICENSE','LICENSE','Code licence; third-party assets retain their own licences.')
+add('application','Calligraphy Studio','application',readJson('apps/web/package.json').version,'https://github.com/styayur/calligraphy-studio','GPL-3.0-or-later','LICENSE','LICENSE','Code licence; third-party assets retain their own licences.')
 for (const font of readJson('apps/web/public/fonts/asset-manifest.json').fonts) {
   const catalog=readJson('apps/web/public/fonts/catalog.json').find(f=>f.id===font.id)
   add(font.id,catalog.family,'font',catalog.font_version||null,font.source_uri,font.license,'apps/web/public/'+font.license_text,font.license_text,

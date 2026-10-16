@@ -6,9 +6,9 @@ The application code is MIT. Fonts, historical crops, structural data and softwa
 
 ## Calligraphy Studio · 0.7.1
 
-Licence: **MIT**. Source: https://github.com/styayur/calligraphy-studio.
+Licence: **GPL-3.0-or-later**. Source: https://github.com/styayur/calligraphy-studio.
 
-Bundled text: `LICENSE` (SHA-256 `196ccba59e981404a1a3899b5397dfe7d8999f9de1a9fe7eae10245fc88493ad`).
+Bundled text: `LICENSE` (SHA-256 `3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986`).
 Code licence; third-party assets retain their own licences.
 
 ## Ma Shan Zheng

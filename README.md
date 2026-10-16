@@ -110,4 +110,4 @@ Broader reviewed Japanese mappings and vertical layout coverage; easier local co
 
 ## Licence
 
-Application code is [MIT](LICENSE). Third-party fonts, images, data and software remain subject to their individual licences. Thank you to the font designers, dataset maintainers and researchers whose work makes the studio possible.
+Application code is [GPL-3.0-or-later](LICENSE). Third-party fonts, images, data and software remain subject to their individual licences. Thank you to the font designers, dataset maintainers and researchers whose work makes the studio possible.

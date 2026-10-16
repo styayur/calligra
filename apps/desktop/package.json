@@ -9,7 +9,7 @@
     "dist:win": "electron-builder --win nsis portable --x64 --publish never"
   },
   "devDependencies": {
-    "electron": "44.3.0",
+    "electron": "44.7.0",
     "electron-builder": "26.15.3"
   },
   "overrides": {
@@ -65,5 +65,6 @@
     "portable": {
       "artifactName": "CalligraphyStudio-Portable-${version}-${arch}.${ext}"
     }
-  }
+  },
+  "license": "GPL-3.0-or-later"
 }
