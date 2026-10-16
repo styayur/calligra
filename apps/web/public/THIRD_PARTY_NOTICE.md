@@ -6,9 +6,9 @@ The application code is MIT. Fonts, historical crops, structural data and softwa
 
 ## Calligraphy Studio · 0.7.1
 
-Licence: **MIT**. Source: https://github.com/styayur/calligraphy-studio.
+Licence: **GPL-3.0-or-later**. Source: https://github.com/styayur/calligraphy-studio.
 
-Bundled text: `LICENSE` (SHA-256 `196ccba59e981404a1a3899b5397dfe7d8999f9de1a9fe7eae10245fc88493ad`).
+Bundled text: `LICENSE` (SHA-256 `3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986`).
 Code licence; third-party assets retain their own licences.
 
 ## Ma Shan Zheng
@@ -130,28 +130,28 @@ Licence: **MIT**. Source: https://github.com/ionic-team/ion-android-filesystem.
 Bundled text: `licenses/Ionic-filesystem-MIT.txt` (SHA-256 `de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d`).
 Copyright 2025 Ionic. Licence verified against the official repository and resolved Maven POM.
 
-## @capacitor/android · 8.4.3
+## @capacitor/android · 8.5.3
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@capacitor/android.
 
 Bundled text: `licenses/npm/_capacitor_android/LICENSE` (SHA-256 `9c6ebf3e5ab832ba4d5af38f340978e1fedbfee6e3d23662dfdb8917a9d864dd`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## @capacitor/core · 8.4.3
+## @capacitor/core · 8.5.3
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@capacitor/core.
 
 Bundled text: `licenses/npm/_capacitor_core/LICENSE` (SHA-256 `9c6ebf3e5ab832ba4d5af38f340978e1fedbfee6e3d23662dfdb8917a9d864dd`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## @capacitor/filesystem · 8.1.3
+## @capacitor/filesystem · 8.1.4
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@capacitor/filesystem.
 
 Bundled text: `licenses/npm/_capacitor_filesystem/LICENSE` (SHA-256 `de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## @capacitor/share · 8.0.2
+## @capacitor/share · 8.0.3
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@capacitor/share.
 
@@ -172,7 +172,7 @@ Licence: **MIT**. Source: https://www.npmjs.com/package/@radix-ui/react-compose-
 Bundled text: `licenses/npm/_radix-ui_react-compose-refs/LICENSE` (SHA-256 `0e80a2d229d2fd4fc7e8636142ec5d0ff0bc031f14c15b682e2ac01dfd5b5138`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## @radix-ui/react-slot · 1.3.3
+## @radix-ui/react-slot · 1.4.0
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@radix-ui/react-slot.
 
@@ -221,7 +221,7 @@ Licence: **MIT**. Source: https://www.npmjs.com/package/csstype.
 Bundled text: `licenses/npm/csstype/LICENSE` (SHA-256 `11d55bd4541c75ee7879547ac49089c489163dae49551389713c3d026cab383e`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## harfbuzzjs · 1.6.2
+## harfbuzzjs · 1.6.3
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/harfbuzzjs.
 
