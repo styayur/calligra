@@ -557,12 +557,12 @@
       "id": "npm:lucide-react",
       "name": "lucide-react",
       "category": "locked-production-dependency",
-      "version": "0.468.0",
+      "version": "1.51.0",
       "source_uri": "https://www.npmjs.com/package/lucide-react",
       "license": "ISC",
       "license_text": {
         "path": "licenses/npm/lucide-react/LICENSE",
-        "sha256": "1e7290b35280a048667bbf0ebabac1c7fd52a75300e8b2946ac165715997f2bc"
+        "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
