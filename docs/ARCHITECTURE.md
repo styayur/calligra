@@ -2,6 +2,26 @@
 
 ## Core invariant
 
+0.7.0 extends the existing layers with semantic identity, cultural policy and Japanese providers. It retains React/Konva, Zustand, offline packs, Visual Profile workers/cache, composition, beam search and existing Chinese providers.
+
+```mermaid
+flowchart TD
+  T[Unicode / grapheme input] --> I[CharacterIdentity + GlyphVariant]
+  I --> P[Tradition / locale / script policy]
+  P --> F[FontManifestProvider / HarfBuzz]
+  P --> H[JapaneseHistoricalProvider / CODH]
+  F --> G[Glyph + asset + source rights]
+  H --> G
+  G --> V[Visual Profile / content cache]
+  V --> C[Candidate policy + compatibility weights]
+  C --> E[Existing composition / long-roll engine]
+  E --> O[Project v2 / PNG / ZIP + attribution]
+```
+
+`Glyph.character` remains plain text; `identity` captures semantic Unicode while `variant` captures visual occurrence/font identity. Indexed tradition/language/locale/script/variant/period columns support paginated corpus search. Glyph uniqueness uses identity + source + checksum, not character alone. Source/work authorship is distinct from a font designer and from the crop processing operation.
+
+Font shapers are lazy: Python HB/FreeType for imported assets; local browser WASM HB plus canvas outlines for Japanese offline font candidates. Chinese legacy rendering is unchanged. Strict culture filters run before visual scoring. Explicit weights cover visual cost, locale, tradition, script, period, work and repeated-glyph variation; cross-tradition mode is opt-in. See [model](JAPANESE_GLYPH_MODEL.md), [migration](MIGRATIONS.md) and [asset tiers](asset-policy.md).
+
 前端、项目文件和 API 永远操作 `Glyph`，而不是直接操作任意图片路径。
 
 ```ts
@@ -101,3 +121,24 @@ Hanzi Writer 只提供字符结构，不承担书法风格。后端把 stroke pa
 - 不把 MCCD 作为不可替换核心
 - 不实现未经授权的生成式演绎
 - 不实现协作和云端权限系统
+
+## Canonical product boundaries
+
+Calligraphy Studio is a multi-surface product with one shared project model.
+
+| Boundary | Contract |
+| --- | --- |
+| Core domain | Glyph records, projects, visual profiles, long-roll composition, and deterministic exports |
+| UI | `apps/web/src` React + Konva coordinates projects; extraction, feature, schema, and export rules stay shared |
+| Platforms | Web/Pages, Electron Windows, Capacitor Android, and the optional local FastAPI service reuse the same domain model |
+| Persistence | Browser storage/IndexedDB and optional SQLite/API storage are compatibility surfaces requiring migration or versioning |
+| Assets | Source assets, generated derivatives, runtime stores, and caches remain separate; every bundled asset records source, license, rights, and checksum |
+| External services | Normal editor use is local; provider acquisition is build/import-time, not a runtime cloud dependency |
+| Release | A `vX.Y.Z` tag must match all platform manifests; automation builds exact tags and publishes stable assets plus `SHA256SUMS.txt` |
+
+## Extension rules
+
+- New glyph providers identify source/license/checksum and return the shared Glyph model.
+- New visual features require a feature version and cache-invalidation strategy.
+- New export fields require manifest/schema documentation.
+- New platform shells reuse the web build and document native-only capabilities.
