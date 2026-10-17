@@ -256,11 +256,11 @@ Licence: **MIT**. Source: https://www.npmjs.com/package/loose-envify.
 Bundled text: `licenses/npm/loose-envify/LICENSE` (SHA-256 `4eb7543b08d955a6d23fcc224601d43ff566e775be918805e26210d7f6eb4893`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## lucide-react · 0.468.0
+## lucide-react · 1.51.0
 
 Licence: **ISC**. Source: https://www.npmjs.com/package/lucide-react.
 
-Bundled text: `licenses/npm/lucide-react/LICENSE` (SHA-256 `1e7290b35280a048667bbf0ebabac1c7fd52a75300e8b2946ac165715997f2bc`).
+Bundled text: `licenses/npm/lucide-react/LICENSE` (SHA-256 `b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## react · 18.3.1
