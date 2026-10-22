@@ -98,4 +98,4 @@ python -m pytest -q
 
 当前清单将应用代码声明为 [GPL-3.0-or-later](LICENSE)。字体、图像、数据集和软件依赖保留各自条款：字体为 OFL-1.1，CODH 裁图及其衍生物为 CC BY-SA 4.0，NCCU 样本为 MIT，Hanzi Writer 结构数据采用 ARPHIC 许可。受限 MCCD/HCSU 数据和完整 CODH 语料未随软件分发。
 
-详见[字体许可](docs/FONT_LICENSES.md)、[资源政策](docs/asset-policy.md)和[第三方清单](third_party/manifest.json)。部分历史或生成的声明仍错误地将应用代码标为 MIT，与当前 LICENSE 冲突；它们不能取代 LICENSE。本次 README 变更不修复这些声明、不重新许可历史版本或第三方资源。
+详见[字体许可](docs/FONT_LICENSES.md)、[资源政策](docs/asset-policy.md)和[第三方清单](third_party/manifest.json)。当前生成声明从应用清单读取许可证，修正了此前采用 GPL 后遗留的 MIT 标记。历史下载包不重新构建或追溯重新许可，请查看所下载版本附带的条款；第三方许可文本和来源记录保留各自条款。
