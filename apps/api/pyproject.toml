@@ -4,17 +4,17 @@ version = "0.7.1"
 description = "Glyph store and project API for Calligraphy Studio"
 requires-python = ">=3.11"
 dependencies = [
-  "fastapi==0.143.0",
-  "starlette==1.7.0",
+  "fastapi==0.146.0",
+  "starlette==1.9.0",
   "uvicorn[standard]==0.54.0",
-  "sqlalchemy==2.1.4",
+  "sqlalchemy==2.1.5",
   "pydantic==2.14.1",
-  "pydantic-settings==2.15.0",
+  "pydantic-settings==2.16.0",
   "python-multipart==0.0.32",
   "Pillow==13.0.0",
   "lmdb==2.3.0",
   "numpy==2.4.6",
-  "fonttools==4.66.1",
+  "fonttools==4.67.0",
   "httpx==0.28.1",
   "uharfbuzz==0.56.3",
   "freetype-py==2.5.1",
