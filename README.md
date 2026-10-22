@@ -1,4 +1,6 @@
-# Calligraphy Studio — East Asian Calligraphy Workbench
+# Calligra — East Asian Calligraphy Workbench
+
+**Status:** Alpha. Release and automated verification evidence exist; independent installation, upgrade and sustained user validation have not been audited.
 
 Compose, compare and explore Chinese and Japanese calligraphy with an offline-first, provenance-aware workbench.
 
@@ -6,8 +8,8 @@ Compose, compare and explore Chinese and Japanese calligraphy with an offline-fi
 ![Japanese composition with Yuji font candidates, vertical layout and Visual Profile](docs/japanese-workbench.png)
 
 <p align="center">
-  <a href="https://styayur.github.io/calligraphy-studio/">Live Demo</a> ·
-  <a href="https://github.com/styayur/calligraphy-studio/releases/tag/v0.7.1">Download v0.7.1</a> ·
+  <a href="https://styayur.github.io/calligra/">Live Demo</a> ·
+  <a href="https://github.com/styayur/calligra/releases/tag/v0.7.1">Download v0.7.1</a> ·
   <a href="docs/ARCHITECTURE.md">Documentation</a>
 </p>
 
@@ -45,12 +47,12 @@ Drafts and caches stay on the current device. Export project files for backups o
 
 | Platform | v0.7.1 download | Use |
 | --- | --- | --- |
-| Windows x64 | [Installer](https://github.com/styayur/calligraphy-studio/releases/download/v0.7.1/CalligraphyStudio-Setup-0.7.1-x64.exe) | Install and launch from the Start menu |
-| Windows x64 | [Portable](https://github.com/styayur/calligraphy-studio/releases/download/v0.7.1/CalligraphyStudio-Portable-0.7.1-x64.exe) | Run without installation |
-| Web | [Offline ZIP](https://github.com/styayur/calligraphy-studio/releases/download/v0.7.1/CalligraphyStudio-Web-0.7.1.zip) | Extract and serve locally |
-| Android | [APK](https://github.com/styayur/calligraphy-studio/releases/download/v0.7.1/CalligraphyStudio-Android-0.7.1.apk) | Install a production-signed APK on Android 7.0+ |
+| Windows x64 | [Installer](https://github.com/styayur/calligra/releases/download/v0.7.1/CalligraphyStudio-Setup-0.7.1-x64.exe) | Install and launch from the Start menu |
+| Windows x64 | [Portable](https://github.com/styayur/calligra/releases/download/v0.7.1/CalligraphyStudio-Portable-0.7.1-x64.exe) | Run without installation |
+| Web | [Offline ZIP](https://github.com/styayur/calligra/releases/download/v0.7.1/CalligraphyStudio-Web-0.7.1.zip) | Extract and serve locally |
+| Android | [APK](https://github.com/styayur/calligra/releases/download/v0.7.1/CalligraphyStudio-Android-0.7.1.apk) | Install a production-signed APK on Android 7.0+ |
 
-Check downloads against [SHA256SUMS.txt](https://github.com/styayur/calligraphy-studio/releases/download/v0.7.1/SHA256SUMS.txt). On Windows, use `Get-FileHash <file> -Algorithm SHA256`.
+Check downloads against [SHA256SUMS.txt](https://github.com/styayur/calligra/releases/download/v0.7.1/SHA256SUMS.txt). On Windows, use `Get-FileHash <file> -Algorithm SHA256`.
 
 **Windows packages are unsigned** and may trigger SmartScreen or organisational restrictions. The Android APK uses the persistent v0.7.1 release signing key; physical-device storage, sharing and lifecycle checks remain outstanding. [Signing and recovery](docs/RELEASE_SIGNING_0.7.1.md).
 
@@ -85,8 +87,8 @@ Fonts, images, datasets and software retain their own licences. Historical expor
 Use Node.js 22+; the optional API needs Python 3.11+.
 
 ```sh
-git clone https://github.com/styayur/calligraphy-studio.git
-cd calligraphy-studio/apps/web
+git clone https://github.com/styayur/calligra.git
+cd calligra/apps/web
 npm ci
 npm run dev -- --mode desktop
 ```
