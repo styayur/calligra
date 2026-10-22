@@ -4,10 +4,10 @@
   "components": [
     {
       "id": "application",
-      "name": "Calligraphy Studio",
+      "name": "Calligra",
       "category": "application",
       "version": "0.7.1",
-      "source_uri": "https://github.com/styayur/calligraphy-studio",
+      "source_uri": "https://github.com/styayur/calligra",
       "license": "GPL-3.0-or-later",
       "license_text": {
         "path": "LICENSE",
@@ -189,7 +189,7 @@
       "name": "Synthetic demonstration glyphs",
       "category": "fixture",
       "version": null,
-      "source_uri": "https://github.com/styayur/calligraphy-studio",
+      "source_uri": "https://github.com/styayur/calligra",
       "license": "CC0-1.0",
       "license_text": {
         "path": "demo/licenses/CC0-1.0.txt",
