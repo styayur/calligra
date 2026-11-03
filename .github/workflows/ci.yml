@@ -52,6 +52,10 @@ jobs:
       - name: Install web dependencies
         working-directory: apps/web
         run: npm ci
+      - name: Verify local build adapter and abort regression
+        run: |
+          python3 scripts/verify_matcher_archive.py
+          node scripts/test_glob_cancellation.cjs
       - name: Type check
         working-directory: apps/web
         run: npm run typecheck
@@ -102,6 +106,10 @@ jobs:
           npm --prefix apps/web ci
           npm --prefix apps/web run build:desktop
           npm --prefix apps/desktop ci
+          python scripts/verify_matcher_archive.py
+          python scripts/audit_dependencies.py
+          node scripts/test_legacy_matcher.cjs
+          node scripts/test_glob_cancellation.cjs
           node scripts/test_desktop_proxy.cjs
           npm --prefix apps/desktop run dist:win
           node scripts/validate_desktop_package.cjs

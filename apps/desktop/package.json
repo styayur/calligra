@@ -9,11 +9,30 @@
     "dist:win": "electron-builder --win nsis portable --x64 --publish never"
   },
   "devDependencies": {
-    "electron": "44.7.0",
-    "electron-builder": "26.15.3"
+    "electron": "44.9.1",
+    "electron-builder": "26.18.0",
+    "minimatch": "file:../../third_party/legacy-matcher/calligra-legacy-matcher-0.3.0.tgz"
   },
   "overrides": {
-    "global-agent": "4.1.3"
+    "global-agent": "4.1.3",
+    "@electron/asar": {
+      "minimatch": "$minimatch"
+    },
+    "dir-compare": {
+      "minimatch": "$minimatch"
+    },
+    "glob@7": {
+      "minimatch": "$minimatch"
+    },
+    "filelist": {
+      "minimatch": "$minimatch"
+    },
+    "@electron/universal": {
+      "minimatch": "11.0.1"
+    },
+    "app-builder-lib": {
+      "minimatch": "11.0.1"
+    }
   },
   "build": {
     "appId": "io.github.styayur.calligraphystudio",

@@ -12,5 +12,5 @@ fonttools==4.66.1
 httpx==0.28.1
 uharfbuzz==0.56.3
 freetype-py==2.5.1
-brotli==1.2.0
+brotli==1.2.1
 regex==2026.9.29
