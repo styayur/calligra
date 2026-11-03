@@ -6,7 +6,7 @@ pydantic==2.14.1
 pydantic-settings==2.15.0
 python-multipart==0.0.32
 Pillow==13.0.0
-lmdb==2.3.0
+lmdb==3.0.0
 numpy==2.4.6
 fonttools==4.66.1
 httpx==0.28.1
