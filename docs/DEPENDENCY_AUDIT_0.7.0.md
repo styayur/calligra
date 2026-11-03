@@ -16,7 +16,7 @@ All five npm findings aggregate **one** unpatched [braces recursion/stack exhaus
 
 These are real development findings, with **irrelevant production exposure in the verified packages**. Content globs are fixed repository paths (`./index.html`, `./src/**/*.{ts,tsx}`). Imported projects, dataset archives and user text do not become glob expressions. Maliciously modified source/build configuration could exercise the vulnerable tool, so builds still require trusted source. This is not a runtime mitigation for arbitrary use of braces elsewhere.
 
-`release/dependency-policy.json` records this single advisory, the five affected packages and a review expiry of **2026-11-05**. `scripts/audit_dependencies.py` displays the warnings and fails new advisories, runtime findings or expired review. It does not disable npm audit. Remediation: adopt a compatible upstream braces patch when published; otherwise separately evaluate a Tailwind major migration with CSS/browser regressions.
+Historical policy: `release/dependency-policy.json` recorded this advisory, the five affected packages and a review expiry of **2026-11-05**. The [3 November follow-up](DEPENDENCY_AUDIT_2026-11-03.md) retires the exception after both full npm trees reach zero findings; the current gate rejects every advisory with no exceptions.
 
 ## Fixed during hardening
 
