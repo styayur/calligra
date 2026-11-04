@@ -130,193 +130,179 @@ Licence: **MIT**. Source: https://github.com/ionic-team/ion-android-filesystem.
 Bundled text: `licenses/Ionic-filesystem-MIT.txt` (SHA-256 `de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d`).
 Copyright 2025 Ionic. Licence verified against the official repository and resolved Maven POM.
 
-## @capacitor/android · 8.5.3
+## @capacitor/android · 8.6.0
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@capacitor/android.
 
-Bundled text: `licenses/npm/_capacitor_android/LICENSE` (SHA-256 `9c6ebf3e5ab832ba4d5af38f340978e1fedbfee6e3d23662dfdb8917a9d864dd`).
+Bundled text: `licenses/npm/_capacitor_android/8.6.0/LICENSE` (SHA-256 `9c6ebf3e5ab832ba4d5af38f340978e1fedbfee6e3d23662dfdb8917a9d864dd`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## @capacitor/core · 8.5.3
+## @capacitor/core · 8.6.0
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@capacitor/core.
 
-Bundled text: `licenses/npm/_capacitor_core/LICENSE` (SHA-256 `9c6ebf3e5ab832ba4d5af38f340978e1fedbfee6e3d23662dfdb8917a9d864dd`).
+Bundled text: `licenses/npm/_capacitor_core/8.6.0/LICENSE` (SHA-256 `9c6ebf3e5ab832ba4d5af38f340978e1fedbfee6e3d23662dfdb8917a9d864dd`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## @capacitor/filesystem · 8.1.4
+## @capacitor/filesystem · 8.1.5
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@capacitor/filesystem.
 
-Bundled text: `licenses/npm/_capacitor_filesystem/LICENSE` (SHA-256 `de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d`).
+Bundled text: `licenses/npm/_capacitor_filesystem/8.1.5/LICENSE` (SHA-256 `de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## @capacitor/share · 8.0.3
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@capacitor/share.
 
-Bundled text: `licenses/npm/_capacitor_share/LICENSE` (SHA-256 `eb99a0d61b507ad0182e18e9d2a91537c1d9025c94e098e4e7603a53b4b5218a`).
+Bundled text: `licenses/npm/_capacitor_share/8.0.3/LICENSE` (SHA-256 `eb99a0d61b507ad0182e18e9d2a91537c1d9025c94e098e4e7603a53b4b5218a`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## @capacitor/synapse · 1.0.4
 
 Licence: **ISC**. Source: https://www.npmjs.com/package/@capacitor/synapse.
 
-Bundled text: `licenses/npm/_capacitor_synapse/LICENSE.md` (SHA-256 `de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d`).
+Bundled text: `licenses/npm/_capacitor_synapse/1.0.4/LICENSE.md` (SHA-256 `de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## @radix-ui/react-compose-refs · 1.1.5
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@radix-ui/react-compose-refs.
 
-Bundled text: `licenses/npm/_radix-ui_react-compose-refs/LICENSE` (SHA-256 `0e80a2d229d2fd4fc7e8636142ec5d0ff0bc031f14c15b682e2ac01dfd5b5138`).
+Bundled text: `licenses/npm/_radix-ui_react-compose-refs/1.1.5/LICENSE` (SHA-256 `0e80a2d229d2fd4fc7e8636142ec5d0ff0bc031f14c15b682e2ac01dfd5b5138`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## @radix-ui/react-slot · 1.4.0
+## @radix-ui/react-slot · 1.5.0
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@radix-ui/react-slot.
 
-Bundled text: `licenses/npm/_radix-ui_react-slot/LICENSE` (SHA-256 `0e80a2d229d2fd4fc7e8636142ec5d0ff0bc031f14c15b682e2ac01dfd5b5138`).
+Bundled text: `licenses/npm/_radix-ui_react-slot/1.5.0/LICENSE` (SHA-256 `0e80a2d229d2fd4fc7e8636142ec5d0ff0bc031f14c15b682e2ac01dfd5b5138`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## @types/prop-types · 15.7.15
-
-Licence: **MIT**. Source: https://www.npmjs.com/package/@types/prop-types.
-
-Bundled text: `licenses/npm/_types_prop-types/LICENSE` (SHA-256 `c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383`).
-Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
-
-## @types/react · 18.3.31
+## @types/react · 19.3.0
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@types/react.
 
-Bundled text: `licenses/npm/_types_react/LICENSE` (SHA-256 `c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383`).
+Bundled text: `licenses/npm/_types_react/19.3.0/LICENSE` (SHA-256 `c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## @types/react-reconciler · 0.28.9
+## @types/react-reconciler · 0.34.0
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@types/react-reconciler.
 
-Bundled text: `licenses/npm/_types_react-reconciler/LICENSE` (SHA-256 `c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383`).
+Bundled text: `licenses/npm/_types_react-reconciler/0.34.0/LICENSE` (SHA-256 `c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## class-variance-authority · 0.7.1
 
 Licence: **Apache-2.0**. Source: https://www.npmjs.com/package/class-variance-authority.
 
-Bundled text: `licenses/npm/class-variance-authority/LICENSE` (SHA-256 `0ccbf956cffc8dcf515809433cb5242ee67c94513d46e48c261d68d0880de406`).
+Bundled text: `licenses/npm/class-variance-authority/0.7.1/LICENSE` (SHA-256 `0ccbf956cffc8dcf515809433cb5242ee67c94513d46e48c261d68d0880de406`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## clsx · 2.1.1
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/clsx.
 
-Bundled text: `licenses/npm/clsx/license` (SHA-256 `9a9edad7baae52622bddf3c15b2ef8a33d2c89f2d25408ad13e8a7481c6b0c97`).
+Bundled text: `licenses/npm/clsx/2.1.1/license` (SHA-256 `9a9edad7baae52622bddf3c15b2ef8a33d2c89f2d25408ad13e8a7481c6b0c97`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## csstype · 3.2.3
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/csstype.
 
-Bundled text: `licenses/npm/csstype/LICENSE` (SHA-256 `11d55bd4541c75ee7879547ac49089c489163dae49551389713c3d026cab383e`).
+Bundled text: `licenses/npm/csstype/3.2.3/LICENSE` (SHA-256 `11d55bd4541c75ee7879547ac49089c489163dae49551389713c3d026cab383e`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## harfbuzzjs · 1.6.3
+## harfbuzzjs · 1.6.4
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/harfbuzzjs.
 
-Bundled text: `licenses/npm/harfbuzzjs/LICENSE` (SHA-256 `5d09767b2cc476f08028b56d9384dc45061c5a3e90f9ad966e44addc8d26c8b1`).
+Bundled text: `licenses/npm/harfbuzzjs/1.6.4/LICENSE` (SHA-256 `5d09767b2cc476f08028b56d9384dc45061c5a3e90f9ad966e44addc8d26c8b1`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## its-fine · 1.2.5
+## its-fine · 2.1.1
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/its-fine.
 
-Bundled text: `licenses/npm/its-fine/LICENSE` (SHA-256 `cd14add33d47bcecae9fed5559224ae135c5ec41e1d3a126601f5fbd82291834`).
+Bundled text: `licenses/npm/its-fine/2.1.1/LICENSE` (SHA-256 `643123eeb38f154d93cb8323e1289a648d3f343b411a9340453c010e325d0c82`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## js-tokens · 4.0.0
+## @types/react-reconciler · 0.28.9
 
-Licence: **MIT**. Source: https://www.npmjs.com/package/js-tokens.
+Licence: **MIT**. Source: https://www.npmjs.com/package/@types/react-reconciler.
 
-Bundled text: `licenses/npm/js-tokens/LICENSE` (SHA-256 `2213d91c606205c71eb051a199478cdc2adde945893404d7f1421436dd6d5cc1`).
+Bundled text: `licenses/npm/_types_react-reconciler/0.28.9/LICENSE` (SHA-256 `c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## konva · 9.3.22
+## konva · 10.9.1
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/konva.
 
-Bundled text: `licenses/npm/konva/LICENSE` (SHA-256 `7190132c82df30243dc2ba512c9509ea3b629329b4266e9f2c3b5dbd04029613`).
+Bundled text: `licenses/npm/konva/10.9.1/LICENSE` (SHA-256 `7190132c82df30243dc2ba512c9509ea3b629329b4266e9f2c3b5dbd04029613`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## loose-envify · 1.4.0
-
-Licence: **MIT**. Source: https://www.npmjs.com/package/loose-envify.
-
-Bundled text: `licenses/npm/loose-envify/LICENSE` (SHA-256 `4eb7543b08d955a6d23fcc224601d43ff566e775be918805e26210d7f6eb4893`).
-Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
-
-## lucide-react · 1.51.0
+## lucide-react · 1.67.0
 
 Licence: **ISC**. Source: https://www.npmjs.com/package/lucide-react.
 
-Bundled text: `licenses/npm/lucide-react/LICENSE` (SHA-256 `b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57`).
+Bundled text: `licenses/npm/lucide-react/1.67.0/LICENSE` (SHA-256 `b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## react · 18.3.1
+## react · 19.3.1
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/react.
 
-Bundled text: `licenses/npm/react/LICENSE` (SHA-256 `52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85`).
+Bundled text: `licenses/npm/react/19.3.1/LICENSE` (SHA-256 `da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## react-dom · 18.3.1
+## react-dom · 19.3.1
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/react-dom.
 
-Bundled text: `licenses/npm/react-dom/LICENSE` (SHA-256 `52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85`).
+Bundled text: `licenses/npm/react-dom/19.3.1/LICENSE` (SHA-256 `da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## react-konva · 18.2.16
+## react-konva · 19.3.2
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/react-konva.
 
-Bundled text: `licenses/npm/react-konva/LICENSE` (SHA-256 `0874c25d40dcf71ff12256d30e15e59fd3e21a163c53448ea8bcbe6c03b663e4`).
+Bundled text: `licenses/npm/react-konva/19.3.2/LICENSE` (SHA-256 `0874c25d40dcf71ff12256d30e15e59fd3e21a163c53448ea8bcbe6c03b663e4`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## react-reconciler · 0.29.2
+## react-reconciler · 0.34.0
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/react-reconciler.
 
-Bundled text: `licenses/npm/react-reconciler/LICENSE` (SHA-256 `52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85`).
+Bundled text: `licenses/npm/react-reconciler/0.34.0/LICENSE` (SHA-256 `da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## scheduler · 0.23.2
+## scheduler · 0.28.0
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/scheduler.
 
-Bundled text: `licenses/npm/scheduler/LICENSE` (SHA-256 `52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85`).
+Bundled text: `licenses/npm/scheduler/0.28.0/LICENSE` (SHA-256 `da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## tailwind-merge · 2.6.1
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/tailwind-merge.
 
-Bundled text: `licenses/npm/tailwind-merge/LICENSE.md` (SHA-256 `d4c70c7ce38cea8778f0aed3fc0bef0a9dbd27f13bd8b6773cbd6d37941971e5`).
+Bundled text: `licenses/npm/tailwind-merge/2.6.1/LICENSE.md` (SHA-256 `d4c70c7ce38cea8778f0aed3fc0bef0a9dbd27f13bd8b6773cbd6d37941971e5`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## tslib · 2.6.2
 
 Licence: **0BSD**. Source: https://www.npmjs.com/package/tslib.
 
-Bundled text: `licenses/npm/tslib/LICENSE.txt` (SHA-256 `0e8d2550baea17eb3072c4f919b36fbf9852bb49dba948549872e713863c0834`).
+Bundled text: `licenses/npm/tslib/2.6.2/LICENSE.txt` (SHA-256 `0e8d2550baea17eb3072c4f919b36fbf9852bb49dba948549872e713863c0834`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## zustand · 5.0.15
+## zustand · 5.0.16
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/zustand.
 
-Bundled text: `licenses/npm/zustand/LICENSE` (SHA-256 `c1e6e266563517467b1bf874817d23e426f3149252bd7d42758cd697514b8417`).
+Bundled text: `licenses/npm/zustand/5.0.16/LICENSE` (SHA-256 `c1e6e266563517467b1bf874817d23e426f3149252bd7d42758cd697514b8417`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 Electron distributions additionally retain LICENSE.electron.txt and LICENSES.chromium.html alongside the executable. The optional Python API obtains dependency notices through its installed distributions. No non-commercial font, MCCD, full CODH corpus, KMNIST or unofficial mirror is bundled.

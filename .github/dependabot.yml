@@ -14,6 +14,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # The merger 3.x line targets Tailwind 4; retain the supported Tailwind 3 pair.
+    # Remove this version-only restriction when the CSS framework migrates too.
+    ignore:
+      - dependency-name: tailwind-merge
+        update-types: ['version-update:semver-major']
     groups:
       web-minor-patch:
         patterns: ['*']

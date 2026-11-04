@@ -8,8 +8,18 @@ gate=importlib.util.module_from_spec(spec);spec.loader.exec_module(gate)
 PUBLIC=ROOT/'apps/web/public'
 
 def test_canonical_notices_and_all_codh_derivative_receipts():
-    assert gate.validate_reader(lambda path:(PUBLIC/path).read_bytes())==45
+    gate.validate_reader(lambda path:(PUBLIC/path).read_bytes())
     assert gate.validate_codh()==20
+
+def test_multiple_locked_package_versions_require_distinct_notices():
+    lock={'packages':{'node_modules/demo':{'version':'1.0.0','license':'MIT'},'node_modules/other/node_modules/demo':{'version':'2.0.0','license':'MIT'}}}
+    manifest={'components':[{'id':f'npm:demo@{version}','name':'demo','version':version,'license':'MIT'} for version in ['1.0.0','2.0.0']]}
+    gate.validate_npm_coverage(manifest,lock)
+    with pytest.raises(AssertionError):
+        gate.validate_npm_coverage({'components':manifest['components'][:1]},lock)
+    manifest['components'][1]['license']='UNREVIEWED'
+    with pytest.raises(AssertionError):
+        gate.validate_npm_coverage(manifest,lock)
 
 @pytest.mark.parametrize('missing',['LICENSE','fonts/licenses/OFL-yuji-syuku.txt','fonts/licenses/OFL-klee-one.txt','fonts/licenses/OFL-jp-coverage-serif.txt','demo/licenses/nccu-mit.txt','demo/licenses/arphic-public-license.txt'])
 def test_missing_or_changed_packaged_licence_fails(missing):

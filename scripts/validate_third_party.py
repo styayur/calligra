@@ -3,6 +3,16 @@ import hashlib,json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 PUBLIC=ROOT/'apps/web/public'
+
+def validate_npm_coverage(manifest, lock):
+    expected={}
+    for relative,entry in lock['packages'].items():
+        if not relative or entry.get('dev'):
+            continue
+        name=entry.get('name') or relative.split('node_modules/')[-1]
+        expected[f"npm:{name}@{entry['version']}"]=(name,entry['version'],entry.get('license'))
+    actual={c['id']:(c['name'],c['version'],c['license']) for c in manifest['components'] if c['id'].startswith('npm:')}
+    assert actual==expected,'Npm notice coverage differs from locked production package versions/licenses'
 def validate_reader(read):
     expected=(ROOT/'third_party/manifest.json').read_bytes()
     assert read('third-party-manifest.json')==expected,'Packaged third-party manifest differs'
@@ -14,7 +24,8 @@ def validate_reader(read):
         ids.add(component['id'])
         for file in [component['license_text'],*component.get('additional_notices',[])]:
             assert hashlib.sha256(read(file['path'])).hexdigest()==file['sha256'],f"Licence checksum mismatch: {file['path']}"
-    assert {'application','codh','nccu','arphic','demo','harfbuzz','android-native','yuji-syuku','yuji-mai','yuji-boku','yuji-akari','yuji-akebono'}.issubset(ids)
+    assert {item for item in ids if not item.startswith('npm:')}=={'application','ma-shan-zheng','zhi-mang-xing','liu-jian-mao-cao','yuji-syuku','yuji-mai','yuji-boku','yuji-akari','yuji-akebono','klee-one','jp-coverage-serif','codh','nccu','arphic','demo','harfbuzz','android-native','ionic-native'},'Canonical asset/native component coverage differs'
+    validate_npm_coverage(manifest,json.loads((ROOT/'apps/web/package-lock.json').read_text(encoding='utf-8')))
     for path in ['THIRD_PARTY_NOTICE.md','third-party-licenses.html']:
         assert read(path)==(PUBLIC/path).read_bytes(),f'Packaged notice differs: {path}'
     native=[c for c in manifest['components'] if c['category']=='native']
