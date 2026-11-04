@@ -119,7 +119,9 @@ export function zipFiles(files: { name: string; data: Uint8Array }[]): Blob {
     v.setUint32(22, file.data.length, true)
     v.setUint16(26, name.length, true)
     local.set(name, 30)
-    parts.push(local, file.data)
+    // Blob parts require an ArrayBuffer-backed view, including when a caller
+    // supplied a SharedArrayBuffer view. Copy exactly the selected bytes.
+    parts.push(local, Uint8Array.from(file.data))
     const entry = new Uint8Array(46 + name.length),
       e = new DataView(entry.buffer)
     e.setUint32(0, 0x02014b50, true)

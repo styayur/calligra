@@ -44,13 +44,17 @@ for(const coordinate of nativeCoordinates) {
 }
 apacheNative.notes+=' Locked coordinates: '+apacheNative.resolved_dependencies.join(', ')+'. Cordova NOTICE is preserved separately.'
 const lock=readJson('apps/web/package-lock.json')
+const npmIds = new Set()
 for (const [relative,entry] of Object.entries(lock.packages).sort()) {
   if (!relative || entry.dev) continue
   const dir=path.join(root,'apps/web',relative), name=entry.name || relative.split('node_modules/').at(-1)
+  const id = `npm:${name}@${entry.version}`
+  if (npmIds.has(id)) continue
+  npmIds.add(id)
   const texts=fs.readdirSync(dir).filter(f=>/^(licen[sc]e|copying|notice)([.-]|$)/i.test(f) && fs.statSync(path.join(dir,f)).isFile()).sort()
   if (!texts.length) throw Error(`Missing licence text for ${name}`)
-  const files=texts.map(f=>license(`apps/web/${relative}/${f}`,`licenses/npm/${name.replace(/[^\w.-]/g,'_')}/${f}`))
-  components.push({id:'npm:'+name,name,category:'locked-production-dependency',version:entry.version,source_uri:'https://www.npmjs.com/package/'+name,license:entry.license,license_text:files[0],additional_notices:files.slice(1),notes:'Includes installed production dependency notices; some type-only entries are not emitted in renderer code.'})
+  const files=texts.map(f=>license(`apps/web/${relative}/${f}`,`licenses/npm/${name.replace(/[^\w.-]/g,'_')}/${entry.version}/${f}`))
+  components.push({id,name,category:'locked-production-dependency',version:entry.version,source_uri:'https://www.npmjs.com/package/'+name,license:entry.license,license_text:files[0],additional_notices:files.slice(1),notes:'Includes installed production dependency notices; some type-only entries are not emitted in renderer code.'})
 }
 const manifest={schema_version:1,version:readJson('apps/web/package.json').version,components}
 const manifestText=JSON.stringify(manifest,null,2)+'\n'

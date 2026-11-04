@@ -302,378 +302,350 @@
       ]
     },
     {
-      "id": "npm:@capacitor/android",
+      "id": "npm:@capacitor/android@8.6.0",
       "name": "@capacitor/android",
       "category": "locked-production-dependency",
-      "version": "8.5.3",
+      "version": "8.6.0",
       "source_uri": "https://www.npmjs.com/package/@capacitor/android",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/_capacitor_android/LICENSE",
+        "path": "licenses/npm/_capacitor_android/8.6.0/LICENSE",
         "sha256": "9c6ebf3e5ab832ba4d5af38f340978e1fedbfee6e3d23662dfdb8917a9d864dd"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:@capacitor/core",
+      "id": "npm:@capacitor/core@8.6.0",
       "name": "@capacitor/core",
       "category": "locked-production-dependency",
-      "version": "8.5.3",
+      "version": "8.6.0",
       "source_uri": "https://www.npmjs.com/package/@capacitor/core",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/_capacitor_core/LICENSE",
+        "path": "licenses/npm/_capacitor_core/8.6.0/LICENSE",
         "sha256": "9c6ebf3e5ab832ba4d5af38f340978e1fedbfee6e3d23662dfdb8917a9d864dd"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:@capacitor/filesystem",
+      "id": "npm:@capacitor/filesystem@8.1.5",
       "name": "@capacitor/filesystem",
       "category": "locked-production-dependency",
-      "version": "8.1.4",
+      "version": "8.1.5",
       "source_uri": "https://www.npmjs.com/package/@capacitor/filesystem",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/_capacitor_filesystem/LICENSE",
+        "path": "licenses/npm/_capacitor_filesystem/8.1.5/LICENSE",
         "sha256": "de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:@capacitor/share",
+      "id": "npm:@capacitor/share@8.0.3",
       "name": "@capacitor/share",
       "category": "locked-production-dependency",
       "version": "8.0.3",
       "source_uri": "https://www.npmjs.com/package/@capacitor/share",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/_capacitor_share/LICENSE",
+        "path": "licenses/npm/_capacitor_share/8.0.3/LICENSE",
         "sha256": "eb99a0d61b507ad0182e18e9d2a91537c1d9025c94e098e4e7603a53b4b5218a"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:@capacitor/synapse",
+      "id": "npm:@capacitor/synapse@1.0.4",
       "name": "@capacitor/synapse",
       "category": "locked-production-dependency",
       "version": "1.0.4",
       "source_uri": "https://www.npmjs.com/package/@capacitor/synapse",
       "license": "ISC",
       "license_text": {
-        "path": "licenses/npm/_capacitor_synapse/LICENSE.md",
+        "path": "licenses/npm/_capacitor_synapse/1.0.4/LICENSE.md",
         "sha256": "de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:@radix-ui/react-compose-refs",
+      "id": "npm:@radix-ui/react-compose-refs@1.1.5",
       "name": "@radix-ui/react-compose-refs",
       "category": "locked-production-dependency",
       "version": "1.1.5",
       "source_uri": "https://www.npmjs.com/package/@radix-ui/react-compose-refs",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/_radix-ui_react-compose-refs/LICENSE",
+        "path": "licenses/npm/_radix-ui_react-compose-refs/1.1.5/LICENSE",
         "sha256": "0e80a2d229d2fd4fc7e8636142ec5d0ff0bc031f14c15b682e2ac01dfd5b5138"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:@radix-ui/react-slot",
+      "id": "npm:@radix-ui/react-slot@1.5.0",
       "name": "@radix-ui/react-slot",
       "category": "locked-production-dependency",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "source_uri": "https://www.npmjs.com/package/@radix-ui/react-slot",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/_radix-ui_react-slot/LICENSE",
+        "path": "licenses/npm/_radix-ui_react-slot/1.5.0/LICENSE",
         "sha256": "0e80a2d229d2fd4fc7e8636142ec5d0ff0bc031f14c15b682e2ac01dfd5b5138"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:@types/prop-types",
-      "name": "@types/prop-types",
-      "category": "locked-production-dependency",
-      "version": "15.7.15",
-      "source_uri": "https://www.npmjs.com/package/@types/prop-types",
-      "license": "MIT",
-      "license_text": {
-        "path": "licenses/npm/_types_prop-types/LICENSE",
-        "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
-      },
-      "additional_notices": [],
-      "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
-    },
-    {
-      "id": "npm:@types/react",
+      "id": "npm:@types/react@19.3.0",
       "name": "@types/react",
       "category": "locked-production-dependency",
-      "version": "18.3.31",
+      "version": "19.3.0",
       "source_uri": "https://www.npmjs.com/package/@types/react",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/_types_react/LICENSE",
+        "path": "licenses/npm/_types_react/19.3.0/LICENSE",
         "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:@types/react-reconciler",
+      "id": "npm:@types/react-reconciler@0.34.0",
       "name": "@types/react-reconciler",
       "category": "locked-production-dependency",
-      "version": "0.28.9",
+      "version": "0.34.0",
       "source_uri": "https://www.npmjs.com/package/@types/react-reconciler",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/_types_react-reconciler/LICENSE",
+        "path": "licenses/npm/_types_react-reconciler/0.34.0/LICENSE",
         "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:class-variance-authority",
+      "id": "npm:class-variance-authority@0.7.1",
       "name": "class-variance-authority",
       "category": "locked-production-dependency",
       "version": "0.7.1",
       "source_uri": "https://www.npmjs.com/package/class-variance-authority",
       "license": "Apache-2.0",
       "license_text": {
-        "path": "licenses/npm/class-variance-authority/LICENSE",
+        "path": "licenses/npm/class-variance-authority/0.7.1/LICENSE",
         "sha256": "0ccbf956cffc8dcf515809433cb5242ee67c94513d46e48c261d68d0880de406"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:clsx",
+      "id": "npm:clsx@2.1.1",
       "name": "clsx",
       "category": "locked-production-dependency",
       "version": "2.1.1",
       "source_uri": "https://www.npmjs.com/package/clsx",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/clsx/license",
+        "path": "licenses/npm/clsx/2.1.1/license",
         "sha256": "9a9edad7baae52622bddf3c15b2ef8a33d2c89f2d25408ad13e8a7481c6b0c97"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:csstype",
+      "id": "npm:csstype@3.2.3",
       "name": "csstype",
       "category": "locked-production-dependency",
       "version": "3.2.3",
       "source_uri": "https://www.npmjs.com/package/csstype",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/csstype/LICENSE",
+        "path": "licenses/npm/csstype/3.2.3/LICENSE",
         "sha256": "11d55bd4541c75ee7879547ac49089c489163dae49551389713c3d026cab383e"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:harfbuzzjs",
+      "id": "npm:harfbuzzjs@1.6.4",
       "name": "harfbuzzjs",
       "category": "locked-production-dependency",
-      "version": "1.6.3",
+      "version": "1.6.4",
       "source_uri": "https://www.npmjs.com/package/harfbuzzjs",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/harfbuzzjs/LICENSE",
+        "path": "licenses/npm/harfbuzzjs/1.6.4/LICENSE",
         "sha256": "5d09767b2cc476f08028b56d9384dc45061c5a3e90f9ad966e44addc8d26c8b1"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:its-fine",
+      "id": "npm:its-fine@2.1.1",
       "name": "its-fine",
       "category": "locked-production-dependency",
-      "version": "1.2.5",
+      "version": "2.1.1",
       "source_uri": "https://www.npmjs.com/package/its-fine",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/its-fine/LICENSE",
-        "sha256": "cd14add33d47bcecae9fed5559224ae135c5ec41e1d3a126601f5fbd82291834"
+        "path": "licenses/npm/its-fine/2.1.1/LICENSE",
+        "sha256": "643123eeb38f154d93cb8323e1289a648d3f343b411a9340453c010e325d0c82"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:js-tokens",
-      "name": "js-tokens",
+      "id": "npm:@types/react-reconciler@0.28.9",
+      "name": "@types/react-reconciler",
       "category": "locked-production-dependency",
-      "version": "4.0.0",
-      "source_uri": "https://www.npmjs.com/package/js-tokens",
+      "version": "0.28.9",
+      "source_uri": "https://www.npmjs.com/package/@types/react-reconciler",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/js-tokens/LICENSE",
-        "sha256": "2213d91c606205c71eb051a199478cdc2adde945893404d7f1421436dd6d5cc1"
+        "path": "licenses/npm/_types_react-reconciler/0.28.9/LICENSE",
+        "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:konva",
+      "id": "npm:konva@10.9.1",
       "name": "konva",
       "category": "locked-production-dependency",
-      "version": "9.3.22",
+      "version": "10.9.1",
       "source_uri": "https://www.npmjs.com/package/konva",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/konva/LICENSE",
+        "path": "licenses/npm/konva/10.9.1/LICENSE",
         "sha256": "7190132c82df30243dc2ba512c9509ea3b629329b4266e9f2c3b5dbd04029613"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:loose-envify",
-      "name": "loose-envify",
-      "category": "locked-production-dependency",
-      "version": "1.4.0",
-      "source_uri": "https://www.npmjs.com/package/loose-envify",
-      "license": "MIT",
-      "license_text": {
-        "path": "licenses/npm/loose-envify/LICENSE",
-        "sha256": "4eb7543b08d955a6d23fcc224601d43ff566e775be918805e26210d7f6eb4893"
-      },
-      "additional_notices": [],
-      "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
-    },
-    {
-      "id": "npm:lucide-react",
+      "id": "npm:lucide-react@1.67.0",
       "name": "lucide-react",
       "category": "locked-production-dependency",
-      "version": "1.51.0",
+      "version": "1.67.0",
       "source_uri": "https://www.npmjs.com/package/lucide-react",
       "license": "ISC",
       "license_text": {
-        "path": "licenses/npm/lucide-react/LICENSE",
+        "path": "licenses/npm/lucide-react/1.67.0/LICENSE",
         "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:react",
+      "id": "npm:react@19.3.1",
       "name": "react",
       "category": "locked-production-dependency",
-      "version": "18.3.1",
+      "version": "19.3.1",
       "source_uri": "https://www.npmjs.com/package/react",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/react/LICENSE",
-        "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+        "path": "licenses/npm/react/19.3.1/LICENSE",
+        "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:react-dom",
+      "id": "npm:react-dom@19.3.1",
       "name": "react-dom",
       "category": "locked-production-dependency",
-      "version": "18.3.1",
+      "version": "19.3.1",
       "source_uri": "https://www.npmjs.com/package/react-dom",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/react-dom/LICENSE",
-        "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+        "path": "licenses/npm/react-dom/19.3.1/LICENSE",
+        "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:react-konva",
+      "id": "npm:react-konva@19.3.2",
       "name": "react-konva",
       "category": "locked-production-dependency",
-      "version": "18.2.16",
+      "version": "19.3.2",
       "source_uri": "https://www.npmjs.com/package/react-konva",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/react-konva/LICENSE",
+        "path": "licenses/npm/react-konva/19.3.2/LICENSE",
         "sha256": "0874c25d40dcf71ff12256d30e15e59fd3e21a163c53448ea8bcbe6c03b663e4"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:react-reconciler",
+      "id": "npm:react-reconciler@0.34.0",
       "name": "react-reconciler",
       "category": "locked-production-dependency",
-      "version": "0.29.2",
+      "version": "0.34.0",
       "source_uri": "https://www.npmjs.com/package/react-reconciler",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/react-reconciler/LICENSE",
-        "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+        "path": "licenses/npm/react-reconciler/0.34.0/LICENSE",
+        "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:scheduler",
+      "id": "npm:scheduler@0.28.0",
       "name": "scheduler",
       "category": "locked-production-dependency",
-      "version": "0.23.2",
+      "version": "0.28.0",
       "source_uri": "https://www.npmjs.com/package/scheduler",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/scheduler/LICENSE",
-        "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+        "path": "licenses/npm/scheduler/0.28.0/LICENSE",
+        "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:tailwind-merge",
+      "id": "npm:tailwind-merge@2.6.1",
       "name": "tailwind-merge",
       "category": "locked-production-dependency",
       "version": "2.6.1",
       "source_uri": "https://www.npmjs.com/package/tailwind-merge",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/tailwind-merge/LICENSE.md",
+        "path": "licenses/npm/tailwind-merge/2.6.1/LICENSE.md",
         "sha256": "d4c70c7ce38cea8778f0aed3fc0bef0a9dbd27f13bd8b6773cbd6d37941971e5"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:tslib",
+      "id": "npm:tslib@2.6.2",
       "name": "tslib",
       "category": "locked-production-dependency",
       "version": "2.6.2",
       "source_uri": "https://www.npmjs.com/package/tslib",
       "license": "0BSD",
       "license_text": {
-        "path": "licenses/npm/tslib/LICENSE.txt",
+        "path": "licenses/npm/tslib/2.6.2/LICENSE.txt",
         "sha256": "0e8d2550baea17eb3072c4f919b36fbf9852bb49dba948549872e713863c0834"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:zustand",
+      "id": "npm:zustand@5.0.16",
       "name": "zustand",
       "category": "locked-production-dependency",
-      "version": "5.0.15",
+      "version": "5.0.16",
       "source_uri": "https://www.npmjs.com/package/zustand",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/zustand/LICENSE",
+        "path": "licenses/npm/zustand/5.0.16/LICENSE",
         "sha256": "c1e6e266563517467b1bf874817d23e426f3149252bd7d42758cd697514b8417"
       },
       "additional_notices": [],

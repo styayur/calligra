@@ -106,6 +106,15 @@ await assert.rejects(() =>
 )
 const zip = zipFiles([{ name: 'test.txt', data: new TextEncoder().encode('hello') }])
 assert.equal(new DataView(await zip.arrayBuffer()).getUint32(0, true), 0x04034b50)
+const shared = new SharedArrayBuffer(16)
+const selected = new Uint8Array(shared, 4, 3)
+selected.set([17, 34, 51])
+const sharedZip = zipFiles([{ name: 'shared.bin', data: selected }])
+selected.fill(99)
+const sharedBytes = new Uint8Array(await sharedZip.arrayBuffer())
+const sharedHeader = new DataView(sharedBytes.buffer)
+assert.equal(sharedHeader.getUint32(18, true), 3)
+assert.deepEqual([...sharedBytes.slice(30 + sharedHeader.getUint16(26, true), 43)], [17, 34, 51], 'ZIP must snapshot exactly the selected shared-buffer bytes')
 console.log(
   'PASS: geometry, moments, EDT, skeleton, topology, H0, OT, 1000-limit, pagination, 1001-position beam, variation, cancellation, ZIP',
 )
