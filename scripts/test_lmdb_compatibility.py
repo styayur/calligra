@@ -1,8 +1,9 @@
-import argparse,datetime,hashlib,json,os,platform,shutil,subprocess,sys
+import argparse,datetime,hashlib,json,logging,os,platform,shutil,subprocess,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 
 def main():
+    logging.basicConfig(level=logging.INFO,format='%(message)s')
     parser=argparse.ArgumentParser(description='Synthetic old/new LMDB persistence and real importer regression')
     parser.add_argument('--old-python',required=True)
     args=parser.parse_args()
@@ -13,7 +14,7 @@ def main():
     steps=[]
     def call(python,operation,path,*args):
         result=subprocess.run([str(python),str(ROOT/'scripts/lmdb_compat_worker.py'),operation,str(path),*map(str,args)],capture_output=True,text=True,encoding='utf-8',check=True)
-        data=json.loads(result.stdout);steps.append(data);print(data['binding'],operation,data['records'],flush=True);return data
+        data=json.loads(result.stdout);steps.append(data);logging.info('%s %s %s',data['binding'],operation,data['records']);return data
     original=work/'old';original.mkdir()
     baseline=call(old,'create',original);assert baseline['binding']=='2.3.0'
     file_hash=lambda folder:hashlib.sha256((folder/'data.mdb').read_bytes()).hexdigest()
