@@ -9,7 +9,7 @@
     "dist:win": "electron-builder --win nsis portable --x64 --publish never"
   },
   "devDependencies": {
-    "electron": "44.9.1",
+    "electron": "45.2.1",
     "electron-builder": "26.18.0",
     "minimatch": "file:../../third_party/legacy-matcher/calligra-legacy-matcher-0.3.0.tgz"
   },
