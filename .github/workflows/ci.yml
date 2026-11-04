@@ -25,6 +25,16 @@ jobs:
       - name: Install API dependencies
         working-directory: apps/api
         run: python -m pip install -r requirements.txt -r requirements-dev.txt
+      - name: Old database, backup/restore and version rollback compatibility
+        run: |
+          python -m venv work/lmdb-old
+          work/lmdb-old/bin/python -m pip install lmdb==2.3.0
+          python scripts/test_lmdb_compatibility.py --old-python work/lmdb-old/bin/python
+      - uses: actions/upload-artifact@v7
+        with:
+          name: lmdb-synthetic-compatibility
+          path: work/lmdb-compat-report.json
+          if-no-files-found: error
       - name: API tests
         working-directory: apps/api
         run: python -m pytest -q
