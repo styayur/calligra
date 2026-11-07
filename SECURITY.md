@@ -8,7 +8,7 @@ Security fixes target the latest release and the current `main` branch. Older pr
 
 Do not report exploitable issues in a public issue. Use GitHub private vulnerability reporting:
 
-https://github.com/styayur/calligraphy-studio/security/advisories/new
+https://github.com/styayur/calligra/security/advisories/new
 
 Include the affected version/platform, reproduction steps, impact, and any proof-of-concept details needed to verify the report. Remove private documents, personal text, credentials, local paths, and imported project files.
 
