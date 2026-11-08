@@ -27,3 +27,5 @@ apps/web/public/third-party-licenses.html -whitespace
 third_party/japanese/**/*.txt -whitespace
 # Local npm archives are verified against these exact source bytes on every OS.
 third_party/legacy-matcher/** -text
+
+.github/workflows/*.lock.yml linguist-generated=true
