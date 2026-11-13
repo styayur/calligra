@@ -1,39 +1,87 @@
+# Native maintenance: 09:00 Asia/Singapore on the 1st and 15th.
+# Version updates exclude major releases; security updates retain their independent queue.
+# The merger 3.x line targets Tailwind 4; retain the supported Tailwind 3 pair.
+# Remove this version-only restriction when the CSS framework migrates too.
 version: 2
 updates:
   - package-ecosystem: pip
     directory: /apps/api
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: cron
+      cronjob: 0 9 1,15 * *
+      timezone: Asia/Singapore
+    open-pull-requests-limit: 3
     groups:
       api-minor-patch:
-        patterns: ['*']
-        update-types: ['minor', 'patch']
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
   - package-ecosystem: npm
     directory: /apps/web
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-    # The merger 3.x line targets Tailwind 4; retain the supported Tailwind 3 pair.
-    # Remove this version-only restriction when the CSS framework migrates too.
+      interval: cron
+      cronjob: 0 9 1,15 * *
+      timezone: Asia/Singapore
+    open-pull-requests-limit: 3
     ignore:
       - dependency-name: tailwind-merge
-        update-types: ['version-update:semver-major']
+        update-types:
+          - version-update:semver-major
     groups:
       web-minor-patch:
-        patterns: ['*']
-        update-types: ['minor', 'patch']
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
   - package-ecosystem: npm
     directory: /apps/desktop
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: 0 9 1,15 * *
+      timezone: Asia/Singapore
     open-pull-requests-limit: 3
     groups:
       desktop-minor-patch:
-        patterns: ['*']
-        update-types: ['minor', 'patch']
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: monthly
+      interval: cron
+      cronjob: 0 9 1,15 * *
+      timezone: Asia/Singapore
     open-pull-requests-limit: 3
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
+    groups:
+      github-actions-compatible:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
