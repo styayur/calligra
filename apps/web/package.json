@@ -30,25 +30,25 @@
     "clsx": "^2.1.1",
     "harfbuzzjs": "1.6.4",
     "konva": "^10.9.0",
-    "lucide-react": "^1.66.0",
+    "lucide-react": "^1.71.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-konva": "19.3.2",
     "tailwind-merge": "^2.6.0",
-    "zustand": "^5.0.16"
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
     "@capacitor/cli": "8.6.0",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.2.1",
+    "@vitejs/plugin-react": "^6.3.0",
     "autoprefixer": "^10.6.2",
     "esbuild": "^0.28.2",
     "postcss": "^8.5.32",
     "tailwindcss": "^3.4.17",
     "typescript": "~7.0.2",
-    "vite": "^8.3.5"
+    "vite": "^8.3.7"
   },
   "license": "GPL-3.0-or-later"
 }
