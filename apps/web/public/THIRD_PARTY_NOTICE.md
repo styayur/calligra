@@ -242,11 +242,11 @@ Licence: **MIT**. Source: https://www.npmjs.com/package/konva.
 Bundled text: `licenses/npm/konva/10.9.1/LICENSE` (SHA-256 `7190132c82df30243dc2ba512c9509ea3b629329b4266e9f2c3b5dbd04029613`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## lucide-react · 1.67.0
+## lucide-react · 1.72.0
 
 Licence: **ISC**. Source: https://www.npmjs.com/package/lucide-react.
 
-Bundled text: `licenses/npm/lucide-react/1.67.0/LICENSE` (SHA-256 `b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57`).
+Bundled text: `licenses/npm/lucide-react/1.72.0/LICENSE` (SHA-256 `b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## react · 19.3.1
@@ -291,18 +291,18 @@ Licence: **MIT**. Source: https://www.npmjs.com/package/tailwind-merge.
 Bundled text: `licenses/npm/tailwind-merge/2.6.1/LICENSE.md` (SHA-256 `d4c70c7ce38cea8778f0aed3fc0bef0a9dbd27f13bd8b6773cbd6d37941971e5`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## tslib · 2.6.2
+## tslib · 2.9.1
 
 Licence: **0BSD**. Source: https://www.npmjs.com/package/tslib.
 
-Bundled text: `licenses/npm/tslib/2.6.2/LICENSE.txt` (SHA-256 `0e8d2550baea17eb3072c4f919b36fbf9852bb49dba948549872e713863c0834`).
+Bundled text: `licenses/npm/tslib/2.9.1/LICENSE.txt` (SHA-256 `0e8d2550baea17eb3072c4f919b36fbf9852bb49dba948549872e713863c0834`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
-## zustand · 5.0.16
+## zustand · 5.1.0
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/zustand.
 
-Bundled text: `licenses/npm/zustand/5.0.16/LICENSE` (SHA-256 `c1e6e266563517467b1bf874817d23e426f3149252bd7d42758cd697514b8417`).
+Bundled text: `licenses/npm/zustand/5.1.0/LICENSE` (SHA-256 `c1e6e266563517467b1bf874817d23e426f3149252bd7d42758cd697514b8417`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 Electron distributions additionally retain LICENSE.electron.txt and LICENSES.chromium.html alongside the executable. The optional Python API obtains dependency notices through its installed distributions. No non-commercial font, MCCD, full CODH corpus, KMNIST or unofficial mirror is bundled.
