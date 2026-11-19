@@ -526,14 +526,14 @@
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:lucide-react@1.67.0",
+      "id": "npm:lucide-react@1.72.0",
       "name": "lucide-react",
       "category": "locked-production-dependency",
-      "version": "1.67.0",
+      "version": "1.72.0",
       "source_uri": "https://www.npmjs.com/package/lucide-react",
       "license": "ISC",
       "license_text": {
-        "path": "licenses/npm/lucide-react/1.67.0/LICENSE",
+        "path": "licenses/npm/lucide-react/1.72.0/LICENSE",
         "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
       },
       "additional_notices": [],
@@ -624,28 +624,28 @@
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:tslib@2.6.2",
+      "id": "npm:tslib@2.9.1",
       "name": "tslib",
       "category": "locked-production-dependency",
-      "version": "2.6.2",
+      "version": "2.9.1",
       "source_uri": "https://www.npmjs.com/package/tslib",
       "license": "0BSD",
       "license_text": {
-        "path": "licenses/npm/tslib/2.6.2/LICENSE.txt",
+        "path": "licenses/npm/tslib/2.9.1/LICENSE.txt",
         "sha256": "0e8d2550baea17eb3072c4f919b36fbf9852bb49dba948549872e713863c0834"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
-      "id": "npm:zustand@5.0.16",
+      "id": "npm:zustand@5.1.0",
       "name": "zustand",
       "category": "locked-production-dependency",
-      "version": "5.0.16",
+      "version": "5.1.0",
       "source_uri": "https://www.npmjs.com/package/zustand",
       "license": "MIT",
       "license_text": {
-        "path": "licenses/npm/zustand/5.0.16/LICENSE",
+        "path": "licenses/npm/zustand/5.1.0/LICENSE",
         "sha256": "c1e6e266563517467b1bf874817d23e426f3149252bd7d42758cd697514b8417"
       },
       "additional_notices": [],
