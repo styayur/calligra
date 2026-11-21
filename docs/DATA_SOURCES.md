@@ -126,3 +126,10 @@ It is a standards glyph resource, not specifically a cursive calligraphy corpus.
 ### BCSS
 
 The public repository currently documents that the dataset will be released in the future and does not contain the image corpus. No dataset images were imported.
+
+
+## Optional OCR models
+
+The local OCR companion uses tesserocr 2.13.0 (MIT) with the Tesseract engine (Apache-2.0). Language weights come from [Tesseract tessdata_fast 4.1.0](https://github.com/tesseract-ocr/tessdata_fast/tree/4.1.0), Apache-2.0. Install the binding separately via apps/api/requirements-ocr.txt and configure local language files. The standard Web, Windows and Android bundles omit the OCR runtime and model files.
+
+The single-character model is an experimental reference for modern print. Historical text still needs manual reading. Run scripts/evaluate_extraction_ocr.py to measure suggestions, accuracy and correction counts on eight synthetic Chinese glyphs and twenty CODH crops with source labels. The evaluation uses the pinned model revision 65727574dfcd264acbb0c3e07860e4e9e9b22185.

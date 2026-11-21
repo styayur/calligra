@@ -5,11 +5,21 @@ import { migrateGlyph, textCharacters, unicodeScript } from '../../lib/identity'
 import { parseGlyphPack, type GlyphPack } from '../../lib/glyphPacks'
 import { deletePrivateGlyph, enableGlyphPack, installGlyphPack, installedPacks, originalScan, privateGlyphs, PRIVATE_DATASET, removeGlyphPack, savePrivateGlyphs } from '../../lib/privateLibrary'
 import { saveFile } from '../../lib/download'
+import { localWorkbench, localWorkbenchAvailable } from '../../api/localWorkbench'
 import type { Glyph } from '../../types'
+
+interface Recognition {
+  suggestion: string | null
+  confidence: number
+  engine: string
+  language: string
+  model_sha256: string
+}
 
 interface Candidate extends Crop {
   id: number
   character: string
+  recognition?: Recognition
 }
 
 function Preview({ scan, box, options }: {
@@ -52,6 +62,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
   const [active, setActive] = useState<number>()
   const [nextId, setNextId] = useState(1)
   const [vertical, setVertical] = useState(true)
+  const [traditionalChinese, setTraditionalChinese] = useState(true)
   const [tradition, setTradition] = useState('Chinese')
   const [work, setWork] = useState('')
   const [page, setPage] = useState('')
@@ -120,6 +131,40 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
     })
   }
 
+  const recognize = () => {
+    if (!scan) return
+    const unreviewed = crops.filter((crop) => !crop.character.trim())
+    if (!unreviewed.length) return
+    void run(async () => {
+      const images = unreviewed.map(({ x, y, width, height }) => {
+        const glyph = cropGlyph(scan.context, { x, y, width, height }, { ...options, mode: 'clean', padding: 0 })
+        const canvas = document.createElement('canvas')
+        const scale = Math.min(4, 340 / Math.max(glyph.width, glyph.height))
+        canvas.width = Math.round(glyph.width * scale) + 40
+        canvas.height = Math.round(glyph.height * scale) + 40
+        const context = canvas.getContext('2d')!
+        context.fillStyle = '#fff'
+        context.fillRect(0, 0, canvas.width, canvas.height)
+        context.drawImage(glyph, 20, 20, canvas.width - 40, canvas.height - 40)
+        return canvas.toDataURL().split(',')[1]
+      })
+      const language = tradition === 'Japanese' ? 'jpn' : traditionalChinese ? 'chi_tra' : 'chi_sim'
+      const body = new Blob([JSON.stringify({ language, crops: images })], { type: 'application/json' })
+      if (body.size > 32 * 1024 * 1024) throw new Error('识别数据上限为 32 MiB，请减少切框数量')
+      const response = await localWorkbench('scan-recognition', body)
+      const data = await response.json() as Omit<Recognition, 'suggestion' | 'confidence'> & {
+        suggestions: Pick<Recognition, 'suggestion' | 'confidence'>[]
+      }
+      if (data.suggestions.length !== unreviewed.length) throw new Error('识别结果与切框数量不一致')
+      const byId = new Map(unreviewed.map((crop, i) => [crop.id, {
+        ...data.suggestions[i], engine: data.engine, language: data.language, model_sha256: data.model_sha256,
+      }]))
+      setCrops(crops.map((crop) => byId.has(crop.id) ? { ...crop, recognition: byId.get(crop.id) } : crop))
+      const suggestions = data.suggestions.filter((result) => result.suggestion).length
+      setStatus(suggestions + ' 个识别建议，' + (unreviewed.length - suggestions) + ' 个未识别。文字须逐字确认。')
+    })
+  }
+
   const addBox = () => {
     if (!scan || crops.length >= 200) return
     setCrops([...crops, newCandidate({
@@ -129,7 +174,9 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
     setNextId(nextId + 1)
   }
   const edit = (changes: Partial<Candidate>) =>
-    setCrops(crops.map((crop) => crop.id === active ? { ...crop, ...changes } : crop))
+    setCrops(crops.map((crop) => crop.id === active ? {
+      ...crop, ...changes, recognition: changes.character !== undefined ? crop.recognition : undefined,
+    } : crop))
   const remove = () => {
     const remaining = crops.filter((crop) => crop.id !== active)
     setCrops(remaining)
@@ -142,8 +189,8 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
     const first = Math.floor(current[side] / 2)
     if (first < 1) return
     setCrops(crops.flatMap((crop) => crop === current ? [
-      { ...crop, [side]: first, character: '' },
-      { ...crop, id: nextId, [origin]: crop[origin] + first, [side]: crop[side] - first, character: '' },
+      { ...crop, [side]: first, character: '', recognition: undefined },
+      { ...crop, id: nextId, [origin]: crop[origin] + first, [side]: crop[side] - first, character: '', recognition: undefined },
     ] : [crop]))
     setNextId(nextId + 1)
   }
@@ -156,7 +203,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
     const width = Math.max(current.x + current.width, other.x + other.width) - x
     const height = Math.max(current.y + current.height, other.y + other.height) - y
     setCrops(crops.flatMap((crop) => crop === current
-      ? [{ ...crop, x, y, width, height, character: '' }]
+      ? [{ ...crop, x, y, width, height, character: '', recognition: undefined }]
       : crop === other ? [] : [crop]))
   }
 
@@ -170,7 +217,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
       const checksum = await sha256(scan.bytes.buffer)
       const records: Glyph[] = []
       let imageBytes = 0
-      for (const { id: _id, character: label, ...box } of reviewed) {
+      for (const { id: _id, character: label, recognition, ...box } of reviewed) {
         const character = label.trim()
         if (textCharacters(character).length !== 1) throw new Error('每个切框仅可确认一个字形')
         const image = cropGlyph(scan.context, box, options)
@@ -193,7 +240,8 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
             bbox: [0, 0, image.width, image.height], ...(options.mode !== 'original' && { processing: 'ink-mask' }) },
           provenance: { type: 'original' },
           metadata: { original_filename: file.name, page: page.trim(), source_bbox: box,
-            glyph_review: 'user-confirmed', history_unverified: true, extraction: options },
+            glyph_review: 'user-confirmed', history_unverified: true, extraction: options,
+            recognition: recognition ? { ...recognition, corrected: recognition.suggestion !== character } : undefined },
           transform: { x: 0, y: 0, scaleX: 1, scaleY: 1, rotation: 0, skewX: 0, skewY: 0 },
           appearance: { opacity: 1, blendMode: 'source-over' },
         }))
@@ -271,7 +319,12 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
           <div className="scan-actions">
             <button type="button" onClick={locate}>自动定位</button>
             <button type="button" onClick={addBox}>新增切框</button>
+            {localWorkbenchAvailable() && <button type="button" disabled={crops.every((crop) => crop.character.trim())} onClick={recognize}>实验识别待校对字</button>}
           </div>
+          {localWorkbenchAvailable() && tradition === 'Chinese' && <label className="check-field">
+            <input type="checkbox" checked={traditionalChinese} onChange={(event) => setTraditionalChinese(event.target.checked)} />识别繁体
+          </label>}
+          {localWorkbenchAvailable() && <p className="field-hint">OCR 使用现代印刷字模型。碑帖、连笔和异体字请以人工校对为准。</p>}
           <div className="scan-page">
             <img src={pagePreview} alt="碑帖原图" />
             {crops.map((crop, index) => <button type="button" key={crop.id} className="scan-box"
@@ -291,6 +344,10 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
               {([['x', '左'], ['y', '上'], ['width', '宽'], ['height', '高']] as const).map(([key, label]) =>
                 <label key={key}>{label} (px)<input type="number" min={key === 'x' || key === 'y' ? 0 : 1} value={current[key]} onChange={(event) => edit({ [key]: Number(event.target.value) })} /></label>)}
             </div>
+            {current.recognition && <p className="field-hint">{current.recognition.suggestion
+              ? <>识别建议 {current.recognition.suggestion} · 置信分 {current.recognition.confidence}{' '}
+                  <button type="button" onClick={() => edit({ character: current.recognition!.suggestion! })}>采用建议</button></>
+              : '识别结果不确定，请人工录入'}</p>}
             <label>确认文字<input value={current.character} maxLength={32} onChange={(event) => edit({ character: event.target.value })} /></label>
             <div className="scan-actions">
               <button type="button" onClick={split}>拆分</button>

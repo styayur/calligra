@@ -16,6 +16,7 @@ from PIL import Image
 from app.schemas import GlyphRead
 from app.services.document_pdf import render_pdf
 from app.services.document_typesetting import MAX_ARCHIVE, Selection, convert_with_font
+from app.services.extraction_ocr import recognize_glyphs
 from app.services.font_studio import MAX_GLYPHS, MAX_REQUEST, SUPPORTED, compile_font
 
 router = APIRouter(prefix="/workbench", tags=["local workbench"])
@@ -51,6 +52,25 @@ def zip_output(parts: dict[str, bytes]):
         for name, data in parts.items():
             archive.writestr(name, data)
     return Response(output.getvalue(), media_type="application/zip", headers={"Cache-Control": "no-store"})
+
+
+class ScanRecognitionRequest(BaseModel):
+    language: str = Field(max_length=12)
+    crops: list[str] = Field(min_length=1, max_length=200)
+
+
+@router.post("/scan-recognition", response_class=JSONResponse)
+async def recognize_scan(request: Request):
+    raw = await read_bounded(request, 32 * 1024 * 1024, "application/json")
+    model_root = request.app.state.settings.ocr_model_dir
+    if model_root is None:
+        raise HTTPException(422, "Configure local OCR model data to enable recognition")
+    try:
+        options = ScanRecognitionRequest.model_validate_json(raw)
+        receipt = await run_in_threadpool(recognize_glyphs, options.crops, options.language, model_root)
+        return JSONResponse(receipt, headers={"Cache-Control": "no-store"})
+    except (ValueError, OSError, Image.DecompressionBombError) as error:
+        raise HTTPException(422, str(error).splitlines()[0][:500]) from error
 
 
 class FontRequest(BaseModel):

@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     fetch_remote_hanzi: bool = True
     enable_local_workbench: bool = False
     libreoffice_path: Path | None = None
+    ocr_model_dir: Path | None = None
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     @property

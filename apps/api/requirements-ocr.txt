@@ -1,0 +1,2 @@
+# Optional local OCR binding. Install official language weights separately.
+tesserocr==2.13.0
