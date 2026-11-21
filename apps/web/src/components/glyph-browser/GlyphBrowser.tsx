@@ -6,6 +6,7 @@ import { useEditorStore } from '../../stores/editor'
 import type { Glyph, MetadataResponse } from '../../types'
 import { SourcePolicyControls } from './SourcePolicyControls'
 import { DEFAULT_POLICY, candidateCompatible, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { privateGlyphs, PRIVATE_DATASET } from '../../lib/privateLibrary'
 import { historicalSample } from '../../api/historical'
 
 export const GLYPH_DRAG_TYPE = 'application/x-calligraphy-glyph'
@@ -34,25 +35,35 @@ export function GlyphBrowser() {
     const timer = setTimeout(async () => {
       const term = query.trim()
       const effectiveStyle = policy.writing_tradition === 'Japanese' ? '' : style
-      const [library, fonts, historical] = await Promise.allSettled([
-        searchGlyphs({ q: term, style: effectiveStyle, dataset, calligrapher, limit, ...policy, writing_tradition: policy.mode === 'cross-tradition' ? undefined : policy.writing_tradition }),
+      const [library, fonts, historical, local] = await Promise.allSettled([
+        dataset === PRIVATE_DATASET
+          ? Promise.resolve({ items: [], total: 0 })
+          : searchGlyphs({ q: term, style: effectiveStyle, dataset, calligrapher, limit, ...policy, writing_tradition: policy.mode === 'cross-tradition' ? undefined : policy.writing_tradition }),
         [...term].length === 1 && (!dataset || ['OFL Calligraphy Fonts', 'Yuji Japanese Fonts', 'Klee One', 'Japanese Coverage Fonts'].includes(dataset))
           ? fontGlyphs(term, effectiveStyle, calligrapher, { ...policy, dataset: dataset || undefined })
           : Promise.resolve([]),
         historicalSample().then((items) => items.filter((g) => (!term || g.character === term || g.source.work?.includes(term)) && (!dataset || g.source.dataset === dataset) && candidateCompatible(g, policy))),
+        (!dataset || dataset === PRIVATE_DATASET) ? privateGlyphs(undefined, policy).then((items) =>
+          items.filter((glyph) => (!term || glyph.character === term ||
+            [glyph.source.work, glyph.source.calligrapher, glyph.source.style, glyph.source.period].some((value) => value?.includes(term))) &&
+            (!effectiveStyle || glyph.source.style === effectiveStyle) &&
+            (!calligrapher || glyph.source.calligrapher === calligrapher))
+        ) : Promise.resolve([]),
       ])
       if (!active) return
       const generated = fonts.status === 'fulfilled' ? fonts.value : []
       const stored = [...(library.status === 'fulfilled' ? library.value.items : []), ...(historical.status === 'fulfilled' ? historical.value : [])]
+      const privateItems = local.status === 'fulfilled' ? local.value : []
       const items = [
         ...generated,
+        ...privateItems.slice(0, limit),
         ...stored.filter(
           (g) =>
             !generated.some((f) => f.character === g.character && f.source.work === g.source.work),
         ),
       ]
       setResults(Array.from(new Map(items.filter((g) => candidateCompatible(g, policy)).map((g) => [g.variant?.id || g.id,g])).values()))
-      setTotal(library.status === 'fulfilled' ? library.value.total : 0)
+      setTotal(Math.max(privateItems.length, library.status === 'fulfilled' ? library.value.total : 0))
       setMessage(
         library.status === 'rejected'
           ? generated.length
@@ -108,7 +119,7 @@ export function GlyphBrowser() {
             onChange={(e) => setDataset(e.target.value)}
           >
             <option value="">全部字库</option>
-            {[...new Set([...(meta?.datasets || ['OFL Calligraphy Fonts']), 'Yuji Japanese Fonts', 'Klee One', 'Japanese Coverage Fonts', 'CODH Kuzushiji'])].map((item) => (
+            {[...new Set([...(meta?.datasets || ['OFL Calligraphy Fonts']), 'Yuji Japanese Fonts', 'Klee One', 'Japanese Coverage Fonts', 'CODH Kuzushiji', PRIVATE_DATASET])].map((item) => (
               <option key={item}>{item}</option>
             ))}
           </select>

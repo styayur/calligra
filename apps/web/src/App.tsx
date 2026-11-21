@@ -5,6 +5,7 @@ import { BatchComposer } from './components/glyph-browser/BatchComposer'
 import { GlyphBrowser } from './components/glyph-browser/GlyphBrowser'
 import { Inspector } from './components/inspector/Inspector'
 import { WorkHarmony } from './components/inspector/VisualProfile'
+import { Materials } from './components/materials/Materials'
 import { LongRoll } from './components/long-roll/LongRoll'
 import { LayersPanel } from './components/layers/LayersPanel'
 import { useEditorStore } from './stores/editor'
@@ -12,7 +13,7 @@ import { readDraft, validateProject, writeDraft } from './lib/project'
 import type { Draft } from './lib/project'
 
 export default function App() {
-  const [mode, setMode] = useState<'studio' | 'roll'>('studio')
+  const [mode, setMode] = useState<'studio' | 'roll' | 'materials'>('studio')
   const [rollVisited, setRollVisited] = useState(false)
   const [tab, setTab] = useState('compose')
   const [searchVisited, setSearchVisited] = useState(false)
@@ -22,6 +23,7 @@ export default function App() {
   const glyphCount = useEditorStore((s) => s.project.glyphs.length)
   const selectedId = useEditorStore((s) => s.selectedId)
   const setCanvas = useEditorStore((s) => s.setCanvas)
+  const addGlyph = useEditorStore((s) => s.addGlyph)
 
   useEffect(() => {
     let active = true
@@ -140,6 +142,9 @@ export default function App() {
         >
           长卷模式
         </button>
+        <button aria-pressed={mode === 'materials'} onClick={() => setMode('materials')}>
+          素材
+        </button>
       </nav>
       <nav className={mode === 'studio' ? 'mobile-nav' : 'hidden'} aria-label="工作区">
         <button aria-pressed={mobilePanel === 'edit'} onClick={() => setMobilePanel('edit')}>
@@ -216,6 +221,11 @@ export default function App() {
         <div className="loading-workspace">正在恢复工作台…</div>
       )}
       {rollVisited && <LongRoll active={mode === 'roll'} />}
+      {ready && mode === 'materials' && <Materials addGlyph={(glyph) => {
+        addGlyph(glyph)
+        setMobilePanel('canvas')
+        setMode('studio')
+      }} />}
     </div>
   )
 }

@@ -3,7 +3,8 @@ import { fontGlyphs } from './fonts'
 import type { Glyph } from '../types'
 import { candidateCompatible, type CandidatePolicy } from '../lib/candidatePolicy'
 import { historicalGlyphs } from './historical'
-export type CandidateSource = 'fonts' | 'original' | 'all' | 'fallback'
+import { privateGlyphs } from '../lib/privateLibrary'
+export type CandidateSource = 'fonts' | 'original' | 'all' | 'fallback' | 'private'
 export interface CandidatePage {
   items: Glyph[]
   hasMore: boolean
@@ -11,13 +12,32 @@ export interface CandidatePage {
 }
 const pages = new Map<string, { time: number; value: Promise<CandidatePage> }>()
 /** Short TTL lets newly imported originals become discoverable. */
-export function candidatePage(
+export async function candidatePage(
   character: string,
   source: CandidateSource = 'all',
   style = '',
   offset = 0,
   limit = 12,
   policy: CandidatePolicy = {},
+): Promise<CandidatePage> {
+  if (source === 'private') {
+    const items = await privateGlyphs(character, policy)
+    return { items: items.slice(offset, offset + limit), hasMore: offset + limit < items.length, warning: '' }
+  }
+  const page = await catalogPage(character, source, style, offset, limit, policy)
+  if (source !== 'all' || offset !== 0) return page
+  const local = (await privateGlyphs(character, policy).catch(() => []))
+    .filter((glyph) => !style || glyph.source.style === style)
+  return { ...page, items: [...page.items, ...local.slice(0, limit)] }
+}
+
+function catalogPage(
+  character: string,
+  source: Exclude<CandidateSource, 'private'>,
+  style: string,
+  offset: number,
+  limit: number,
+  policy: CandidatePolicy,
 ): Promise<CandidatePage> {
   const key = JSON.stringify([character, source, style, offset, limit, policy]),
     hit = pages.get(key)

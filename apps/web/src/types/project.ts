@@ -10,7 +10,7 @@ export interface CompositionSettings {
   margin: number
   punctuation: boolean
   style: string
-  source: 'fonts' | 'original' | 'all' | 'fallback'
+  source: 'fonts' | 'original' | 'all' | 'fallback' | 'private'
   policy?: CandidatePolicy
 }
 

@@ -139,7 +139,7 @@ export function BatchComposer() {
       <div className="field-grid">
         <label>
           书体
-          <select aria-label="书体" value={style} disabled={policy.writing_tradition === 'Japanese'} onChange={(e) => setStyle(e.target.value)}>
+          <select aria-label="书体" value={style} disabled={source === 'private' || policy.writing_tradition === 'Japanese'} onChange={(e) => setStyle(e.target.value)}>
             <option>楷书</option>
             <option>行书</option>
             <option>草书</option>
@@ -156,6 +156,7 @@ export function BatchComposer() {
             <option value="original">原帖</option>
             <option value="all">字体与原帖</option>
             <option value="fallback">结构替补</option>
+            <option value="private">个人字库</option>
           </select>
         </label>
       </div>

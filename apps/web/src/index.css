@@ -1134,6 +1134,47 @@ input[type='checkbox'] {
 .provenance-details dd { margin: 2px 0 0; overflow-wrap: anywhere; }
 
 /* Keep the controls compact and give the paper the remaining workspace. */
+.materials-workspace {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) minmax(0, 2fr);
+  align-content: start;
+  gap: 24px;
+  padding: clamp(12px, 4vw, 40px);
+}
+.materials-workspace > section, .materials-workspace > form {
+  min-width: 0;
+  align-self: start;
+  background: white;
+  border: 1px solid #e0e5e0;
+  padding: 16px;
+}
+.materials-workspace h1 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+.materials-workspace label { display: block; font-size: 13px; margin-block: 8px; }
+.materials-workspace label > :is(input:not([type=checkbox]), select) {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 6px;
+  border: 1px solid #dfe5de;
+}
+.scan-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.scan-actions button, .materials-save, .private-glyphs button { padding: 7px 9px; border: 1px solid #dfe5de; font-size: 13px; }
+.materials-save { background: #355941; color: white; }
+.scan-page { position: relative; margin-block: 12px; width: fit-content; max-width: 100%; overflow: hidden; }
+.scan-page img { display: block; max-width: 100%; max-height: 52vh; }
+.scan-box { position: absolute; border: 1px solid #355941; color: #23392a; font-size: 11px; overflow: hidden; }
+.scan-box[aria-pressed=true] { background: #e9e4a646; border: 2px solid #95533e; }
+.scan-comparison { display: flex; margin-block: 12px; gap: 8px; }
+.scan-comparison figure { min-width: 0; flex: 1; border: 1px solid #e0e5e0; padding: 8px; font-size: 12px; }
+.scan-comparison img { width: 100%; height: 140px; object-fit: contain; }
+.private-glyphs li { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.private-glyphs img { width: 36px; height: 36px; object-fit: contain; display: inline; margin-right: 8px; }
+@media (max-width: 760px) {
+  .materials-workspace { grid-template-columns: minmax(0, 1fr); }
+}
 .brand-name {
   font-family: Georgia, 'Noto Serif CJK SC', serif;
   font-size: 18px;
