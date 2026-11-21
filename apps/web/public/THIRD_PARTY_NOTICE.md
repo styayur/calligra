@@ -88,13 +88,6 @@ Licence: **CC-BY-SA-4.0**. Source: https://codh.rois.ac.jp/char-shape/.
 Bundled text: `japanese/licenses/CC-BY-SA-4.0.txt` (SHA-256 `28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5`).
 20 crops and ink-mask derivatives; 日本古典籍くずし字データセット (国文研所蔵／CODH加工), DOI 10.20676/00000340. Changes and original checksums are in japanese/glyphs.json. Not MIT.
 
-## NCCU Cursive Chinese Calligraphy Dataset
-
-Licence: **MIT**. Source: https://github.com/nccuviplab/CursiveChineseCalligraphyDataset.
-
-Bundled text: `demo/licenses/nccu-mit.txt` (SHA-256 `abd7aa8222b1fa2185b8fb70a61b8bba0ab59c2157880dee0a21b1d734fcc08e`).
-VIPLab, National Chengchi University; bundled Test subset.
-
 ## Hanzi Writer / Make Me A Hanzi / Arphic
 
 Licence: **ARPHIC-PUBLIC-LICENSE**. Source: https://github.com/chanind/hanzi-writer-data.

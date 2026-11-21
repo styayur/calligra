@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { localWorkbench, localWorkbenchAvailable } from '../../api/localWorkbench'
+import { CompanionControls } from '../editor/CompanionControls'
+import { localWorkbench, type CompanionStatus } from '../../api/localWorkbench'
 import { saveFile } from '../../lib/download'
 
 interface Analysis {
@@ -23,10 +24,11 @@ export function DocumentTypesetting() {
   const [originalFont, setOriginalFont] = useState('')
   const [includePdf, setIncludePdf] = useState(false)
   const [report, setReport] = useState<Analysis>()
+  const [companion, setCompanion] = useState<CompanionStatus>({ ready: false })
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
   const kind = document?.name.split('.').at(-1)?.toLowerCase()
-  const available = localWorkbenchAvailable()
+
 
   const execute = async (analyze: boolean) => {
     if (!document || !font || !kind) return
@@ -38,7 +40,7 @@ export function DocumentTypesetting() {
         throw new Error('请选择 DOCX 或 ODT 文档和 TTF 或 OTF 字体')
       if (font.size > limit || document.size > limit) throw new Error('单个文件上限为 40 MiB')
       const filters = new URLSearchParams({
-        font_bytes: String(font.size), headings: String(headings), han_only: String(han), analyze: String(analyze), pdf: String(includePdf),
+        font_bytes: String(font.size), headings: String(headings), han_only: String(han), analyze: String(analyze), pdf: String(includePdf && !!companion.pdf),
       })
       const numbers = paragraphs.split(/[\s,，]+/).filter(Boolean)
       if (numbers.some((number) => !/^[1-9][0-9]{0,5}$/.test(number))) throw new Error('请用逗号分隔段落编号')
@@ -61,15 +63,15 @@ export function DocumentTypesetting() {
   return <main className="materials-workspace studio-tool panel-scroll">
     <section>
       <h1>文档排版</h1>
-      <p className="field-hint">DOCX / ODT · 本机处理服务</p>
-      <fieldset disabled={!available || busy}>
+      <CompanionControls onStatus={setCompanion} />
+      <fieldset disabled={!companion.ready || busy}>
         <label>文档<input type="file" accept=".docx,.odt" onChange={(event) => { setDocument(event.target.files?.[0]); setReport(undefined) }} /></label>
         <label>字体文件<input type="file" accept=".ttf,.otf" onChange={(event) => { setFont(event.target.files?.[0]); setReport(undefined) }} /></label>
         <label className="check-field"><input type="checkbox" checked={han} onChange={(event) => { setHan(event.target.checked); setReport(undefined) }} />仅汉字</label>
         <label className="check-field"><input type="checkbox" checked={headings} onChange={(event) => { setHeadings(event.target.checked); setReport(undefined) }} />仅标题</label>
         <label>段落编号<input value={paragraphs} maxLength={1000} placeholder="留空处理所选范围内的所有段落" onChange={(event) => { setParagraphs(event.target.value); setReport(undefined) }} /></label>
         {kind === 'docx' && <label>原字体<input value={originalFont} maxLength={120} placeholder="仅匹配明确指定的字体" onChange={(event) => { setOriginalFont(event.target.value); setReport(undefined) }} /></label>}
-        <label className="check-field"><input type="checkbox" checked={includePdf} onChange={(event) => setIncludePdf(event.target.checked)} />同时导出 PDF（需本机 LibreOffice）</label>
+        <label className="check-field"><input type="checkbox" disabled={!companion.pdf} checked={includePdf} onChange={(event) => setIncludePdf(event.target.checked)} />同时导出 PDF（需本机 LibreOffice）</label>
         <div className="scan-actions">
           <button type="button" disabled={!document || !font} onClick={() => void execute(true)}>分析覆盖</button>
           <button type="button" disabled={!document || !font} onClick={() => void execute(false)}>转换并下载</button>

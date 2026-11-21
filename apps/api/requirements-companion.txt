@@ -1,0 +1,9 @@
+fastapi==0.162.5
+starlette==1.10.0
+uvicorn==0.54.0
+pydantic==2.14.3
+pydantic-settings==2.16.2
+Pillow==13.0.0
+fonttools==4.68.0
+brotli==1.2.1
+regex==2026.11.9

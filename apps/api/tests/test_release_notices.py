@@ -21,7 +21,7 @@ def test_multiple_locked_package_versions_require_distinct_notices():
     with pytest.raises(AssertionError):
         gate.validate_npm_coverage(manifest,lock)
 
-@pytest.mark.parametrize('missing',['LICENSE','fonts/licenses/OFL-yuji-syuku.txt','fonts/licenses/OFL-klee-one.txt','fonts/licenses/OFL-jp-coverage-serif.txt','demo/licenses/nccu-mit.txt','demo/licenses/arphic-public-license.txt'])
+@pytest.mark.parametrize('missing',['LICENSE','fonts/licenses/OFL-yuji-syuku.txt','fonts/licenses/OFL-klee-one.txt','fonts/licenses/OFL-jp-coverage-serif.txt','demo/licenses/arphic-public-license.txt'])
 def test_missing_or_changed_packaged_licence_fails(missing):
     with pytest.raises(AssertionError):
         gate.validate_reader(lambda path:b'changed licence text' if path==missing else (PUBLIC/path).read_bytes())

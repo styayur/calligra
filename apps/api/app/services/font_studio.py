@@ -224,6 +224,8 @@ def compile_font(glyphs: list[GlyphRead], target: str, family: str, formats: set
             payloads[f"{ps_name}.{fmt}"] = data.getvalue()
     if derivative_license:
         license_file = Path(__file__).resolve().parents[4] / "third_party/japanese/codh/CC-BY-SA-4.0.txt"
+        if not license_file.is_file():
+            license_file = Path(__file__).resolve().parents[2] / "CC-BY-SA-4.0.txt"
         if license_file.is_file():
             payloads["CC-BY-SA-4.0.txt"] = license_file.read_bytes()
     payloads["attribution.json"] = json.dumps(coverage, ensure_ascii=False, indent=2).encode()

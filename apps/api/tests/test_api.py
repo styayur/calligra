@@ -36,7 +36,8 @@ def test_cursive_search(client: TestClient) -> None:
         item["source"]["dataset"] == "NCCU Cursive Chinese Calligraphy Dataset"
         for item in payload["items"]
     )
-    assert all(item["source"]["license"] == "MIT" for item in payload["items"])
+    assert all(item["source"]["license"] is None for item in payload["items"])
+    assert all(item["source"]["rights"]["redistribution_allowed"] is False for item in payload["items"])
 
 
 def test_metadata_and_single_glyph(client: TestClient) -> None:

@@ -17,8 +17,10 @@ def main():
     launch.add_argument('--exe', type=Path)
     launch.add_argument('--installer', type=Path)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--companion', action='store_true', help='Exercise Companion on an isolated installed Windows build')
     args=parser.parse_args()
     if os.name!='nt':parser.error('Native Windows smoke requires Windows')
+    if args.companion and not args.installer: parser.error('--companion requires --installer')
     args.output.parent.mkdir(parents=True,exist_ok=True)
     executable = args.exe or args.installer
     if not executable.is_file():
@@ -126,6 +128,11 @@ def main():
                 # Preserve the inspected DOM/metadata as evidence; visible UI acceptance is manual.
                 (workspace/'native-provenance.html').write_text(page.content(),encoding='utf-8')
                 checks.append('historical sample / DOI / rights provenance inspector')
+                if args.companion:
+                    page.get_by_label('关闭字形调整').click()
+                    from test_local_workbench_browser import exercise_workbench
+                    exercise_workbench(page, installed_windows=True)
+                    checks.append('installed Companion bootstrap, generated Windows GDI font, DOCX and ODT export')
                 assert not errors,errors
                 browser.close()
                 browser=None

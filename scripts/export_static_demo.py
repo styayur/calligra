@@ -38,7 +38,7 @@ def export_database(database_path: Path, assets_dir: Path, output: Path) -> dict
         SELECT
           g.*,
           c.name AS calligrapher, s.name AS style, d.name AS dynasty,
-          gs.dataset, gs.work, gs.license, gs.license_url, gs.rights
+          gs.dataset, gs.work, gs.license, gs.license_url, gs.rights, gs.source_uri
         FROM glyphs g
         LEFT JOIN calligraphers c ON c.id = g.calligrapher_id
         LEFT JOIN styles s ON s.id = g.style_id
@@ -65,7 +65,9 @@ def export_database(database_path: Path, assets_dir: Path, output: Path) -> dict
 
     for row in rows:
         rights = parse_json(row["rights"], {})
-        if rights.get("redistribution_allowed") is not True:
+        if (rights.get("redistribution_allowed") is not True or
+                "nccuviplab/cursivechinesecalligraphydataset" in str(row["source_uri"]).lower() or
+                row["dataset"].casefold().startswith("nccu cursive")):
             continue
         relative_asset = safe_relative_asset(row["asset_url"])
         if relative_asset is None:
@@ -81,7 +83,6 @@ def export_database(database_path: Path, assets_dir: Path, output: Path) -> dict
         culture = {key:row[key] if key in row.keys() else None for key in ['language','locale','script','writing_tradition','orthography','period','region']}
         source_details = {key:meta.get(key) for key in ['source_uri','attribution','designer','dataset_version','source_checksum','license_text','source_collection']}
         if row['dataset'] == 'CODH Kuzushiji': source_details['license_text'] = 'demo/licenses/CC-BY-SA-4.0.txt'
-        if row['dataset'] == 'NCCU Cursive Chinese Calligraphy Dataset': source_details['license_text'] = 'demo/licenses/nccu-mit.txt'
         if row['dataset'] == 'Hanzi Writer Structural Data': source_details['license_text'] = 'demo/licenses/arphic-public-license.txt'
         glyph = {
             "id": row["id"],
@@ -227,7 +228,6 @@ def copy_license_files(project_root: Path, output: Path) -> None:
     licenses = output / "licenses"
     licenses.mkdir(parents=True, exist_ok=True)
     candidates = {
-        "nccu-mit.txt": project_root / "samples" / "cursive" / "raw" / "LICENSE",
         "arphic-public-license.txt": project_root / "third_party" / "hanzi-writer" / "ARPHICPL.TXT",
     }
     for destination_name, source in candidates.items():

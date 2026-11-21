@@ -60,10 +60,11 @@ def test_lmdb_provider_maps_indexed_attributes(tmp_path: Path) -> None:
 def test_nccu_cursive_provider(tmp_path: Path) -> None:
     from app.providers.nccu_cursive import NCCUCursiveProvider
 
-    project_root = Path(__file__).resolve().parents[3]
+    from nccu_fixture import make_cursive_fixture
+
     records = list(
         NCCUCursiveProvider(
-            dataset_root=project_root / "samples" / "cursive" / "raw",
+            dataset_root=make_cursive_fixture(tmp_path),
             split="Test",
             characters={"春", "山"},
             limit_per_character=2,
@@ -72,7 +73,7 @@ def test_nccu_cursive_provider(tmp_path: Path) -> None:
     assert len(records) == 4
     assert {record.character for record in records} == {"春", "山"}
     assert all(record.style == "草书" for record in records)
-    assert all(record.license == "MIT" for record in records)
+    assert all(record.license is None and record.rights["redistribution_allowed"] is False for record in records)
 
 
 def test_hanzi_writer_provider_from_cache(tmp_path: Path) -> None:

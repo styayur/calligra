@@ -26,7 +26,7 @@ CODH images are not font software. Original crop images and normalized ink masks
 ### MIT
 
 - Commercial use, modification, and redistribution are allowed with copyright/license notice.
-- Used by the bundled NCCU cursive dataset subset.
+- MIT software notices do not establish rights to third-party images.
 
 ### Apache License 2.0
 

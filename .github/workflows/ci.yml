@@ -94,6 +94,7 @@ jobs:
           python scripts/test_visual_browser.py --url http://127.0.0.1:5178 --built
           python scripts/test_japanese_browser.py --url http://127.0.0.1:5178
           python scripts/test_extraction_browser.py --url http://127.0.0.1:5178
+          python scripts/test_historical_page_browser.py --url http://127.0.0.1:5178 --output work/historical-page.json
 
   windows:
     runs-on: windows-latest
@@ -131,13 +132,13 @@ jobs:
       - name: Actual packaged Windows renderer smoke
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
-          python -m pip install playwright pillow
+          python -m pip install playwright -r apps/api/requirements.txt -r apps/api/requirements-dev.txt
           python scripts/test_windows_native.py --exe "apps/desktop/release/win-unpacked/Calligraphy Studio.exe" --output work/windows-native-unpacked.json
           $taskVersion = (Get-Content -Raw release/version.json | ConvertFrom-Json).version
           $taskPortable = "apps/desktop/release/CalligraphyStudio-Portable-$taskVersion-x64.exe"
           python scripts/test_windows_native.py --exe $taskPortable --output work/windows-native-portable.json
           $taskSetup = "apps/desktop/release/CalligraphyStudio-Setup-$taskVersion-x64.exe"
-          python scripts/test_windows_native.py --installer $taskSetup --output work/windows-native-installed.json
+          python scripts/test_windows_native.py --installer $taskSetup --companion --output work/windows-native-installed.json
 
   android:
     runs-on: ubuntu-latest

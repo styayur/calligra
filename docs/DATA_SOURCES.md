@@ -40,13 +40,11 @@ Raw archives/receipts live under ignored `data/imports/`; runtime images under i
 ### NCCU Cursive Chinese Calligraphy Dataset
 
 - Repository: https://github.com/nccuviplab/CursiveChineseCalligraphyDataset
-- Source license: MIT
-- Upstream description: 5,301 cursive character categories after removing numeric directory suffixes; 96×96 grayscale images; Training / Validation / Test splits.
-- Attribution: VIPLab, Department of Computer Science, National Chengchi University, Taipei. The upstream README states that images were reorganized and redistributed with permission from the administrator of https://shufa.supfree.net/.
-- Integration: `NCCUCursiveProvider`, CLI import command, and a 30-image Test subset in `samples/cursive/raw`.
-- Rights metadata: commercial use, derivatives, redistribution, and research use are marked allowed with attribution required.
+- Images: downstream redistribution and derivative rights are unverified.
+- Attribution: VIPLab, Department of Computer Science, National Chengchi University, Taipei. The publisher credits permission to reorganize and redistribute images from shufa.supfree.net.
+- Local integration: obtain and authorize the files independently, then use the opt-in provider with python -m app.cli import-cursive-nccu --source <local-directory-or-archive>. Legacy startup seeding only runs when explicitly enabled. Private import records withhold commercial, derivative and font permissions.
 
-The upstream repository is about 1.4 GB. The existing distribution includes a small Test subset. The upstream permission notice credits a grant to VIPLab to reorganize and redistribute images. The repository's MIT notice refers to software and documentation. Those public statements do not independently establish downstream commercial font adaptation or further redistribution rights for the underlying scans. No new NCCU images are included in the 0.8 candidate, and Font Studio excludes this source. Resolve the bundled sample's downstream rights or replace it with independently cleared material before distribution. See the [publisher's README](https://github.com/nccuviplab/CursiveChineseCalligraphyDataset) and [MIT notice](https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE).
+The repository MIT notice covers software and documentation. The earlier 30-image sample, its derived resources and its metadata are excluded from the v0.8.0 distribution. The importer uses generated fixtures for its regression tests. [Publisher README](https://github.com/nccuviplab/CursiveChineseCalligraphyDataset) · [Repository MIT notice](https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE)
 
 ### Google Fonts OFL Calligraphy Fonts
 

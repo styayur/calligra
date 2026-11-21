@@ -13,8 +13,16 @@ export function semanticIdentity(glyph: Glyph): CharacterIdentity {
 }
 /** Enrich missing legacy fields without inferring culture from shared Han. */
 export function migrateGlyph<T extends Glyph>(glyph: T): T {
+  const source = glyph.source
+  const restricted = /^NCCU Cursive/i.test(source.dataset) ||
+    /github\.com\/nccuviplab\/cursivechinesecalligraphydataset/i.test(source.source_uri ?? '')
+  const rights = rightsRecord(source.rights)
   return { ...glyph, identity: semanticIdentity(glyph), variant: glyph.variant || {},
-    source: { ...glyph.source, rights: rightsRecord(glyph.source.rights) } }
+    source: restricted ? {
+      ...source, license: null, license_url: null, license_text: null,
+      rights: { ...rights, commercial_use: false, derivatives_allowed: false,
+        redistribution_allowed: false, font_export_allowed: false },
+    } : { ...source, rights } }
 }
 export function rightsRecord(value: Record<string, boolean | null> = {}): RightsRecord & Record<string, boolean | null> {
   const rights = { ...value }

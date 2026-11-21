@@ -1,3 +1,4 @@
+import urllib.parse
 """Browser regression checks. Run against Vite in desktop mode.
 
 python scripts/test_studio_browser.py --url http://127.0.0.1:5178 --channel msedge
@@ -124,16 +125,20 @@ with sync_playwright() as p:
     grid = project()['glyphs']
     assert grid[0]['transform']['y'] == grid[1]['transform']['y']
     assert grid[2]['transform']['y'] > grid[0]['transform']['y']
-    page.get_by_label('集字内容').fill('春眠不觉晓')
-    page.locator('.composer').get_by_label('书体', exact=True).select_option('草书')
+    page.locator('.composer').get_by_label('Tradition', exact=True).select_option('Japanese')
+    page.get_by_label('集字内容').fill('あの水')
     page.get_by_label('字形来源').select_option('original')
     page.get_by_role('button', name='生成作品', exact=True).click()
     expect(page.locator('.composer .feedback')).to_contain_text('已排入')
     originals = project()['glyphs']
-    assert all(g['provenance']['type'] == 'original' for g in originals)
+    assert len(originals) == 3
+    assert all(g['provenance']['type'] == 'original' and g['source']['dataset'] == 'CODH Kuzushiji' for g in originals)
     for glyph in originals:
         assert glyph['asset']['processing'] == 'ink-mask'
-        ink = Image.open(io.BytesIO(base64.b64decode(glyph['asset']['url'].split(',')[1]))).convert('RGBA')
+        asset_url = glyph['asset']['url']
+        response = page.request.get(urllib.parse.urljoin(args.url.rstrip('/') + '/', asset_url))
+        assert response.ok, asset_url
+        ink = Image.open(io.BytesIO(response.body())).convert('RGBA')
         assert ink.getpixel((0, 0))[3] == 0
         assert ink.getchannel('A').getbbox() is not None
 

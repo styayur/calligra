@@ -13,6 +13,25 @@ def validate_npm_coverage(manifest, lock):
         expected[f"npm:{name}@{entry['version']}"]=(name,entry['version'],entry.get('license'))
     actual={c['id']:(c['name'],c['version'],c['license']) for c in manifest['components'] if c['id'].startswith('npm:')}
     assert actual==expected,'Npm notice coverage differs from locked production package versions/licenses'
+def validate_asset_exclusions(read, names):
+    excluded = {
+        line for line in (ROOT/'samples/release-excluded-image-sha256.txt').read_text().splitlines()
+        if line and not line.startswith('#')
+    }
+    assert len(excluded) == 30, 'The excluded NCCU image inventory is incomplete'
+    for entry in names:
+        lower = entry.lower()
+        assert 'nccu-cursive' not in lower and not lower.endswith('/nccu-mit.txt'), f'Excluded asset path: {entry}'
+        if lower.endswith(('.png', '.jpg', '.jpeg', '.webp', '.gif')):
+            assert hashlib.sha256(read(entry)).hexdigest() not in excluded, f'Excluded image content: {entry}'
+    for file in ['demo/glyphs.json', 'demo/meta.json', 'demo/manifest.json', 'demo/similarity.json']:
+        payload = read(file).lower()
+        assert b'nccu' not in payload and b'cursivechinesecalligraphydataset' not in payload, f'Excluded source metadata: {file}'
+        assert read(file) == (PUBLIC/file).read_bytes(), f'Packaged demo metadata differs: {file}'
+    for glyph in json.loads(read('demo/glyphs.json')):
+        assert hashlib.sha256(read(glyph['asset']['url'])).hexdigest() == glyph['asset']['checksum'], 'Demo glyph checksum differs'
+
+
 def validate_reader(read):
     expected=(ROOT/'third_party/manifest.json').read_bytes()
     assert read('third-party-manifest.json')==expected,'Packaged third-party manifest differs'
@@ -24,7 +43,7 @@ def validate_reader(read):
         ids.add(component['id'])
         for file in [component['license_text'],*component.get('additional_notices',[])]:
             assert hashlib.sha256(read(file['path'])).hexdigest()==file['sha256'],f"Licence checksum mismatch: {file['path']}"
-    assert {item for item in ids if not item.startswith('npm:')}=={'application','ma-shan-zheng','zhi-mang-xing','liu-jian-mao-cao','yuji-syuku','yuji-mai','yuji-boku','yuji-akari','yuji-akebono','klee-one','jp-coverage-serif','codh','nccu','arphic','demo','harfbuzz','android-native','ionic-native'},'Canonical asset/native component coverage differs'
+    assert {item for item in ids if not item.startswith('npm:')}=={'application','ma-shan-zheng','zhi-mang-xing','liu-jian-mao-cao','yuji-syuku','yuji-mai','yuji-boku','yuji-akari','yuji-akebono','klee-one','jp-coverage-serif','codh','arphic','demo','harfbuzz','android-native','ionic-native'},'Canonical asset/native component coverage differs'
     validate_npm_coverage(manifest,json.loads((ROOT/'apps/web/package-lock.json').read_text(encoding='utf-8')))
     for path in ['THIRD_PARTY_NOTICE.md','third-party-licenses.html']:
         assert read(path)==(PUBLIC/path).read_bytes(),f'Packaged notice differs: {path}'
@@ -53,5 +72,7 @@ def validate_codh():
         assert hashlib.sha256((PUBLIC/glyph['asset']['url']).read_bytes()).hexdigest()==glyph['asset']['checksum']
     return len(glyphs)
 if __name__=='__main__':
-    count=validate_reader(lambda file:(PUBLIC/file).read_bytes())
+    read = lambda file: (PUBLIC/file).read_bytes()
+    validate_asset_exclusions(read, (p.relative_to(PUBLIC).as_posix() for p in PUBLIC.rglob('*') if p.is_file()))
+    count = validate_reader(read)
     print(f'PASS: {count} canonical licence components and {validate_codh()} full CODH derivative receipts')

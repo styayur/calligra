@@ -8,16 +8,20 @@ from app.providers.base import DatasetProvider, RawGlyphRecord
 
 NCCU_DATASET = "NCCU Cursive Chinese Calligraphy Dataset"
 NCCU_WORK = "CursiveChineseCalligraphyDataset"
-NCCU_LICENSE = "MIT"
-NCCU_LICENSE_URL = "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE"
+NCCU_LICENSE = None
+NCCU_LICENSE_URL = None
 NCCU_SOURCE_URI = "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset"
 NCCU_RIGHTS = {
-    "commercial_use": True,
-    "derivatives_allowed": True,
-    "redistribution_allowed": True,
-    "research_use": True,
+    "commercial_use": False,
+    "derivatives_allowed": False,
+    "redistribution_allowed": False,
+    "font_export_allowed": False,
     "attribution_required": True,
 }
+
+def is_nccu_source(dataset: str, source_uri: str | None = None) -> bool:
+    return dataset.casefold().startswith("nccu cursive") or NCCU_SOURCE_URI.casefold() in (source_uri or "").casefold()
+
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
@@ -27,7 +31,7 @@ def base_character(directory_name: str) -> str:
 
 
 class NCCUCursiveProvider(DatasetProvider):
-    """MIT-licensed cursive dataset organized as split/character/image.jpg."""
+    """Optional local cursive dataset organized as split/character/image.jpg."""
 
     name = "nccu-cursive"
 

@@ -2,11 +2,10 @@ import type { Glyph } from '../types'
 import { sha256 } from '../lib/fontShaper'
 
 const masks = new Map<string, Promise<Glyph>>()
-/** NCCU supplies monochrome, white-on-black scans. Keep the source metadata,
- * but produce a transparent ink mask for composition (MIT permits adaptation). */
+/** Produce transparent ink masks only for the cleared historical sample. */
 export async function prepareInk(glyph: Glyph): Promise<Glyph> {
   if (
-    !(glyph.source.dataset.includes('NCCU') || glyph.source.dataset === 'CODH Kuzushiji') ||
+    glyph.source.dataset !== 'CODH Kuzushiji' ||
     glyph.asset.type !== 'raster' ||
     glyph.asset.processing === 'ink-mask'
   )

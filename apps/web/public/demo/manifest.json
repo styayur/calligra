@@ -1,6 +1,6 @@
 {
   "static_mode": true,
-  "glyph_count": 110,
+  "glyph_count": 80,
   "model_name": "visual-geometry-256-v1",
   "sources": [
     {
@@ -13,19 +13,6 @@
         "derivatives_allowed": true,
         "redistribution_allowed": true,
         "research_use": true
-      }
-    },
-    {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
       }
     },
     {

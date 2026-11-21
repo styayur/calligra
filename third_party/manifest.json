@@ -159,19 +159,6 @@
       "notes": "20 crops and ink-mask derivatives; 日本古典籍くずし字データセット (国文研所蔵／CODH加工), DOI 10.20676/00000340. Changes and original checksums are in japanese/glyphs.json. Not MIT."
     },
     {
-      "id": "nccu",
-      "name": "NCCU Cursive Chinese Calligraphy Dataset",
-      "category": "historical",
-      "version": null,
-      "source_uri": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_text": {
-        "path": "demo/licenses/nccu-mit.txt",
-        "sha256": "abd7aa8222b1fa2185b8fb70a61b8bba0ab59c2157880dee0a21b1d734fcc08e"
-      },
-      "notes": "VIPLab, National Chengchi University; bundled Test subset."
-    },
-    {
       "id": "arphic",
       "name": "Hanzi Writer / Make Me A Hanzi / Arphic",
       "category": "structural",

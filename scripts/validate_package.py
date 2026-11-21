@@ -4,7 +4,7 @@ import hashlib
 import json
 import zipfile
 from pathlib import Path
-from validate_third_party import validate_reader
+from validate_third_party import validate_asset_exclusions, validate_reader
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -14,6 +14,7 @@ def validate(path: Path, prefix: str):
     canonical = json.loads((public / 'fonts/asset-manifest.json').read_text(encoding='utf-8'))
     with zipfile.ZipFile(path) as archive:
         read = lambda file: archive.read(prefix + file)
+        validate_asset_exclusions(read, (n.removeprefix(prefix) for n in archive.namelist() if n.startswith(prefix)))
         notice_count=validate_reader(read)
         metadata=json.loads(read('build-meta.json'))
         assert metadata['version']==json.loads((ROOT/'release/version.json').read_text(encoding='utf-8'))['version'] and len(metadata['commit'])==40

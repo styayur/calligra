@@ -12,6 +12,28 @@ for(const file of ['LICENSE.electron.txt','LICENSES.chromium.html']) {
 }
 const read = (file) => asar.extractFile(archive,join('dist',file))
 if(!asar.extractFile(archive,join('build','icon.png')).length) throw Error('Missing native window icon')
+const archivedAssets = asar.listPackage(archive).map(name => name.replace(/\\/g, '/'))
+const excluded = new Set(fs.readFileSync(resolve(root, 'samples/release-excluded-image-sha256.txt'), 'ascii')
+  .split(/\r?\n/).filter(line => line && !line.startsWith('#')))
+if (excluded.size !== 30) throw Error('Incomplete excluded image inventory')
+for (const name of archivedAssets) {
+  if (/nccu-cursive|\/nccu-mit\.txt$/i.test(name)) throw Error('Excluded asset: ' + name)
+  if (name.startsWith('/dist/') && /\.(?:jpe?g|png|webp|gif)$/i.test(name) &&
+      excluded.has(createHash('sha256').update(read(name.slice('/dist/'.length))).digest('hex'))) throw Error('Excluded image bytes')
+}
+for (const name of ['glyphs.json','meta.json','manifest.json','similarity.json']) {
+  const file = 'demo/' + name
+  const data = read(file)
+  if (/nccu|cursivechinesecalligraphydataset/i.test(data.toString()) || !data.equals(fs.readFileSync(resolve(root,'apps/web/public',file)))) {
+    throw Error('Packaged demo metadata differs: ' + file)
+  }
+}
+for (const { asset } of JSON.parse(read('demo/glyphs.json'))) {
+  if (createHash('sha256').update(read(asset.url)).digest('hex') !== asset.checksum) throw Error('Packaged demo asset checksum differs: ' + asset.url)
+}
+for (const file of ['launch_companion.py','requirements-companion.txt','app/routes/workbench.py','CC-BY-SA-4.0.txt']) {
+  if (!fs.statSync(join(directory,'resources','companion',file)).size) throw Error('Companion resource missing: ' + file)
+}
 const notices=fs.readFileSync(resolve(root,'third_party/manifest.json'))
 if(!read('third-party-manifest.json').equals(notices)) throw Error('Packaged third-party manifest differs')
 for(const component of JSON.parse(notices).components) for(const file of [component.license_text,...(component.additional_notices||[])]) {

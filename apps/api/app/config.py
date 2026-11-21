@@ -28,9 +28,7 @@ class Settings(BaseSettings):
     demo_manifest: Path = Field(
         default_factory=lambda: PROJECT_ROOT / "samples" / "demo" / "manifest.csv"
     )
-    cursive_sample_root: Path = Field(
-        default_factory=lambda: PROJECT_ROOT / "samples" / "cursive" / "raw"
-    )
+    cursive_sample_root: Path | None = None
     hanzi_data_dir: Path = Field(
         default_factory=lambda: PROJECT_ROOT / "data" / "hanzi-writer"
     )
@@ -38,7 +36,7 @@ class Settings(BaseSettings):
         default_factory=lambda: PROJECT_ROOT / "samples" / "fonts" / "manifest.json"
     )
     seed_demo: bool = True
-    seed_cursive: bool = True
+    seed_cursive: bool = False
     seed_fonts: bool = True
     include_noncommercial_fonts: bool = True
     auto_index_embeddings: bool = True

@@ -5,7 +5,8 @@ import { migrateGlyph, textCharacters, unicodeScript } from '../../lib/identity'
 import { parseGlyphPack, type GlyphPack } from '../../lib/glyphPacks'
 import { deletePrivateGlyph, enableGlyphPack, installGlyphPack, installedPacks, originalScan, privateGlyphs, PRIVATE_DATASET, removeGlyphPack, savePrivateGlyphs } from '../../lib/privateLibrary'
 import { saveFile } from '../../lib/download'
-import { localWorkbench, localWorkbenchAvailable } from '../../api/localWorkbench'
+import { CompanionControls } from '../editor/CompanionControls'
+import { localWorkbench, type CompanionStatus } from '../../api/localWorkbench'
 import type { Glyph } from '../../types'
 
 interface Recognition {
@@ -73,6 +74,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
   const [permission, setPermission] = useState(false)
   const [restoration, setRestoration] = useState(false)
   const [options, setOptions] = useState<InkOptions>({ mode: 'clean', padding: 8, threshold: 12, polarity: 'auto' })
+  const [companion, setCompanion] = useState<CompanionStatus>({ ready: false })
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
   const [query, setQuery] = useState('')
@@ -319,12 +321,19 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
           <div className="scan-actions">
             <button type="button" onClick={locate}>自动定位</button>
             <button type="button" onClick={addBox}>新增切框</button>
-            {localWorkbenchAvailable() && <button type="button" disabled={crops.every((crop) => crop.character.trim())} onClick={recognize}>实验识别待校对字</button>}
           </div>
-          {localWorkbenchAvailable() && tradition === 'Chinese' && <label className="check-field">
-            <input type="checkbox" checked={traditionalChinese} onChange={(event) => setTraditionalChinese(event.target.checked)} />识别繁体
-          </label>}
-          {localWorkbenchAvailable() && <p className="field-hint">OCR 使用现代印刷字模型。碑帖、连笔和异体字请以人工校对为准。</p>}
+          <details className="advanced">
+            <summary>实验性识别建议（可选）</summary>
+            <p className="field-hint">模型面向现代印刷字。历史碑帖请手工切框和校对。识别建议不会自动入库。</p>
+            <CompanionControls onStatus={setCompanion} />
+            {companion.ready && !companion.ocr && <p className="field-hint">需要在独立 Companion 中配置本机 OCR 模型。请参阅教程。</p>}
+            {companion.ocr && <>
+              {tradition === 'Chinese' && <label className="check-field">
+                <input type="checkbox" checked={traditionalChinese} onChange={(event) => setTraditionalChinese(event.target.checked)} />识别繁体
+              </label>}
+              <div className="scan-actions"><button type="button" disabled={crops.every((crop) => crop.character.trim())} onClick={recognize}>实验识别待校对字</button></div>
+            </>}
+          </details>
           <div className="scan-page">
             <img src={pagePreview} alt="碑帖原图" />
             {crops.map((crop, index) => <button type="button" key={crop.id} className="scan-box"

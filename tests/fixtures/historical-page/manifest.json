@@ -1,0 +1,52 @@
+{
+  "image": "diguchi-00002-2.jpg",
+  "sha256": "a6e6771ddf1c6463b503cb21cd49528df1bc92ff26b696551099fcd4cbe13ea6",
+  "license": "CC-BY-SA-4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "attribution": "日本古典籍くずし字データセット（国文研ほか所蔵／CODH加工）, DOI 10.20676/00000340",
+  "work": "ぢぐち",
+  "page": "200006663_00002_2",
+  "source_uri": "https://codh.rois.ac.jp/char-shape/book/200006663/",
+  "image_uri": "https://codh.rois.ac.jp/char-shape/iiif/200006663/200006663_00002_2.tif/full/900,/0/default.jpg",
+  "source_dimensions": [
+    2118,
+    3010
+  ],
+  "fixture_dimensions": [
+    900,
+    1279
+  ],
+  "changes": "IIIF resize to 900px width; source coordinate labels are an incomplete annotated subset.",
+  "labels": [
+    {
+      "text": "は",
+      "source_bbox": [
+        1688,
+        585,
+        102,
+        58
+      ],
+      "annotation_id": "codh:v2:200006663_00002_2:C0003:1688:585"
+    },
+    {
+      "text": "水",
+      "source_bbox": [
+        881,
+        474,
+        83,
+        186
+      ],
+      "annotation_id": "codh:v2:200006663_00002_2:C0006:881:474"
+    },
+    {
+      "text": "の",
+      "source_bbox": [
+        728,
+        778,
+        169,
+        117
+      ],
+      "annotation_id": "codh:v2:200006663_00002_2:C0008:728:778"
+    }
+  ]
+}

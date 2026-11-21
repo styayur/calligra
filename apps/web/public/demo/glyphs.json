@@ -27,7 +27,8 @@
         0.0,
         512.0,
         512.0
-      ]
+      ],
+      "checksum": "aa6043c7098b934ecf7ab0bd5549203298fc5212264e5d32c70084041489d24f"
     },
     "transform": {
       "x": 0,
@@ -75,7 +76,8 @@
         0.0,
         512.0,
         512.0
-      ]
+      ],
+      "checksum": "05d57070beb1448235a011b6186705d782b9b170106fe0217725238fdb34d8dd"
     },
     "transform": {
       "x": 0,
@@ -123,7 +125,8 @@
         0.0,
         512.0,
         512.0
-      ]
+      ],
+      "checksum": "80f51705ed18865f07c5878678c77740f5abc35ac07d657c6e259b99a3fbbd76"
     },
     "transform": {
       "x": 0,
@@ -171,7 +174,8 @@
         0.0,
         512.0,
         512.0
-      ]
+      ],
+      "checksum": "b39e2e7a48fcdb47237e7adfb1186cc7ff07ac7f759b6075c99022aafe637818"
     },
     "transform": {
       "x": 0,
@@ -219,7 +223,8 @@
         0.0,
         512.0,
         512.0
-      ]
+      ],
+      "checksum": "30f1c8fe369a765f7a49c732b4e3ec74de65e7cd68b134fcdf3710ce1599114e"
     },
     "transform": {
       "x": 0,
@@ -267,7 +272,8 @@
         0.0,
         512.0,
         512.0
-      ]
+      ],
+      "checksum": "cc57f1a15d590f0d3b0a3a7c5110481a9f60c32dad1f7eef0b99d58ed4794f38"
     },
     "transform": {
       "x": 0,
@@ -284,1566 +290,6 @@
     },
     "provenance": {
       "type": "fallback",
-      "confidence": null
-    }
-  },
-  {
-    "id": "853bd8de-dac1-40b5-95a5-ded009cc1e50",
-    "character": "一",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/d4/一-130983-d4004bf95810.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "bd3cfecd-e749-48b1-b28c-5177257d430e",
-    "character": "一",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/1e/一-130987-1e787e80b99b.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "f5b1cc00-7f7b-44f8-b62b-69b623ced873",
-    "character": "不",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/5e/不-131211-5e33a488c008.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "84d20a4d-757e-41a6-ab58-3511796c21c2",
-    "character": "不",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/e0/不-131216-e05ae6c7e651.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "bb9cf7ba-d47d-4f6d-8250-e86a35fc6264",
-    "character": "又",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/30/又-139014-303d4bf16f44.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "257327d7-4c7d-42c1-bbcc-4289ce45311b",
-    "character": "又",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/42/又-139017-4225e0de97cd.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "29a82b1f-c05f-4e19-82e6-b5e9418d3412",
-    "character": "啼",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/f4/啼-140934-f4785516fe6a.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "c0cd0bdc-8122-434e-bbda-4f643377efab",
-    "character": "啼",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/da/啼-140937-da29f1be53c9.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "ba2c44a4-4bb8-4a6f-a87e-67028c189cf3",
-    "character": "山",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/09/山-147406-09f6dc628331.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "3d25c9fe-f60d-4ab6-8564-10fa71546976",
-    "character": "山",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/62/山-147403-62e38f872193.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "13969d7f-91ab-4f86-8618-87c119550c09",
-    "character": "明",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/8f/明-156371-8fe2c40d84b0.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "0f71b73c-3735-4493-b805-00741fc16a87",
-    "character": "明",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/18/明-156372-1890efc5d9c8.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "1a3dea1e-8234-42b0-9a36-ff60c29fa762",
-    "character": "春",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/7b/春-156497-7b7d781e5214.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "04401819-6ee3-43d8-a959-ad0c7649b563",
-    "character": "春",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/fe/春-156501-fe6e8c634000.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "62d43a55-3a3d-4020-953b-013551771acd",
-    "character": "暗",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/14/暗-156969-14f3674a0ac1.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "7c7f3b13-aca9-4a6b-9bde-2edf84039f98",
-    "character": "暗",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/c0/暗-156972-c05eddb852b4.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "80509e42-6a9f-416a-851f-499c88b9884a",
-    "character": "村",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/2f/村-157954-2fa48d889474.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "0620564f-108c-4510-a623-864ad3aae33e",
-    "character": "村",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/ec/村-157962-ecaf471e384d.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "64a7b8ed-018d-4f76-a34d-12fe5307f183",
-    "character": "柳",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/bd/柳-158568-bd2c056c25ce.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "a74c7e65-2320-44f1-b34e-229f5c37884d",
-    "character": "柳",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/17/柳-158575-173e82966091.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "2601bb05-4302-4b1d-b28b-9ec482b13905",
-    "character": "水",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/41/水-161279-41b42b0fea23.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "dbf5a54a-f43f-4991-9301-27b7a2403189",
-    "character": "水",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/97/水-161289-97a0387921fd.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "e3e67454-721a-4769-8331-fd3349383272",
-    "character": "疑",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/ad/疑-167698-ad2f7a3337b3.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "7187e634-9728-417a-8fce-893c501327ef",
-    "character": "疑",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/2c/疑-167702-2cfc4a0ec80b.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "abfa3f10-8380-4207-bd01-327d8f4af1bd",
-    "character": "眠",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/7e/眠-168773-7ec20f7741af.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "da7e0967-3156-4ccc-b3ad-75f8bb2fbe6c",
-    "character": "眠",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/66/眠-168774-66d8ec6f3bdd.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "1e221426-37d3-400e-b222-4cd48a8cc473",
-    "character": "花",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/6d/花-176285-6df126fb6530.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "ebcd8bed-0924-4c59-aa2d-e1ab67cd7b74",
-    "character": "花",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/91/花-176286-91cb26de2c1d.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "387e45d8-4a15-4929-bedf-cee0936ed917",
-    "character": "路",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/09/路-183706-09115f284726.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
-      "confidence": null
-    }
-  },
-  {
-    "id": "5591bb17-bfa1-4565-bcaf-e9f2c67bd1d8",
-    "character": "路",
-    "source": {
-      "dataset": "NCCU Cursive Chinese Calligraphy Dataset",
-      "calligrapher": null,
-      "style": "草书",
-      "dynasty": "历代",
-      "work": "CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_url": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE",
-      "rights": {
-        "commercial_use": true,
-        "derivatives_allowed": true,
-        "redistribution_allowed": true,
-        "research_use": true,
-        "attribution_required": true
-      },
-      "writing_tradition": "Chinese",
-      "language": "zh",
-      "script": "Han"
-    },
-    "asset": {
-      "type": "raster",
-      "url": "demo/assets/nccu-cursive-chinese-calligraphy-dataset/f0/路-183709-f02141e868ee.jpg",
-      "width": 96,
-      "height": 96,
-      "bbox": [
-        0.0,
-        0.0,
-        96.0,
-        96.0
-      ]
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "scaleX": 1,
-      "scaleY": 1,
-      "rotation": 0,
-      "skewX": 0,
-      "skewY": 0
-    },
-    "appearance": {
-      "opacity": 1,
-      "blendMode": "source-over"
-    },
-    "provenance": {
-      "type": "original",
       "confidence": null
     }
   },
@@ -1880,7 +326,8 @@
         0.0,
         1024.0,
         1024.0
-      ]
+      ],
+      "checksum": "6c7d49b6243fea3686d8d08fbf6bf5b302bbab7b494a16431ac43fffb216c608"
     },
     "transform": {
       "x": 0,
@@ -1933,7 +380,8 @@
         0.0,
         1024.0,
         1024.0
-      ]
+      ],
+      "checksum": "5bd367f3007d422d3297ac06e2b85ac27df8e4e0695ed33dee781f0105a42ce6"
     },
     "transform": {
       "x": 0,
@@ -1986,7 +434,8 @@
         0.0,
         1024.0,
         1024.0
-      ]
+      ],
+      "checksum": "3b5d64c6eb2eb6b2c5e4bf4b7ba39cfdaba9970361c606d7da024886dc25426f"
     },
     "transform": {
       "x": 0,
@@ -2039,7 +488,8 @@
         0.0,
         1024.0,
         1024.0
-      ]
+      ],
+      "checksum": "95ff1db859bbbab416547c36573e5ce5040f6a3f6d092718423ed7b6e1eda8d3"
     },
     "transform": {
       "x": 0,
@@ -2092,7 +542,8 @@
         0.0,
         1024.0,
         1024.0
-      ]
+      ],
+      "checksum": "88143896ec206adac0edfc60b47ad54be5c47ba3a4779610d3e9f451f4f5f842"
     },
     "transform": {
       "x": 0,
@@ -2145,7 +596,8 @@
         165.0,
         532.0,
         488.0
-      ]
+      ],
+      "checksum": "31d88b4eaa5ba975fdbb3f38009effcca3a3e29f48b6c9bb6ba888ff00dd863a"
     },
     "transform": {
       "x": 0,
@@ -2198,7 +650,8 @@
         109.0,
         408.0,
         585.0
-      ]
+      ],
+      "checksum": "a5f60eef4b31c6b3bb71a5d003037ebf2ba7662eb94d7432e22a616a9cb4ba7d"
     },
     "transform": {
       "x": 0,
@@ -2251,7 +704,8 @@
         182.0,
         575.0,
         439.0
-      ]
+      ],
+      "checksum": "17b59e559988c103b90b05169e81435868c7c6f2ece002de362a8ceb16e55b07"
     },
     "transform": {
       "x": 0,
@@ -2304,7 +758,8 @@
         103.0,
         444.0,
         598.0
-      ]
+      ],
+      "checksum": "932edae2a501209a605c2e91ccb6ff997ba983591c81b62a79aff135a14c6399"
     },
     "transform": {
       "x": 0,
@@ -2357,7 +812,8 @@
         171.0,
         541.0,
         462.0
-      ]
+      ],
+      "checksum": "70ec0196dd98c0d76bcf9168667acdabd94c9f1ae22407fb9eaf03dc0b34a8b6"
     },
     "transform": {
       "x": 0,
@@ -2410,7 +866,8 @@
         129.0,
         459.0,
         546.0
-      ]
+      ],
+      "checksum": "1a4c99d195a5d8fed35d6a3ff69e7198abb7f9ff01be06fbe4981fa578556a22"
     },
     "transform": {
       "x": 0,
@@ -2463,7 +920,8 @@
         99.0,
         602.0,
         606.0
-      ]
+      ],
+      "checksum": "e80081426ce772513855f117e73a63ef6d3160f80565ef558b6fe74bfd5313be"
     },
     "transform": {
       "x": 0,
@@ -2516,7 +974,8 @@
         127.0,
         543.0,
         550.0
-      ]
+      ],
+      "checksum": "02a294cb47d8323ad775ed96666ca993c63bbb9b64427346cb041823dac2ad9f"
     },
     "transform": {
       "x": 0,
@@ -2569,7 +1028,8 @@
         114.0,
         356.0,
         576.0
-      ]
+      ],
+      "checksum": "c261dbe813d1bb70c8c9093d2481a72a8b645752d03d2ee2fd12a023e963cafc"
     },
     "transform": {
       "x": 0,
@@ -2622,7 +1082,8 @@
         109.0,
         561.0,
         586.0
-      ]
+      ],
+      "checksum": "116879348d21e40c8253c1a9a270d363f569b12458888933a807539cf62294bf"
     },
     "transform": {
       "x": 0,
@@ -2675,7 +1136,8 @@
         122.0,
         572.0,
         560.0
-      ]
+      ],
+      "checksum": "128b076970abf677f3555d5093ccd92f0306f6f5cccbf185d624a779480bab32"
     },
     "transform": {
       "x": 0,
@@ -2728,7 +1190,8 @@
         136.0,
         553.0,
         531.0
-      ]
+      ],
+      "checksum": "532fef404605b44ba1371e482ac03fbc263d0454b481cb4e917b33a7a82af16a"
     },
     "transform": {
       "x": 0,
@@ -2781,7 +1244,8 @@
         97.0,
         510.0,
         610.0
-      ]
+      ],
+      "checksum": "58589b02b84654e884b5b1522f2d35d8a693df13530b75c691e387bb39e55df5"
     },
     "transform": {
       "x": 0,
@@ -2834,7 +1298,8 @@
         109.0,
         543.0,
         585.0
-      ]
+      ],
+      "checksum": "15ea47401b6158798dc6fb6cc929cd9aef71f90e4da2c6c78f19a2343678b7d1"
     },
     "transform": {
       "x": 0,
@@ -2887,7 +1352,8 @@
         146.0,
         578.0,
         512.0
-      ]
+      ],
+      "checksum": "20ae984ca4897297b7ec8f832a03ac129183eac3a302cfc45bb8f778ae61163b"
     },
     "transform": {
       "x": 0,
@@ -2940,7 +1406,8 @@
         111.0,
         566.0,
         582.0
-      ]
+      ],
+      "checksum": "7ed660095f0418a85e9eaead8e96cc9273ab8759f8867c96ce59456e80a3d03b"
     },
     "transform": {
       "x": 0,
@@ -2993,7 +1460,8 @@
         100.0,
         440.0,
         603.0
-      ]
+      ],
+      "checksum": "99cf9384184587ff765c5b26cdf4bdaf859d430d0548e8d67be7557bc8904bf1"
     },
     "transform": {
       "x": 0,
@@ -3046,7 +1514,8 @@
         120.0,
         568.0,
         564.0
-      ]
+      ],
+      "checksum": "8ddd7180b112184ec3935c43c3a7864a7f628633c90bac0d6b1f7ec062bf70de"
     },
     "transform": {
       "x": 0,
@@ -3099,7 +1568,8 @@
         109.0,
         480.0,
         585.0
-      ]
+      ],
+      "checksum": "57ed48636740c07fed74e90dd0899f34532670033e7937d2330d56b4443cbbb4"
     },
     "transform": {
       "x": 0,
@@ -3152,7 +1622,8 @@
         101.0,
         492.0,
         601.0
-      ]
+      ],
+      "checksum": "6dc199dabc28ff5d3f23fc08a763a4e3fb24889da9228f1fdd949dd78f00db46"
     },
     "transform": {
       "x": 0,
@@ -3205,7 +1676,8 @@
         136.0,
         575.0,
         532.0
-      ]
+      ],
+      "checksum": "71aabf43127c902c401aee206f6873cf0cefc2359c6e5cd8aab870e54cae4b12"
     },
     "transform": {
       "x": 0,
@@ -3258,7 +1730,8 @@
         103.0,
         431.0,
         597.0
-      ]
+      ],
+      "checksum": "21cfca8d30d641b1f3a76ea5d4dfdcc1e4d53560d546f43efa66e8df3313ce77"
     },
     "transform": {
       "x": 0,
@@ -3311,7 +1784,8 @@
         158.0,
         550.0,
         524.0
-      ]
+      ],
+      "checksum": "8aef8757e988bfd12b3fdd87e10380dd746d53e4e5c2b5bbace5e0172ec8c5b3"
     },
     "transform": {
       "x": 0,
@@ -3364,7 +1838,8 @@
         174.0,
         514.0,
         399.0
-      ]
+      ],
+      "checksum": "b4683201586ef4c23095ab394089dd5c65586cf52f2836d840884709cae9ae72"
     },
     "transform": {
       "x": 0,
@@ -3417,7 +1892,8 @@
         172.0,
         331.0,
         402.0
-      ]
+      ],
+      "checksum": "f91b653e6a7710d09dd8f4c01954f838527ff7aa77252f92f3a255bfe883ec2e"
     },
     "transform": {
       "x": 0,
@@ -3470,7 +1946,8 @@
         160.0,
         476.0,
         428.0
-      ]
+      ],
+      "checksum": "aa2a8630ca7a3db94580d6a6c3511fbc155588752ac3eca9016bbf875181d3fa"
     },
     "transform": {
       "x": 0,
@@ -3523,7 +2000,8 @@
         119.0,
         402.0,
         509.0
-      ]
+      ],
+      "checksum": "9c96288e08523500c1a79d6802a329a137d9f09b318547497a4e7284bb9aebe4"
     },
     "transform": {
       "x": 0,
@@ -3576,7 +2054,8 @@
         203.0,
         442.0,
         341.0
-      ]
+      ],
+      "checksum": "2f58ba49e8ee1baeb273efb84060c27b1cb5ea9bb7d5eced1e65df1fef744b7f"
     },
     "transform": {
       "x": 0,
@@ -3629,7 +2108,8 @@
         201.0,
         406.0,
         345.0
-      ]
+      ],
+      "checksum": "a195f8070504444ff57567c9256ab84ead533f8758d2a03a7e738baf3ee02844"
     },
     "transform": {
       "x": 0,
@@ -3682,7 +2162,8 @@
         107.0,
         650.0,
         533.0
-      ]
+      ],
+      "checksum": "afb4a915f197139286ffa9c4ed6fdd2fb0962987b780c14e0cb9f95af6655635"
     },
     "transform": {
       "x": 0,
@@ -3735,7 +2216,8 @@
         103.0,
         485.0,
         541.0
-      ]
+      ],
+      "checksum": "e7c2ce326f071627f46853bf41cddfee8a2c06096664e9fb23d80eba47c0f374"
     },
     "transform": {
       "x": 0,
@@ -3788,7 +2270,8 @@
         97.0,
         336.0,
         554.0
-      ]
+      ],
+      "checksum": "21a36d5487f2ea04c6c1d0fb6b92fcfcf3efd2251caaca99f7648b8f735c8828"
     },
     "transform": {
       "x": 0,
@@ -3841,7 +2324,8 @@
         134.0,
         509.0,
         478.0
-      ]
+      ],
+      "checksum": "4616db3772539c31d1ec6c4a21d2e36033e4f60403799440f9d616c2e8f86368"
     },
     "transform": {
       "x": 0,
@@ -3894,7 +2378,8 @@
         139.0,
         432.0,
         469.0
-      ]
+      ],
+      "checksum": "873e27c7333c68e245e1626b8f00d6c9545e68859862579fd4592786bb3800ab"
     },
     "transform": {
       "x": 0,
@@ -3947,7 +2432,8 @@
         148.0,
         386.0,
         451.0
-      ]
+      ],
+      "checksum": "1c06489cf53ad9dcf2fea41d515fc78bdd615ec86d028fd3ff4fd087780f757e"
     },
     "transform": {
       "x": 0,
@@ -4000,7 +2486,8 @@
         91.0,
         440.0,
         566.0
-      ]
+      ],
+      "checksum": "605e69658c405d1bdb25bf2c155e81d182162691be2150a31fbb70482311c8d3"
     },
     "transform": {
       "x": 0,
@@ -4053,7 +2540,8 @@
         98.0,
         521.0,
         551.0
-      ]
+      ],
+      "checksum": "0a70cdfcef4d6bbe8ded2925e8ffb5d451c4b35f183210fec2eda1bdae085621"
     },
     "transform": {
       "x": 0,
@@ -4106,7 +2594,8 @@
         111.0,
         583.0,
         526.0
-      ]
+      ],
+      "checksum": "ad1805ee1ffbb4d5be9c53ba82d81dd0e3e1181527ef004d132e8e5115307cf0"
     },
     "transform": {
       "x": 0,
@@ -4159,7 +2648,8 @@
         117.0,
         411.0,
         513.0
-      ]
+      ],
+      "checksum": "1c0e5bdad8471bd14f86075c7725d22065692405966566d6fb7e4108224e9d72"
     },
     "transform": {
       "x": 0,
@@ -4212,7 +2702,8 @@
         80.0,
         424.0,
         588.0
-      ]
+      ],
+      "checksum": "2fc905ea99cb11a2a2b108b710d61802bb4a61e69a1dabf2d07edf541eb08ec5"
     },
     "transform": {
       "x": 0,
@@ -4265,7 +2756,8 @@
         114.0,
         368.0,
         519.0
-      ]
+      ],
+      "checksum": "e79c5ba1e1b99160477aa4a1cef83363330aa5fe2ea05d523aed4c4266b1aedd"
     },
     "transform": {
       "x": 0,
@@ -4318,7 +2810,8 @@
         103.0,
         527.0,
         541.0
-      ]
+      ],
+      "checksum": "c3e8cd3e6aabfd9ffb92d45f57837a108903bac157802e6fdef7b95a599b5e8c"
     },
     "transform": {
       "x": 0,
@@ -4371,7 +2864,8 @@
         105.0,
         421.0,
         538.0
-      ]
+      ],
+      "checksum": "c619c69718e94322dbd6cd2b25cc104988d1a6f2dc5ebe6e7ffc6688b7db61dd"
     },
     "transform": {
       "x": 0,
@@ -4424,7 +2918,8 @@
         105.0,
         528.0,
         536.0
-      ]
+      ],
+      "checksum": "6240cdd323c4b746ee357eb505ab6ab001422d819c9e0174a5ab0cff4033c833"
     },
     "transform": {
       "x": 0,
@@ -4477,7 +2972,8 @@
         102.0,
         347.0,
         543.0
-      ]
+      ],
+      "checksum": "5ea41470040d18ba23b9ed6489cb2991520a94da629aba00acc07d4ff53604e3"
     },
     "transform": {
       "x": 0,
@@ -4530,7 +3026,8 @@
         141.0,
         474.0,
         464.0
-      ]
+      ],
+      "checksum": "a8b847cf45ee3aff5f4f2d05a5de2f6358cfbeccb184044203023489b9f62802"
     },
     "transform": {
       "x": 0,
@@ -4583,7 +3080,8 @@
         210.0,
         551.0,
         408.0
-      ]
+      ],
+      "checksum": "613e93c15844fd437d480ced91d68b352ef9798f5b40471102cd020e9818a22c"
     },
     "transform": {
       "x": 0,
@@ -4636,7 +3134,8 @@
         200.0,
         436.0,
         446.0
-      ]
+      ],
+      "checksum": "9e497d899768b8b5049efa23317d0552b63b29eb158c09ef836e87ea0cac5769"
     },
     "transform": {
       "x": 0,
@@ -4689,7 +3188,8 @@
         112.0,
         429.0,
         604.0
-      ]
+      ],
+      "checksum": "da93c5557cfaaf815ede2304d8d0b48fda28815d7e4492caa7437111dd2c219a"
     },
     "transform": {
       "x": 0,
@@ -4742,7 +3242,8 @@
         110.0,
         408.0,
         606.0
-      ]
+      ],
+      "checksum": "544a4595f7e937ada7cbb1146574edb1f09c52f0c217c5566b781be0dccfed66"
     },
     "transform": {
       "x": 0,
@@ -4795,7 +3296,8 @@
         173.0,
         502.0,
         481.0
-      ]
+      ],
+      "checksum": "d1023c47d76efdd3e25d3fd682319f5d0ef6f4097063945379e3c9255bbe714d"
     },
     "transform": {
       "x": 0,
@@ -4848,7 +3350,8 @@
         149.0,
         479.0,
         531.0
-      ]
+      ],
+      "checksum": "ea3a0fab7e2a301fc184ce6bbcbe229f5e0d018e0df6c056a421c61681db74e2"
     },
     "transform": {
       "x": 0,
@@ -4901,7 +3404,8 @@
         98.0,
         458.0,
         628.0
-      ]
+      ],
+      "checksum": "db69ca4125fb562e64579a7ebf3dbfa8d501be2a24a6dcbd6a9cb72013e0ef13"
     },
     "transform": {
       "x": 0,
@@ -4954,7 +3458,8 @@
         146.0,
         589.0,
         536.0
-      ]
+      ],
+      "checksum": "5384c2714bccb2c8c3fafc1f3c07e5c3aa8123967d263e155d4db6dd58b5ffd2"
     },
     "transform": {
       "x": 0,
@@ -5007,7 +3512,8 @@
         124.0,
         245.0,
         584.0
-      ]
+      ],
+      "checksum": "fc7cb315891bb894c128318a4ff227acc4ef9bad635d6164add0b9792ecabe45"
     },
     "transform": {
       "x": 0,
@@ -5060,7 +3566,8 @@
         118.0,
         546.0,
         590.0
-      ]
+      ],
+      "checksum": "48ac4c3ea75876e58a082c85399d7e73e703f52f3bdc4e5511ec6e8b43a8bb4d"
     },
     "transform": {
       "x": 0,
@@ -5113,7 +3620,8 @@
         96.0,
         259.0,
         636.0
-      ]
+      ],
+      "checksum": "87fd48e7f0dabb56b99e21dcd85b399d4e1a3c3caa6ca96ca68f565269dc05b1"
     },
     "transform": {
       "x": 0,
@@ -5166,7 +3674,8 @@
         118.0,
         448.0,
         592.0
-      ]
+      ],
+      "checksum": "7acf93cabb0ad25b1fa6a5be2cf9ea739a643e4f08a8b7ee6c70e566c73ce6bb"
     },
     "transform": {
       "x": 0,
@@ -5219,7 +3728,8 @@
         113.0,
         388.0,
         604.0
-      ]
+      ],
+      "checksum": "d748421161b2cbc97bb79c73571850d835f9b6fb77037ec938099f973b67a832"
     },
     "transform": {
       "x": 0,
@@ -5272,7 +3782,8 @@
         115.0,
         341.0,
         599.0
-      ]
+      ],
+      "checksum": "d72828aeeacccfea8cab8c6997c45a5813d9b58adcf8e69bb0d7a54559b4a6ac"
     },
     "transform": {
       "x": 0,
@@ -5325,7 +3836,8 @@
         116.0,
         480.0,
         594.0
-      ]
+      ],
+      "checksum": "8f6c3c884a4b8e8aff7f62588f9c897fb9dff7357d3cdd152900f42b7ad067c5"
     },
     "transform": {
       "x": 0,
@@ -5378,7 +3890,8 @@
         110.0,
         320.0,
         611.0
-      ]
+      ],
+      "checksum": "6fe5d92080e9af37014228c6ed053723d38a2919ecd7acc18230897cbc438dbd"
     },
     "transform": {
       "x": 0,
@@ -5431,7 +3944,8 @@
         119.0,
         360.0,
         605.0
-      ]
+      ],
+      "checksum": "94bc45ac2a5edc963d7ccabe84fa3d3eb0761788b70ef2b59823d4d9950736e0"
     },
     "transform": {
       "x": 0,
@@ -5484,7 +3998,8 @@
         110.0,
         274.0,
         610.0
-      ]
+      ],
+      "checksum": "b80b68c9f475e040e5ee4a0f2301f4701a6faec5cd45ba2e3646cbe2f12d2d40"
     },
     "transform": {
       "x": 0,
@@ -5537,7 +4052,8 @@
         103.0,
         495.0,
         621.0
-      ]
+      ],
+      "checksum": "084558826f49637a4b7b6e6ff7d2729ae2164b1dd8b0dfc50c06c4337f586a50"
     },
     "transform": {
       "x": 0,
@@ -5590,7 +4106,8 @@
         98.0,
         439.0,
         630.0
-      ]
+      ],
+      "checksum": "56ea8b029e70bfc362c3b0a17b6082fa780a6dfdffaa26a04808b0c13fe8b914"
     },
     "transform": {
       "x": 0,
@@ -5643,7 +4160,8 @@
         121.0,
         477.0,
         584.0
-      ]
+      ],
+      "checksum": "a9fe91875ea9c5fd6f6032bbffe3fdac305c64205f6a997a39b98d989de99681"
     },
     "transform": {
       "x": 0,
@@ -5696,7 +4214,8 @@
         109.0,
         219.0,
         612.0
-      ]
+      ],
+      "checksum": "ee0fa0d2a48f364b8dc5dc2040b9447d8f2302423c847daa9a06e9c89fd6f6dc"
     },
     "transform": {
       "x": 0,
@@ -5749,7 +4268,8 @@
         119.0,
         619.0,
         592.0
-      ]
+      ],
+      "checksum": "5b6ffd2d9488476be14ce080369a69b42796e887386c805e125fe4dcda1bd87c"
     },
     "transform": {
       "x": 0,

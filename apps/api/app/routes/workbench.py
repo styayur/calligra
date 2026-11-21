@@ -2,6 +2,8 @@
 
 from io import BytesIO
 from ipaddress import ip_address
+from importlib.util import find_spec
+from secrets import compare_digest
 import json
 from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile
 from xml.parsers.expat import ExpatError
@@ -32,6 +34,20 @@ def require_local(request: Request):
     if not loopback or request.url.hostname not in {"127.0.0.1", "localhost", "::1"} or (
             origin and origin not in allowed):
         raise HTTPException(403, "This endpoint requires an authorized local connection")
+    token = getattr(request.app.state, "workbench_token", None)
+    if token and not compare_digest(request.headers.get("authorization", ""), "Bearer " + token):
+        raise HTTPException(403, "Invalid Companion authorization")
+
+
+@router.get("/status", response_class=JSONResponse)
+def status(request: Request):
+    require_local(request)
+    settings = request.app.state.settings
+    return JSONResponse({
+        "ready": True,
+        "pdf": bool(settings.libreoffice_path and settings.libreoffice_path.is_file()),
+        "ocr": bool(settings.ocr_model_dir and settings.ocr_model_dir.is_dir() and find_spec("tesserocr")),
+    }, headers={"Cache-Control": "no-store"})
 
 
 async def read_bounded(request: Request, limit: int, content_type: str):

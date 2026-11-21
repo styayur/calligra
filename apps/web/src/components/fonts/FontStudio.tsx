@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { localWorkbench, localWorkbenchAvailable } from '../../api/localWorkbench'
+import { CompanionControls } from '../editor/CompanionControls'
+import { localWorkbench, type CompanionStatus } from '../../api/localWorkbench'
 import { saveFile } from '../../lib/download'
 import { textCharacters } from '../../lib/identity'
 import { packedGlyphs, privateGlyphs } from '../../lib/privateLibrary'
@@ -25,6 +26,7 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
   const [chosen, setChosen] = useState<Record<string, string>>({})
   const [formats, setFormats] = useState(['ttf', 'otf', 'woff2'])
   const [approved, setApproved] = useState(false)
+  const [companion, setCompanion] = useState<CompanionStatus>({ ready: false })
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
   useEffect(() => {
@@ -76,6 +78,7 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
   return <main className="materials-workspace studio-tool panel-scroll">
     <section>
       <h1>字体制作</h1>
+      <CompanionControls onStatus={setCompanion} />
       <fieldset disabled={busy}>
         <label>字形来源<select value={source} onChange={(event) => setSource(event.target.value as typeof source)}>
           <option value="library">本机字库</option><option value="project">当前作品</option>
@@ -95,7 +98,7 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
         </div>
         {usePrivate && <label className="check-field"><input type="checkbox" checked={approved} onChange={(event) => setApproved(event.target.checked)} />确认私人来源允许生成和分发字体</label>}
         <div className="scan-actions">
-          {localWorkbenchAvailable() && <button type="button" disabled={!ready} onClick={() => void exportFont(true)}>生成并下载字体</button>}
+          <button type="button" disabled={!ready || !companion.ready} onClick={() => void exportFont(true)}>生成并下载字体</button>
           <button type="button" disabled={!ready} onClick={() => void exportFont(false)}>保存字体制作文件</button>
         </div>
       </fieldset>
