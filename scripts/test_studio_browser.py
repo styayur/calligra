@@ -1,14 +1,14 @@
-import urllib.parse
 """Browser regression checks. Run against Vite in desktop mode.
 
 python scripts/test_studio_browser.py --url http://127.0.0.1:5178 --channel msedge
 Requires playwright and pillow. Screenshots/downloads go into ignored work/.
 """
 import argparse
-import base64
+from hashlib import sha256
 import io
 import json
 from pathlib import Path
+from urllib.parse import urljoin
 from PIL import Image
 from playwright.sync_api import sync_playwright, expect
 
@@ -136,11 +136,13 @@ with sync_playwright() as p:
     for glyph in originals:
         assert glyph['asset']['processing'] == 'ink-mask'
         asset_url = glyph['asset']['url']
-        response = page.request.get(urllib.parse.urljoin(args.url.rstrip('/') + '/', asset_url))
+        response = page.request.get(urljoin(args.url.rstrip('/') + '/', asset_url))
         assert response.ok, asset_url
-        ink = Image.open(io.BytesIO(response.body())).convert('RGBA')
-        assert ink.getpixel((0, 0))[3] == 0
-        assert ink.getchannel('A').getbbox() is not None
+        data = response.body()
+        assert sha256(data).hexdigest() == glyph['asset']['checksum']
+        with Image.open(io.BytesIO(data)) as ink:
+            low, high = ink.getchannel('A').getextrema()
+            assert 0 <= low < high <= 255 and low < 128
 
     # Import a saved project, reject malformed data before replacing the current work.
     page.on('dialog', lambda dialog: dialog.accept())

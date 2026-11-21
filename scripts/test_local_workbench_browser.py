@@ -4,6 +4,7 @@ from io import BytesIO
 import json
 from pathlib import Path
 import sys
+from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
 from fontTools.ttLib import TTFont
@@ -11,7 +12,7 @@ from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "apps/api"), str(ROOT / "apps/api/tests")]
-from test_document_typesetting import docx, odt
+from test_document_typesetting import docx, odt, OFFICE, STYLE, WORD
 from test_extraction_browser import fixture
 
 
@@ -34,7 +35,11 @@ def exercise_workbench(page, *, installed_windows=False):
         expect(page.get_by_label("文档", exact=True)).to_be_disabled()
         expect(page.get_by_text("首次启动会联网安装依赖。", exact=False)).to_be_visible()
         page.get_by_role("button", name="启动 Companion", exact=True).click()
-        expect(page.get_by_text("Companion 已就绪", exact=False)).to_be_visible(timeout=380000)
+        result = page.locator(".companion-controls").get_by_text("Companion 已就绪", exact=False).or_(
+            page.locator(".companion-controls").get_by_role("alert")
+        )
+        expect(result).to_be_visible(timeout=380000)
+        assert "Companion 已就绪" in result.inner_text(), result.inner_text()
     page.get_by_role("button", name="素材", exact=True).click()
     page.get_by_label("原图", exact=True).set_input_files({
         "name": "fixture.png", "mimeType": "image/png", "buffer": fixture(),
@@ -73,8 +78,25 @@ def exercise_workbench(page, *, installed_windows=False):
         with page.expect_download() as event:
             page.get_by_role("button", name="转换并下载").click()
         with ZipFile(event.value.path()) as output:
-            assert json.loads(output.read("analysis.json"))["changed_segments"] == 2
-            assert output.read(f"Calligra.{extension}").startswith(b"PK")
+            receipt = json.loads(output.read("analysis.json"))
+            assert receipt["changed_segments"] == 2 and receipt["font_family"] == "Calligra Collection"
+            document = output.read(f"Calligra.{extension}")
+        with ZipFile(BytesIO(document)) as result, ZipFile(BytesIO(create())) as original:
+            body = "word/document.xml" if extension == "docx" else "content.xml"
+            assert set(result.namelist()) == set(original.namelist())
+            assert all(result.read(part) == original.read(part) for part in original.namelist() if part != body)
+            root = ET.fromstring(result.read(body))
+            if extension == "docx":
+                assert root.find(f".//{{{WORD}}}rFonts").get(f"{{{WORD}}}eastAsia") == "Calligra Collection"
+            else:
+                assert root.find(f".//{{{OFFICE}}}font-face-decls/{{{STYLE}}}font-face").get(
+                    "{urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0}font-family"
+                ) == "Calligra Collection"
+        page.get_by_label("文档", exact=True).set_input_files({
+            "name": f"reopened.{extension}", "mimeType": "application/octet-stream", "buffer": document,
+        })
+        page.get_by_role("button", name="分析覆盖").click()
+        expect(page.get_by_text("覆盖 1/2 字", exact=False)).to_be_visible()
 
 
 def main():

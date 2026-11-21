@@ -19,7 +19,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/demo/aa/山-shan-kai-aa6043c7098b.svg",
+      "url": "demo/assets/demo/aa/aa6043c7098b.svg",
       "width": 512,
       "height": 512,
       "bbox": [
@@ -68,7 +68,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/demo/05/山-shan-xing-05d57070beb1.svg",
+      "url": "demo/assets/demo/05/05d57070beb1.svg",
       "width": 512,
       "height": 512,
       "bbox": [
@@ -117,7 +117,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/demo/80/水-shui-kai-80f51705ed18.svg",
+      "url": "demo/assets/demo/80/80f51705ed18.svg",
       "width": 512,
       "height": 512,
       "bbox": [
@@ -166,7 +166,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/demo/b3/水-shui-xing-b39e2e7a48fc.svg",
+      "url": "demo/assets/demo/b3/b39e2e7a48fc.svg",
       "width": 512,
       "height": 512,
       "bbox": [
@@ -215,7 +215,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/demo/30/云-yun-kai-30f1c8fe369a.svg",
+      "url": "demo/assets/demo/30/30f1c8fe369a.svg",
       "width": 512,
       "height": 512,
       "bbox": [
@@ -264,7 +264,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/demo/cc/云-yun-xing-cc57f1a15d59.svg",
+      "url": "demo/assets/demo/cc/cc57f1a15d59.svg",
       "width": 512,
       "height": 512,
       "bbox": [
@@ -318,7 +318,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/hanzi-writer-structural-data/6c/晓-晓-hanzi-writer-6c7d49b6243f.svg",
+      "url": "demo/assets/hanzi-writer-structural-data/6c/6c7d49b6243f.svg",
       "width": 1024,
       "height": 1024,
       "bbox": [
@@ -372,7 +372,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/hanzi-writer-structural-data/5b/觉-觉-hanzi-writer-5bd367f3007d.svg",
+      "url": "demo/assets/hanzi-writer-structural-data/5b/5bd367f3007d.svg",
       "width": 1024,
       "height": 1024,
       "bbox": [
@@ -426,7 +426,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/hanzi-writer-structural-data/3b/处-处-hanzi-writer-3b5d64c6eb2e.svg",
+      "url": "demo/assets/hanzi-writer-structural-data/3b/3b5d64c6eb2e.svg",
       "width": 1024,
       "height": 1024,
       "bbox": [
@@ -480,7 +480,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/hanzi-writer-structural-data/95/闻-闻-hanzi-writer-95ff1db859bb.svg",
+      "url": "demo/assets/hanzi-writer-structural-data/95/95ff1db859bb.svg",
       "width": 1024,
       "height": 1024,
       "bbox": [
@@ -534,7 +534,7 @@
     },
     "asset": {
       "type": "svg",
-      "url": "demo/assets/hanzi-writer-structural-data/88/鸟-鸟-hanzi-writer-88143896ec20.svg",
+      "url": "demo/assets/hanzi-writer-structural-data/88/88143896ec20.svg",
       "width": 1024,
       "height": 1024,
       "bbox": [
@@ -588,7 +588,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/31/不-ma-shan-zheng-不-31d88b4eaa5b.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/31/31d88b4eaa5b.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -642,7 +642,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/a5/书-ma-shan-zheng-书-a5f60eef4b31.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/a5/a5f60eef4b31.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -696,7 +696,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/17/云-ma-shan-zheng-云-17b59e559988.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/17/17b59e559988.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -750,7 +750,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/93/字-ma-shan-zheng-字-932edae2a501.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/93/932edae2a501.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -804,7 +804,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/70/山-ma-shan-zheng-山-70ec0196dd98.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/70/70ec0196dd98.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -858,7 +858,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/1a/明-ma-shan-zheng-明-1a4c99d195a5.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/1a/1a4c99d195a5.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -912,7 +912,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/e8/春-ma-shan-zheng-春-e80081426ce7.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/e8/e80081426ce7.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -966,7 +966,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/02/晓-ma-shan-zheng-晓-02a294cb47d8.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/02/02a294cb47d8.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1020,7 +1020,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/c2/月-ma-shan-zheng-月-c261dbe813d1.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/c2/c261dbe813d1.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1074,7 +1074,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/11/楷-ma-shan-zheng-楷-116879348d21.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/11/116879348d21.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1128,7 +1128,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/12/水-ma-shan-zheng-水-128b076970ab.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/12/128b076970ab.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1182,7 +1182,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/53/法-ma-shan-zheng-法-532fef404605.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/53/532fef404605.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1236,7 +1236,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/58/清-ma-shan-zheng-清-58589b02b846.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/58/58589b02b846.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1290,7 +1290,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/15/真-ma-shan-zheng-真-15ea47401b61.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/15/15ea47401b61.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1344,7 +1344,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/20/眠-ma-shan-zheng-眠-20ae984ca489.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/20/20ae984ca489.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1398,7 +1398,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/7e/花-ma-shan-zheng-花-7ed660095f04.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/7e/7ed660095f04.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1452,7 +1452,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/99/草-ma-shan-zheng-草-99cf93841845.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/99/99cf93841845.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1506,7 +1506,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/8d/行-ma-shan-zheng-行-8ddd7180b112.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/8d/8ddd7180b112.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1560,7 +1560,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/57/觉-ma-shan-zheng-觉-57ed48636740.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/57/57ed48636740.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1614,7 +1614,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/6d/集-ma-shan-zheng-集-6dc199dabc28.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/6d/6dc199dabc28.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1668,7 +1668,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/71/风-ma-shan-zheng-风-71aabf43127c.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/71/71aabf43127c.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1722,7 +1722,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/21/鸟-ma-shan-zheng-鸟-21cfca8d30d6.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/21/21cfca8d30d6.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1776,7 +1776,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/8a/龙-ma-shan-zheng-龙-8aef8757e988.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/8a/8aef8757e988.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1830,7 +1830,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/b4/不-zhi-mang-xing-不-b4683201586e.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/b4/b4683201586e.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1884,7 +1884,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/f9/书-zhi-mang-xing-书-f91b653e6a77.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/f9/f91b653e6a77.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1938,7 +1938,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/aa/云-zhi-mang-xing-云-aa2a8630ca7a.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/aa/aa2a8630ca7a.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -1992,7 +1992,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/9c/字-zhi-mang-xing-字-9c96288e0852.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/9c/9c96288e0852.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2046,7 +2046,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/2f/山-zhi-mang-xing-山-2f58ba49e8ee.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/2f/2f58ba49e8ee.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2100,7 +2100,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/a1/明-zhi-mang-xing-明-a195f8070504.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/a1/a195f8070504.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2154,7 +2154,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/af/春-zhi-mang-xing-春-afb4a915f197.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/af/afb4a915f197.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2208,7 +2208,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/e7/晓-zhi-mang-xing-晓-e7c2ce326f07.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/e7/e7c2ce326f07.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2262,7 +2262,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/21/月-zhi-mang-xing-月-21a36d5487f2.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/21/21a36d5487f2.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2316,7 +2316,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/46/楷-zhi-mang-xing-楷-4616db377253.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/46/4616db377253.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2370,7 +2370,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/87/水-zhi-mang-xing-水-873e27c7333c.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/87/873e27c7333c.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2424,7 +2424,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/1c/法-zhi-mang-xing-法-1c06489cf53a.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/1c/1c06489cf53a.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2478,7 +2478,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/60/清-zhi-mang-xing-清-605e69658c40.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/60/605e69658c40.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2532,7 +2532,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/0a/真-zhi-mang-xing-真-0a70cdfcef4d.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/0a/0a70cdfcef4d.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2586,7 +2586,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/ad/眠-zhi-mang-xing-眠-ad1805ee1ffb.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/ad/ad1805ee1ffb.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2640,7 +2640,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/1c/花-zhi-mang-xing-花-1c0e5bdad847.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/1c/1c0e5bdad847.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2694,7 +2694,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/2f/草-zhi-mang-xing-草-2fc905ea99cb.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/2f/2fc905ea99cb.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2748,7 +2748,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/e7/行-zhi-mang-xing-行-e79c5ba1e1b9.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/e7/e79c5ba1e1b9.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2802,7 +2802,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/c3/觉-zhi-mang-xing-觉-c3e8cd3e6aab.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/c3/c3e8cd3e6aab.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2856,7 +2856,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/c6/集-zhi-mang-xing-集-c619c69718e9.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/c6/c619c69718e9.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2910,7 +2910,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/62/风-zhi-mang-xing-风-6240cdd323c4.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/62/6240cdd323c4.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -2964,7 +2964,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/5e/鸟-zhi-mang-xing-鸟-5ea41470040d.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/5e/5ea41470040d.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3018,7 +3018,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/a8/龙-zhi-mang-xing-龙-a8b847cf45ee.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/a8/a8b847cf45ee.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3072,7 +3072,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/61/不-liu-jian-mao-cao-不-613e93c15844.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/61/613e93c15844.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3126,7 +3126,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/9e/书-liu-jian-mao-cao-书-9e497d899768.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/9e/9e497d899768.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3180,7 +3180,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/da/云-liu-jian-mao-cao-云-da93c5557cfa.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/da/da93c5557cfa.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3234,7 +3234,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/54/字-liu-jian-mao-cao-字-544a4595f7e9.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/54/544a4595f7e9.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3288,7 +3288,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/d1/山-liu-jian-mao-cao-山-d1023c47d76e.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/d1/d1023c47d76e.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3342,7 +3342,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/ea/明-liu-jian-mao-cao-明-ea3a0fab7e2a.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/ea/ea3a0fab7e2a.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3396,7 +3396,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/db/春-liu-jian-mao-cao-春-db69ca4125fb.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/db/db69ca4125fb.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3450,7 +3450,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/53/晓-liu-jian-mao-cao-晓-5384c2714bcc.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/53/5384c2714bcc.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3504,7 +3504,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/fc/月-liu-jian-mao-cao-月-fc7cb315891b.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/fc/fc7cb315891b.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3558,7 +3558,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/48/楷-liu-jian-mao-cao-楷-48ac4c3ea758.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/48/48ac4c3ea758.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3612,7 +3612,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/87/水-liu-jian-mao-cao-水-87fd48e7f0da.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/87/87fd48e7f0da.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3666,7 +3666,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/7a/法-liu-jian-mao-cao-法-7acf93cabb0a.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/7a/7acf93cabb0a.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3720,7 +3720,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/d7/清-liu-jian-mao-cao-清-d748421161b2.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/d7/d748421161b2.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3774,7 +3774,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/d7/真-liu-jian-mao-cao-真-d72828aeeacc.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/d7/d72828aeeacc.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3828,7 +3828,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/8f/眠-liu-jian-mao-cao-眠-8f6c3c884a4b.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/8f/8f6c3c884a4b.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3882,7 +3882,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/6f/花-liu-jian-mao-cao-花-6fe5d92080e9.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/6f/6fe5d92080e9.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3936,7 +3936,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/94/草-liu-jian-mao-cao-草-94bc45ac2a5e.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/94/94bc45ac2a5e.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -3990,7 +3990,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/b8/行-liu-jian-mao-cao-行-b80b68c9f475.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/b8/b80b68c9f475.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -4044,7 +4044,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/08/觉-liu-jian-mao-cao-觉-084558826f49.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/08/084558826f49.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -4098,7 +4098,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/56/集-liu-jian-mao-cao-集-56ea8b029e70.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/56/56ea8b029e70.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -4152,7 +4152,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/a9/风-liu-jian-mao-cao-风-a9fe91875ea9.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/a9/a9fe91875ea9.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -4206,7 +4206,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/ee/鸟-liu-jian-mao-cao-鸟-ee0fa0d2a48f.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/ee/ee0fa0d2a48f.png",
       "width": 768,
       "height": 768,
       "bbox": [
@@ -4260,7 +4260,7 @@
     },
     "asset": {
       "type": "raster",
-      "url": "demo/assets/ofl-calligraphy-fonts/5b/龙-liu-jian-mao-cao-龙-5b6ffd2d9488.png",
+      "url": "demo/assets/ofl-calligraphy-fonts/5b/5b6ffd2d9488.png",
       "width": 768,
       "height": 768,
       "bbox": [

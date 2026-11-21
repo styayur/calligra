@@ -35,7 +35,7 @@ def require_local(request: Request):
             origin and origin not in allowed):
         raise HTTPException(403, "This endpoint requires an authorized local connection")
     token = getattr(request.app.state, "workbench_token", None)
-    if token and not compare_digest(request.headers.get("authorization", ""), "Bearer " + token):
+    if token and not compare_digest(request.headers.get("authorization", "").encode(), ("Bearer " + token).encode()):
         raise HTTPException(403, "Invalid Companion authorization")
 
 

@@ -42,7 +42,7 @@ Raw archives/receipts live under ignored `data/imports/`; runtime images under i
 - Repository: https://github.com/nccuviplab/CursiveChineseCalligraphyDataset
 - Images: downstream redistribution and derivative rights are unverified.
 - Attribution: VIPLab, Department of Computer Science, National Chengchi University, Taipei. The publisher credits permission to reorganize and redistribute images from shufa.supfree.net.
-- Local integration: obtain and authorize the files independently, then use the opt-in provider with python -m app.cli import-cursive-nccu --source <local-directory-or-archive>. Legacy startup seeding only runs when explicitly enabled. Private import records withhold commercial, derivative and font permissions.
+- Local integration: obtain and authorize the files independently, then use the opt-in provider with `python -m app.cli import-cursive-nccu --root <local-directory>`. Legacy startup seeding only runs when explicitly enabled. Private import records withhold commercial, derivative and font permissions.
 
 The repository MIT notice covers software and documentation. The earlier 30-image sample, its derived resources and its metadata are excluded from the v0.8.0 distribution. The importer uses generated fixtures for its regression tests. [Publisher README](https://github.com/nccuviplab/CursiveChineseCalligraphyDataset) · [Repository MIT notice](https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE)
 

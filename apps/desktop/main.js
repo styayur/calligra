@@ -65,10 +65,10 @@ function createWindow() {
   // Explicit automation switch keeps native RC smoke tests out of the user's desktop.
   window.once('ready-to-show', () => { if (!app.commandLine.hasSwitch('release-smoke-test')) window.show() })
   window.webContents.on('will-navigate', (event, details) => {
-    const url = new URL(typeof details === 'string' ? details : details.url)
-    if (url.protocol === 'app:' && url.hostname === 'bundle') return
+    const url = URL.parse(event.url ?? (typeof details === 'string' ? details : details?.url) ?? '')
+    if (url?.protocol === 'app:' && url.hostname === 'bundle') return
     event.preventDefault()
-    if (url.protocol === 'https:' || url.protocol === 'http:') void shell.openExternal(url.href)
+    if (url?.protocol === 'https:' || url?.protocol === 'http:') void shell.openExternal(url.href)
   })
   window.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https://') || url.startsWith('http://')) shell.openExternal(url)

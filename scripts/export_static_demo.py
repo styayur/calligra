@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+from hashlib import sha256
 import shutil
 import sqlite3
 from pathlib import Path
@@ -75,7 +77,11 @@ def export_database(database_path: Path, assets_dir: Path, output: Path) -> dict
         source_asset = (assets_dir / relative_asset).resolve()
         if assets_dir.resolve() not in source_asset.parents or not source_asset.is_file():
             continue
-        destination = output / "assets" / relative_asset
+        filename = re.search(r"-([0-9a-f]{12}\.[a-z]+)$", source_asset.name)
+        checksum = sha256(source_asset.read_bytes()).hexdigest()
+        portable_name = filename[1] if filename else checksum + source_asset.suffix
+        portable_asset = Path(relative_asset).with_name(portable_name).as_posix()
+        destination = output / "assets" / portable_asset
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source_asset, destination)
 
@@ -103,11 +109,11 @@ def export_database(database_path: Path, assets_dir: Path, output: Path) -> dict
             },
             "asset": {
                 "type": row["asset_type"],
-                "url": f"demo/assets/{relative_asset}",
+                "url": f"demo/assets/{portable_asset}",
                 "width": row["width"],
                 "height": row["height"],
                 "bbox": parse_json(row["bbox"], [0, 0, row["width"], row["height"]]),
-                'checksum':row['checksum'], 'processing':meta.get('processing'),
+                'checksum':checksum, 'processing':meta.get('processing'),
             },
             "transform": {
                 "x": 0,

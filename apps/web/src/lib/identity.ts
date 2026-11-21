@@ -17,8 +17,10 @@ export function migrateGlyph<T extends Glyph>(glyph: T): T {
   const restricted = /^NCCU Cursive/i.test(source.dataset) ||
     /github\.com\/nccuviplab\/cursivechinesecalligraphydataset/i.test(source.source_uri ?? '')
   const rights = rightsRecord(source.rights)
+  // Migrate old demo URLs to portable asset names that Android's APK can address.
+  const url = glyph.asset.url.replace(/(\/?demo\/assets\/(?:demo|hanzi-writer-structural-data|ofl-calligraphy-fonts)\/[0-9a-f]{2}\/)[^/?#]+-([0-9a-f]{12}\.(?:svg|png))$/, '$1$2')
   return { ...glyph, identity: semanticIdentity(glyph), variant: glyph.variant || {},
-    source: restricted ? {
+    asset: { ...glyph.asset, url }, source: restricted ? {
       ...source, license: null, license_url: null, license_text: null,
       rights: { ...rights, commercial_use: false, derivatives_allowed: false,
         redistribution_allowed: false, font_export_allowed: false },
