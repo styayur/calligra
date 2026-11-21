@@ -1,6 +1,6 @@
 {
-  "version": "0.7.1",
+  "version": "0.8.0",
   "schema_version": 2,
-  "android_version_code": 8,
+  "android_version_code": 9,
   "application_id": "io.github.styayur.calligraphystudio"
 }

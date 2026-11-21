@@ -41,6 +41,7 @@ jobs:
           [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
           test "$(git rev-parse HEAD)" = "$(git rev-list -n 1 "$TAG")"
           VERSION="${TAG#v}"
+          test -s "release/RELEASE_NOTES_${VERSION}.md"
           test "$(node -p "require('./apps/web/package.json').version")" = "$VERSION"
           test "$(node -p "require('./apps/desktop/package.json').version")" = "$VERSION"
           grep -F "versionName \"$VERSION\"" apps/web/android/app/build.gradle
@@ -133,12 +134,21 @@ jobs:
           npm run dist:win
           node ../../scripts/validate_desktop_package.cjs
       - name: Verify final Windows payloads and native renderer
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
-          python scripts/validate_windows_distributables.py apps/desktop/release/CalligraphyStudio-Setup-0.7.1-x64.exe apps/desktop/release/CalligraphyStudio-Portable-0.7.1-x64.exe
+          $taskVersion = $env:VERSION
+          $taskSetup = "apps/desktop/release/CalligraphyStudio-Setup-$taskVersion-x64.exe"
+          $taskPortable = "apps/desktop/release/CalligraphyStudio-Portable-$taskVersion-x64.exe"
+          python scripts/validate_windows_distributables.py $taskSetup $taskPortable
           python -m pip install playwright pillow
           python scripts/test_windows_native.py --exe "apps/desktop/release/win-unpacked/Calligraphy Studio.exe" --output work/windows-native-unpacked.json
-          python scripts/test_windows_native.py --exe apps/desktop/release/CalligraphyStudio-Portable-0.7.1-x64.exe --output work/windows-native-portable.json
+          python scripts/test_windows_native.py --exe $taskPortable --output work/windows-native-portable.json
+          $taskInstall = Join-Path $env:RUNNER_TEMP "calligra-$taskVersion-installed"
+          $taskInstaller = Start-Process -FilePath $taskSetup -ArgumentList '/S', "/D=$taskInstall" -WindowStyle Hidden -Wait -PassThru
+          if ($taskInstaller.ExitCode -ne 0) { throw "Installer failed: $($taskInstaller.ExitCode)" }
+          python scripts/test_windows_native.py --exe (Join-Path $taskInstall 'Calligraphy Studio.exe') --output work/windows-native-installed.json
           Copy-Item apps/web/dist/build-meta.json apps/desktop/release/windows-build-provenance.json
           $taskSignatures = Get-ChildItem apps/desktop/release/*.exe | ForEach-Object { $taskSignature = Get-AuthenticodeSignature -LiteralPath $_.FullName; @{ name = $_.Name; status = [string]$taskSignature.Status; certificate_thumbprint = $taskSignature.SignerCertificate.Thumbprint } }
           $taskSignatures | ConvertTo-Json | Set-Content -Encoding utf8 apps/desktop/release/windows-signing.json
@@ -266,6 +276,7 @@ jobs:
           python scripts/test_studio_browser.py --url http://127.0.0.1:5178
           python scripts/test_visual_browser.py --url http://127.0.0.1:5178 --built
           python scripts/test_japanese_browser.py --url http://127.0.0.1:5178
+          python scripts/test_extraction_browser.py --url http://127.0.0.1:5178
       - name: Package web bundle
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
@@ -312,11 +323,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.prepare.outputs.tag }}
+          VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release already exists; refusing to overwrite it."
             exit 1
           fi
-          gh release create "$TAG" --verify-tag --draft --title "East Asian Calligraphy Workbench $TAG" --notes-file release/RELEASE_NOTES_0.7.1.md
+          notes="release/RELEASE_NOTES_${VERSION}.md"
+          gh release create "$TAG" --verify-tag --draft --title "East Asian Calligraphy Workbench $TAG" --notes-file "$notes"
           gh release upload "$TAG" release-artifacts/*
-          gh release edit "$TAG" --draft=false --latest --notes-file release/RELEASE_NOTES_0.7.1.md
+          gh release edit "$TAG" --draft=false --latest --notes-file "$notes"
+
+      - name: Re-download published files and verify checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          gh release download "$TAG" --dir published-artifacts
+          cd published-artifacts
+          sha256sum --strict --check SHA256SUMS.txt
+          cd ..
+          python scripts/validate_package.py --web-zip "published-artifacts/CalligraphyStudio-Web-$VERSION.zip"

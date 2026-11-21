@@ -8,6 +8,8 @@ import argparse,json,os,socket,subprocess,time
 from pathlib import Path
 from PIL import Image
 from playwright.sync_api import sync_playwright,expect
+
+expected_version = json.loads((Path(__file__).resolve().parents[1] / 'release/version.json').read_text(encoding='utf-8'))['version']
 ROOT=Path(__file__).resolve().parents[1]
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
@@ -39,14 +41,14 @@ def main():
                 # No network is needed by the packaged workbench.
                 page.route('https://**',lambda route:route.abort());page.route('http://**',lambda route:route.abort())
                 page.get_by_label('项目菜单').click()
-                expect(page.get_by_test_id('app-version')).to_have_text('0.7.1')
+                expect(page.get_by_test_id('app-version')).to_have_text(expected_version)
                 page.get_by_role('button',name='第三方许可 / Third-party licences',exact=True).click()
                 frame=page.frame_locator('iframe[title="Bundled third-party licence texts"]')
                 notice_count=len(json.loads((ROOT/'third_party/manifest.json').read_text(encoding='utf-8'))['components'])
                 expect(frame.locator('details')).to_have_count(notice_count)
                 expect(frame.locator('body')).to_contain_text('CODH Kuzushiji')
                 page.get_by_label('关闭第三方许可').click();page.get_by_label('项目菜单').click()
-                checks.append(f'version 0.7.1 and offline {notice_count}-component licence viewer')
+                checks.append(f'version {expected_version} and offline {notice_count}-component licence viewer')
                 composer=page.locator('.composer')
                 composer.get_by_label('字形来源',exact=True).select_option('fonts')
                 def compose(text,count):
