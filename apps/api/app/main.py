@@ -66,6 +66,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(projects.router, prefix=config.api_prefix)
     app.include_router(fallback.router, prefix=config.api_prefix)
     app.include_router(similarity.router, prefix=config.api_prefix)
+    if config.enable_local_workbench:
+        from app.routes import workbench
+        app.include_router(workbench.router, prefix=config.api_prefix)
     app.mount("/assets", StaticFiles(directory=config.assets_dir), name="assets")
 
     return app

@@ -44,11 +44,14 @@ class Settings(BaseSettings):
     auto_index_embeddings: bool = True
     auto_index_limit: int = 5000
     fetch_remote_hanzi: bool = True
+    enable_local_workbench: bool = False
+    libreoffice_path: Path | None = None
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        configured = [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        return configured + (["app://bundle"] if self.enable_local_workbench else [])
 
 
 @lru_cache

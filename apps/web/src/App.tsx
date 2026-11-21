@@ -5,6 +5,8 @@ import { BatchComposer } from './components/glyph-browser/BatchComposer'
 import { GlyphBrowser } from './components/glyph-browser/GlyphBrowser'
 import { Inspector } from './components/inspector/Inspector'
 import { WorkHarmony } from './components/inspector/VisualProfile'
+import { FontStudio } from './components/fonts/FontStudio'
+import { DocumentTypesetting } from './components/documents/DocumentTypesetting'
 import { Materials } from './components/materials/Materials'
 import { LongRoll } from './components/long-roll/LongRoll'
 import { LayersPanel } from './components/layers/LayersPanel'
@@ -13,14 +15,15 @@ import { readDraft, validateProject, writeDraft } from './lib/project'
 import type { Draft } from './lib/project'
 
 export default function App() {
-  const [mode, setMode] = useState<'studio' | 'roll' | 'materials'>('studio')
+  const [mode, setMode] = useState<'studio' | 'roll' | 'materials' | 'fonts' | 'documents'>('studio')
   const [rollVisited, setRollVisited] = useState(false)
   const [tab, setTab] = useState('compose')
   const [searchVisited, setSearchVisited] = useState(false)
   const [ready, setReady] = useState(false)
   const [mobilePanel, setMobilePanel] = useState('edit')
   const canvas = useEditorStore((s) => s.project.canvas)
-  const glyphCount = useEditorStore((s) => s.project.glyphs.length)
+  const projectGlyphs = useEditorStore((s) => s.project.glyphs)
+  const glyphCount = projectGlyphs.length
   const selectedId = useEditorStore((s) => s.selectedId)
   const setCanvas = useEditorStore((s) => s.setCanvas)
   const addGlyph = useEditorStore((s) => s.addGlyph)
@@ -133,6 +136,8 @@ export default function App() {
         <button aria-pressed={mode === 'studio'} onClick={() => setMode('studio')}>
           集字工作台
         </button>
+        <button aria-pressed={mode === 'fonts'} onClick={() => setMode('fonts')}>字体</button>
+        <button aria-pressed={mode === 'documents'} onClick={() => setMode('documents')}>文档</button>
         <button
           aria-pressed={mode === 'roll'}
           onClick={() => {
@@ -221,6 +226,8 @@ export default function App() {
         <div className="loading-workspace">正在恢复工作台…</div>
       )}
       {rollVisited && <LongRoll active={mode === 'roll'} />}
+      {ready && mode === 'fonts' && <FontStudio projectGlyphs={projectGlyphs} />}
+      {ready && mode === 'documents' && <DocumentTypesetting />}
       {ready && mode === 'materials' && <Materials addGlyph={(glyph) => {
         addGlyph(glyph)
         setMobilePanel('canvas')

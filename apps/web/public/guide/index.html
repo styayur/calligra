@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="guide.css">
 </head>
 <body>
-  <header><a href="../">Calligra</a><a href="en/">English</a><a href="ja/" lang="ja">日本語</a></header>
+  <header><a href="../">Calligra</a><a href="en/index.html">English</a><a href="ja/index.html" lang="ja">日本語</a></header>
   <main>
     <h1>使用指南</h1>
     <nav aria-label="章节">
@@ -20,8 +20,13 @@
     <section id="search"><h2>查字与替换</h2><p>在「查字」输入文字、书家或作品，点击候选加入纸面。要换字，先点击纸面或下方字条中的字，再在右侧点选候选。方向键移动选中字形，Shift 加方向键可加大步幅。</p></section>
     <section id="library"><h2>字库安装与导入</h2><p>离线版本附有开源字体与原帖样本。在「素材」保存的字形与原扫描图留在当前设备和应用的本地存储中，也可用「个人字库」参加作品排版。完整字库可通过本地 API 的导入命令加载。<a href="https://github.com/styayur/calligra/blob/main/docs/DATA_SOURCES.md">数据来源和导入命令</a></p></section>
     <section id="extraction"><h2>碑帖图像提取</h2><p>打开「素材」并选择本机 PNG、JPEG 或静态 WebP。单字可直接调整切框，整页可先自动定位。核对切框的位置与文字后保存。净底效果可调整阈值和留白，修复模式需明确确认。切字使用投影分割，连笔与残损请手工调整。文字由用户确认。</p></section>
-    <section id="fonts"><h2>字体制作与下载</h2><p>当前版本可以使用字体字形集字。生成安装字体功能尚未提供。</p></section>
-    <section id="documents"><h2>DOCX / ODT</h2><p>当前版本尚未提供 Word 或 OpenDocument 的字体替换。</p></section>
+    <section id="fonts"><h2>字体制作与下载</h2><p>打开「字体」，选择有授权的个人字形或当前作品中的字形。录入目标文字可检查覆盖，也可按作品、书家或书体筛选。逐字选定候选后，通过本机服务下载 TTF、OTF、WOFF2 与来源清单，或下载制作文件后通过命令行编译。标准轮廓不保存墨色层次，保留细节请用作品图片导出。</p></section>
+    <section id="documents"><h2>DOCX / ODT</h2><p>打开「文档」，选择 DOCX 或 ODT 与本机 TTF 或 OTF。分析会显示段落和缺字。可处理汉字、标题及指定段落，DOCX 还支持匹配直接设置的原字体。下载 ZIP 包中包含转换后的文档和结构分析。请用原办公软件复查分页与行距。复杂对象的支持范围见下文。</p></section>
+    <section id="local"><h2>本机处理服务</h2>
+      <p>在源码的 <code>apps/api</code> 目录安装 <code>requirements.txt</code>，设置环境变量 <code>CALLISTUDIO_ENABLE_LOCAL_WORKBENCH=true</code>，然后运行 <code>python -m uvicorn app.main:app --host 127.0.0.1 --port 8000</code>。本机 Web 版默认允许来自 5173 端口的请求。使用其他端口时，把准确来源加入 <code>CALLISTUDIO_CORS_ORIGINS</code>。在线 Pages 可准备字体制作文件，文档转换请用本机版。</p>
+      <p>命令行支持 <code>python -m app.services.font_studio calligra-font-request.json font.zip --confirm-private-rights</code> 与 <code>python -m app.services.document_typesetting report.docx font.ttf --output converted.docx</code>。</p>
+      <p>转换编辑正文中的普通段落、标题、表格和超链接文字。跳过含域、修订或文本框的 DOCX 段落。页眉、页脚、脚注与公式保留，ODT 修订稿需要先完成审阅。输出引用字体，需在阅读设备安装对应字体。可选 PDF 需要本机 LibreOffice。设置 <code>CALLISTUDIO_LIBREOFFICE_PATH</code> 为其可执行文件路径，或使用命令行 <code>--pdf output.pdf --libreoffice 路径</code>。含嵌入对象、外部素材或部分复杂字段的文件不能导出 PDF。请单独核对 PDF 的字体、分页和文字。</p>
+    </section>
     <section id="files"><h2>文件与平台</h2><p>用「保存项目」下载 JSON，以便在其他设备继续编辑。需要发布图片时使用 PNG，长卷支持 ZIP。Web 离线包请先解压，然后按包内说明在本机启动。</p></section>
     <section id="rights"><h2>数据来源、许可与署名</h2><p>在选中字形后可查看来源。发布作品请保留导出的署名清单，确认各来源允许相应用途。改编的 CC BY-SA 材料需遵守相同方式共享条款。</p></section>
     <section id="help"><h2>故障排查</h2><p>缺字时可检查所选传统、字库或书体。如果本机草稿保存失败，请用「保存项目」保存 JSON。如果离线包无法加载字形，请确认通过本地 HTTP 打开。</p></section>

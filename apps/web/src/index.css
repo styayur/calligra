@@ -1198,3 +1198,17 @@ input[type='checkbox'] {
   .brand-name { display: none; }
   .studio-header { height: auto; min-height: 56px; }
 }
+
+.studio-tool { grid-template-columns: minmax(15rem, 24rem) minmax(0, 1fr); }
+.studio-tool textarea { display: block; width: 100%; padding: 6px; border: 1px solid #dfe5de; }
+.studio-tool a { display: inline-block; margin-top: 12px; color: #355941; text-decoration: underline; }
+.studio-tool p { overflow-wrap: anywhere; margin-block: 8px; }
+.font-glyphs { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.font-glyphs > div { min-width: 0; border: 1px solid #dfe5de; padding: 8px; }
+.font-glyphs img { width: 100%; height: 80px; object-fit: contain; }
+.document-paragraphs { margin-top: 12px; }
+.document-paragraphs li { padding-block: 7px; border-top: 1px solid #e0e5e0; overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .studio-tool { grid-template-columns: minmax(0, 1fr); }
+  .mode-switch { flex-wrap: wrap; }
+}
