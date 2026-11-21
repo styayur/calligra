@@ -4,7 +4,7 @@ Requires Windows and Playwright Chromium. This launches the supplied executable
 (unpacked, installed, or portable) with an explicit hidden test switch and local CDP port.
 The silent install check is intended for an isolated Windows CI runner.
 """
-import argparse,json,os,socket,subprocess,time
+import argparse,json,os,socket,subprocess,tempfile,time
 from pathlib import Path
 from PIL import Image
 from playwright.sync_api import sync_playwright,expect
@@ -28,8 +28,12 @@ def main():
     workspace = (ROOT/'work/native-smoke'/executable.stem/f'run-{time.time_ns()}').resolve()
     assert workspace.is_relative_to((ROOT/'work').resolve())
     workspace.mkdir(parents=True)
+    # Use a normal-length Windows profile and installation path. Python native
+    # extensions on hosts with legacy MAX_PATH enforcement need this as well.
+    runtime = Path(tempfile.mkdtemp(prefix='cg-smoke-'))
+    (workspace / 'runtime-path.txt').write_text(str(runtime), encoding='utf-8')
     if args.installer:
-        destination = workspace / 'app'
+        destination = runtime / 'app'
         # NSIS consumes the unquoted path after its final /D= switch.
         program = str(executable.resolve())
         command = subprocess.list2cmdline([program, '/S']) + f' /D={destination}'
@@ -43,7 +47,7 @@ def main():
     checks=['silent installer executed'] if args.installer else []
     errors=[]
     with (workspace/'process.log').open('wb') as log:
-        process=subprocess.Popen([str(executable.resolve()),'--release-smoke-test',f'--remote-debugging-port={port}',f'--user-data-dir={workspace/"profile"}'],env=env,stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW)
+        process=subprocess.Popen([str(executable.resolve()),'--release-smoke-test',f'--remote-debugging-port={port}',f'--user-data-dir={runtime/"profile"}'],env=env,stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW)
         browser=None
         try:
             with sync_playwright() as playwright:
@@ -140,7 +144,7 @@ def main():
             if process.poll() is None:
                 try:process.wait(timeout=8)
                 except subprocess.TimeoutExpired:subprocess.run(['taskkill','/PID',str(process.pid),'/T','/F'],capture_output=True)
-    result={'executable':executable.name,'installer':args.installer.name if args.installer else None,'evidence_directory':str(workspace),'status':'PASS','checks':checks,'errors':errors,'installer_wizard':'NOT EXECUTED — human native test required','physical_android':'NOT EXECUTED — requires physical device'}
+    result={'executable':executable.name,'installer':args.installer.name if args.installer else None,'evidence_directory':str(workspace),'runtime_directory':str(runtime),'status':'PASS','checks':checks,'errors':errors,'installer_wizard':'NOT EXECUTED — human native test required','physical_android':'NOT EXECUTED — requires physical device'}
     args.output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(result,ensure_ascii=False,indent=2))
 if __name__=='__main__':main()
