@@ -3,7 +3,7 @@ import { fontGlyphs } from './fonts'
 import type { Glyph } from '../types'
 import { candidateCompatible, type CandidatePolicy } from '../lib/candidatePolicy'
 import { historicalGlyphs } from './historical'
-import { privateGlyphs } from '../lib/privateLibrary'
+import { installedPacks, packedGlyphs, privateGlyphs } from '../lib/privateLibrary'
 export type CandidateSource = 'fonts' | 'original' | 'all' | 'fallback' | 'private'
 export interface CandidatePage {
   items: Glyph[]
@@ -24,10 +24,19 @@ export async function candidatePage(
     const items = await privateGlyphs(character, policy)
     return { items: items.slice(offset, offset + limit), hasMore: offset + limit < items.length, warning: '' }
   }
+  if (source === 'all' && policy.dataset) {
+    const pack = (await installedPacks().catch(() => [])).find((pack) => pack.name === policy.dataset)
+    if (pack) {
+      const items = await packedGlyphs(character, policy)
+      return { items: items.slice(offset, offset + limit), hasMore: offset + limit < items.length, warning: pack.enabled ? '' : '可选字库已禁用' }
+    }
+  }
   const page = await catalogPage(character, source, style, offset, limit, policy)
   if (source !== 'all' || offset !== 0) return page
-  const local = (await privateGlyphs(character, policy).catch(() => []))
-    .filter((glyph) => !style || glyph.source.style === style)
+  const [privateItems, packedItems] = await Promise.all([
+    privateGlyphs(character, policy).catch(() => []), packedGlyphs(character, policy).catch(() => []),
+  ])
+  const local = [...privateItems, ...packedItems].filter((glyph) => !style || glyph.source.style === style)
   return { ...page, items: [...page.items, ...local.slice(0, limit)] }
 }
 

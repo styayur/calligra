@@ -46,7 +46,7 @@ Raw archives/receipts live under ignored `data/imports/`; runtime images under i
 - Integration: `NCCUCursiveProvider`, CLI import command, and a 30-image Test subset in `samples/cursive/raw`.
 - Rights metadata: commercial use, derivatives, redistribution, and research use are marked allowed with attribution required.
 
-The upstream repository is about 1.4 GB. This project bundles only a small Test subset so the application can run immediately; use the import CLI for the authorized full checkout.
+The upstream repository is about 1.4 GB. The existing distribution includes a small Test subset. The upstream permission notice credits a grant to VIPLab to reorganize and redistribute images. The repository's MIT notice refers to software and documentation. Those public statements do not independently establish downstream commercial font adaptation or further redistribution rights for the underlying scans. No new NCCU images are included in the 0.8 candidate, and Font Studio excludes this source. Resolve the bundled sample's downstream rights or replace it with independently cleared material before distribution. See the [publisher's README](https://github.com/nccuviplab/CursiveChineseCalligraphyDataset) and [MIT notice](https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE).
 
 ### Google Fonts OFL Calligraphy Fonts
 
@@ -95,7 +95,7 @@ Hanzi Writer is not classified as AI and is never labeled as a historical origin
 - Repository: https://github.com/SCUT-DLVCLab/MCCD
 - Data license: CC BY-NC-ND 4.0, non-commercial research only.
 - Integration: LMDB and manifest import providers only. No MCCD images are bundled in this repository.
-- Consequences: the built-in rights record forbids commercial use and derivative generation by default.
+- The [publisher's terms](https://github.com/SCUT-DLVCLab/MCCD/blob/main/README.md) require approved access for the archive password and limit use to non-commercial research. Its data licence restricts sharing derivatives. Existing providers are for approved local research use, and the built-in rights record forbids commercial use and derivative generation.
 
 ## Reviewed but not imported
 
@@ -121,7 +121,7 @@ It is a standards glyph resource, not specifically a cursive calligraphy corpus.
 
 - Repository: https://github.com/209-Tongji/HCSU
 - Data license: CC BY-NC 4.0.
-- Suitable for non-commercial research experiments, but not bundled or enabled for unrestricted product use without separate permission.
+- The [dataset licence](https://github.com/209-Tongji/HCSU/blob/main/DATA_LICENSE) permits sharing and adaptation for non-commercial purposes with attribution, a licence link and notice of changes. Commercial use requires separate permission. The [publisher](https://github.com/209-Tongji/HCSU) also describes the data as provided for academic and non-commercial research. Calligra keeps HCSU out of public bundles and does not use it for font generation.
 
 ### BCSS
 

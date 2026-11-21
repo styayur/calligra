@@ -15,6 +15,7 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
   const [more, setMore] = useState(false),
     [loading, setLoading] = useState(false),
     [sort, setSort] = useState(false)
+  const [analysisOpen, setAnalysisOpen] = useState(false)
   const [preview, setPreview] = useState<Glyph | null>(null)
   const glyphs = useEditorStore((s) => s.project.glyphs),
     replace = useEditorStore((s) => s.replaceGlyph)
@@ -48,7 +49,7 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
       active = false
     }
   }, [glyph.character, offset, policy, glyph.metadata])
-  const { profiles, pending, failed } = useProfiles([glyph, ...neighbors, ...items])
+  const { profiles, pending, failed } = useProfiles(analysisOpen || sort ? [glyph, ...neighbors, ...items] : [])
   const context = neighbors.flatMap((g) => {
     const p = profiles.get(g.id)
     return p ? [p] : []
@@ -82,8 +83,7 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
     <section className="variants-section">
       <div className="section-title">
         <h3>换个字形</h3>
-        <span>保留位置与大小</span>
-      </div>
+              </div>
       <SourcePolicyControls policy={policy} onChange={setPolicy} />
       <label className="check-field">
         <input type="checkbox" checked={sort} onChange={(e) => setSort(e.target.checked)} />
@@ -109,7 +109,7 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
           >
             <img loading="lazy" src={item.asset.url} alt={item.character} />
             <span>
-              {item.source.work || (item.provenance.type === 'original' ? '原帖' : item.source.style || '结构替补')}
+              {item.source.work || (item.provenance.type === 'original' ? (item.metadata?.history_unverified ? '本机导入' : '原帖') : item.source.style || '结构替补')}
             </span>
             <small>{item.source.writing_tradition || 'Unknown'} · {item.source.source_role === 'coverage-fallback' ? 'Coverage fallback' : item.source.source_role === 'handwriting' ? 'Handwriting' : item.source.source_role === 'calligraphy' ? 'Calligraphy' : item.provenance.type} · {item.source.license || 'Unknown licence'}</small>
             {sort && context.length > 0 && profiles.has(item.id) && (
@@ -178,22 +178,24 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
         </svg>
         <button onClick={() => setPreview(null)}>查看当前字</button>
       </div>
-      <h3 className="profile-title">Visual Profile</h3>
-      <p className="field-hint">64 × 64 原始字形，坐标与长度归一化；不含手动变形。</p>
-      {profile ? (
-        <>
-          <ProfileReadout glyph={shown} profile={profile} />
-          <DifferencePanel
-            profile={profile}
-            context={context}
-            reference={profiles.get(glyph.id)}
-          />
-        </>
-      ) : (
-        <p className="field-hint">
-          {pending ? '正在计算字形特征…' : '特征读取失败，请重新选字。'}
-        </p>
-      )}
+      <details className="advanced" onToggle={(event) => setAnalysisOpen(event.currentTarget.open)}>
+        <summary>字形分析</summary>
+              <p className="field-hint">64 × 64 原始字形，坐标与长度归一化；不含手动变形。</p>
+        {profile ? (
+          <>
+            <ProfileReadout glyph={shown} profile={profile} />
+            <DifferencePanel
+              profile={profile}
+              context={context}
+              reference={profiles.get(glyph.id)}
+            />
+          </>
+        ) : (
+          <p className="field-hint">
+            {pending ? '正在计算字形特征…' : '特征读取失败，请重新选字。'}
+          </p>
+        )}
+      </details>
     </section>
   )
 }

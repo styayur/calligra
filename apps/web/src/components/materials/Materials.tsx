@@ -2,7 +2,8 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { cropGlyph, locateCrops, openScan, type Crop, type InkOptions } from '../../lib/extraction'
 import { sha256 } from '../../lib/fontShaper'
 import { migrateGlyph, textCharacters, unicodeScript } from '../../lib/identity'
-import { deletePrivateGlyph, originalScan, privateGlyphs, PRIVATE_DATASET, savePrivateGlyphs } from '../../lib/privateLibrary'
+import { parseGlyphPack, type GlyphPack } from '../../lib/glyphPacks'
+import { deletePrivateGlyph, enableGlyphPack, installGlyphPack, installedPacks, originalScan, privateGlyphs, PRIVATE_DATASET, removeGlyphPack, savePrivateGlyphs } from '../../lib/privateLibrary'
 import { saveFile } from '../../lib/download'
 import type { Glyph } from '../../types'
 
@@ -42,6 +43,8 @@ function newCandidate(box: Crop, id: number): Candidate {
 
 export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
   const [glyphs, setGlyphs] = useState<Glyph[]>([])
+  const [packs, setPacks] = useState<GlyphPack[]>([])
+  const [packApproved, setPackApproved] = useState(false)
   const [file, setFile] = useState<File>()
   const [scan, setScan] = useState<Awaited<ReturnType<typeof openScan>>>()
   const [pagePreview, setPagePreview] = useState('')
@@ -63,7 +66,11 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
   const [busy, setBusy] = useState(false)
   const [query, setQuery] = useState('')
 
-  const refresh = () => privateGlyphs().then(setGlyphs)
+  const refresh = async () => {
+    const [library, packs] = await Promise.all([privateGlyphs(), installedPacks()])
+    setGlyphs(library)
+    setPacks(packs)
+  }
   useEffect(() => {
     void refresh().catch(() => setStatus('无法读取个人字库'))
   }, [])
@@ -201,6 +208,28 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
     <section>
       <h1>字库</h1>
       <p className="field-hint">内置字体与原帖样本 · 个人字库</p>
+      <details className="advanced">
+        <summary>可选字库</summary>
+        <ul className="private-glyphs">
+          {packs.map((pack) => <li key={pack.id}>
+            <span>{pack.name} · {pack.version} · {pack.count} 字形</span>
+            <button disabled={busy} onClick={() => void run(async () => { await enableGlyphPack(pack.id, !pack.enabled); await refresh() })}>{pack.enabled ? '禁用' : '启用'}</button>
+            <button disabled={busy} onClick={() => void run(async () => { await removeGlyphPack(pack.id); await refresh() })}>卸载</button>
+          </li>)}
+        </ul>
+        <label className="check-field"><input type="checkbox" checked={packApproved} onChange={(event) => setPackApproved(event.target.checked)} />已核实分包来源与许可</label>
+        <label>安装本机字库分包<input type="file" accept=".json" disabled={!packApproved || busy} onChange={(event) => {
+          const input = event.target.files?.[0]
+          event.target.value = ''
+          if (input) void run(async () => {
+            const { pack, glyphs } = await parseGlyphPack(input)
+            const count = await installGlyphPack(pack, glyphs)
+            await refresh()
+            setStatus('字库已安装，共 ' + count + ' 个字形')
+          })
+        }} /></label>
+        <a href={import.meta.env.BASE_URL + 'guide/index.html#library'}>字库导入说明</a>
+      </details>
       <label>查找个人字形<input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="字、书家、书体、作品或年代" /></label>
       <p className="field-hint">{available.length} 个字形 · {new Set(available.map((glyph) => glyph.character)).size} 个不同字</p>
       <ul className="private-glyphs">

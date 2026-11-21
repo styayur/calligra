@@ -19,7 +19,7 @@ export function attributionManifest(glyphs: Glyph[], policy: ExportPolicy = {}) 
   const adaptedLicences = [...new Set(glyphs.filter((g) => g.source.rights?.share_alike_required && !g.source.rights.font_license).map((g) => g.source.license))]
   return { schema_version: 2, artwork_license: adaptedLicences.length === 1 && adaptedLicences[0] === 'CC-BY-SA-4.0' ? 'CC-BY-SA-4.0' : null,
     share_alike_licences:adaptedLicences,
-    licence_boundary: 'Third-party source licences do not inherit the MIT application licence. OFL font licences do not automatically apply to artwork.',
+    licence_boundary: 'Third-party source licences retain their own terms alongside the GPL-3.0-or-later application licence. OFL font licences do not automatically apply to artwork.',
     glyphs: Array.from(new Map(glyphs.map((g) => [g.id, g])).values()).map((g) => ({
       id:g.id, character:g.character, identity:semanticIdentity(g), variant:g.variant || {}, provenance:g.provenance,
       source:migrateGlyph(g).source, asset_checksum:g.asset.checksum || null, metadata:g.metadata || {},

@@ -1212,3 +1212,5 @@ input[type='checkbox'] {
   .studio-tool { grid-template-columns: minmax(0, 1fr); }
   .mode-switch { flex-wrap: wrap; }
 }
+
+.mode-secondary { display: flex; gap: 4px; border-left: 1px solid #e0e5e0; padding-inline-start: 6px; }

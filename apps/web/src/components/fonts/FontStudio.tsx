@@ -2,16 +2,16 @@ import { useEffect, useState } from 'react'
 import { localWorkbench, localWorkbenchAvailable } from '../../api/localWorkbench'
 import { saveFile } from '../../lib/download'
 import { textCharacters } from '../../lib/identity'
-import { privateGlyphs } from '../../lib/privateLibrary'
+import { packedGlyphs, privateGlyphs } from '../../lib/privateLibrary'
 import type { Glyph } from '../../types'
 
 const userPermission = '用户确认可改作及再分发'
-const accepted = new Set(['MIT', 'CC0-1.0', 'CC-BY-4.0', 'CC-BY-SA-4.0', userPermission])
+const accepted = new Set(['CC0-1.0', 'CC-BY-4.0', 'CC-BY-SA-4.0', userPermission])
 
 function eligible(glyph: Glyph) {
   const { asset, source, provenance, character } = glyph
   return provenance.type === 'original' && !!source.license && accepted.has(source.license) &&
-    source.rights?.derivatives_allowed === true && source.rights?.redistribution_allowed === true &&
+    source.rights?.font_export_allowed !== false && source.rights?.derivatives_allowed === true && source.rights?.redistribution_allowed === true &&
     asset.url.startsWith('data:image/png;base64,') && !!asset.checksum &&
     /^[\p{L}\p{N}\p{P}\p{S}]$/u.test(character)
 }
@@ -28,7 +28,7 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
   useEffect(() => {
-    void privateGlyphs().then(setLibrary).catch(() => setStatus('无法读取个人字库'))
+    void Promise.all([privateGlyphs(), packedGlyphs()]).then((groups) => setLibrary(groups.flat())).catch(() => setStatus('无法读取个人字库'))
   }, [])
 
   const matches = (actual: string | null | undefined, filter: string) => !filter.trim() || actual?.includes(filter.trim())
@@ -78,7 +78,7 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
       <h1>字体制作</h1>
       <fieldset disabled={busy}>
         <label>字形来源<select value={source} onChange={(event) => setSource(event.target.value as typeof source)}>
-          <option value="library">个人字库</option><option value="project">当前作品</option>
+          <option value="library">本机字库</option><option value="project">当前作品</option>
         </select></label>
         <label>字体名称<input value={family} maxLength={48} onChange={(event) => setFamily(event.target.value)} /></label>
         <label>目标文字<textarea value={text} maxLength={4096} onChange={(event) => setText(event.target.value)} placeholder="留空使用筛选出的全部字形" /></label>
@@ -104,6 +104,7 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
     </section>
     <section aria-label="字体覆盖">
       <h1>覆盖与预览</h1>
+      <p>{selected.length} 个原始来源字形 · 0 个补字</p>
       <p>{target.length ? '目标覆盖 ' + (target.length - missing.length) + '/' + target.length : selected.length + ' 个可用字形'}</p>
       {missing.length > 0 && <p>缺字 {missing.join('、')}</p>}
       {glyphs.some((glyph) => !eligible(glyph)) && <details className="advanced">

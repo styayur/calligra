@@ -26,7 +26,7 @@ SUPPORTED = {"ttf", "otf", "woff2"}
 MAX_REQUEST = 32 * 1024 * 1024
 MAX_GLYPHS = 512
 USER_PERMISSION = "用户确认可改作及再分发"
-ALLOWED_LICENSES = {"MIT", "CC0-1.0", "CC-BY-4.0", "CC-BY-SA-4.0", USER_PERMISSION}
+ALLOWED_LICENSES = {"CC0-1.0", "CC-BY-4.0", "CC-BY-SA-4.0", USER_PERMISSION}
 Point = tuple[int, int]
 
 
@@ -137,6 +137,8 @@ def compile_font(glyphs: list[GlyphRead], target: str, family: str, formats: set
             continue
         try:
             require_rights(glyph.source.rights, bundle=True, derivative=True)
+            if glyph.source.rights.get("font_export_allowed") is False:
+                raise ValueError("Source explicitly prohibits font export")
             if glyph.source.license not in ALLOWED_LICENSES or glyph.provenance.type != "original":
                 raise ValueError("This source has not been cleared for font generation")
             if glyph.source.license == USER_PERMISSION and not approved_work:
@@ -171,6 +173,7 @@ def compile_font(glyphs: list[GlyphRead], target: str, family: str, formats: set
     derivative_license = "CC-BY-SA-4.0" if "CC-BY-SA-4.0" in licenses else ""
     coverage["outline_derivation"] = "Binary raster contours normalized to a 1000-unit em"
     coverage["derivative_license"] = derivative_license or None
+    coverage["variant_selection"] = "One confirmed outline per scalar; alternative shapes are not assigned to another character."
     ps_name = family.replace(" ", "") + "-Regular"
     cmap = {ord(c): f"uni{ord(c):04X}" if ord(c) <= 0xffff else f"u{ord(c):05X}" for c in masks}
     order = [".notdef", "space", *(cmap[k] for k in sorted(cmap))]
@@ -219,6 +222,10 @@ def compile_font(glyphs: list[GlyphRead], target: str, family: str, formats: set
             data = BytesIO()
             builder.font.save(data)
             payloads[f"{ps_name}.{fmt}"] = data.getvalue()
+    if derivative_license:
+        license_file = Path(__file__).resolve().parents[4] / "third_party/japanese/codh/CC-BY-SA-4.0.txt"
+        if license_file.is_file():
+            payloads["CC-BY-SA-4.0.txt"] = license_file.read_bytes()
     payloads["attribution.json"] = json.dumps(coverage, ensure_ascii=False, indent=2).encode()
     payloads["SOURCE-LICENSES.txt"] = (
         "Outline-derived font. Refer to each credited source and retain its licence terms.\n"

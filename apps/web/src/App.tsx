@@ -138,18 +138,20 @@ export default function App() {
         </button>
         <button aria-pressed={mode === 'fonts'} onClick={() => setMode('fonts')}>字体</button>
         <button aria-pressed={mode === 'documents'} onClick={() => setMode('documents')}>文档</button>
-        <button
-          aria-pressed={mode === 'roll'}
-          onClick={() => {
-            setRollVisited(true)
-            setMode('roll')
-          }}
-        >
-          长卷模式
-        </button>
-        <button aria-pressed={mode === 'materials'} onClick={() => setMode('materials')}>
-          素材
-        </button>
+        <div className="mode-secondary" role="group" aria-label="工作台工具">
+          <button
+            aria-pressed={mode === 'roll'}
+            onClick={() => {
+              setRollVisited(true)
+              setMode('roll')
+            }}
+          >
+            长卷模式
+          </button>
+          <button aria-pressed={mode === 'materials'} onClick={() => setMode('materials')}>
+            素材
+          </button>
+        </div>
       </nav>
       <nav className={mode === 'studio' ? 'mobile-nav' : 'hidden'} aria-label="工作区">
         <button aria-pressed={mobilePanel === 'edit'} onClick={() => setMobilePanel('edit')}>
@@ -186,10 +188,10 @@ export default function App() {
               </button>
             </div>
             <div className={tab === 'compose' ? 'panel-scroll composition-body' : 'hidden'}>
-              <BatchComposer />
+              <BatchComposer active={mode === 'studio' && tab === 'compose'} />
             </div>
             <div className={tab === 'search' ? 'search-body' : 'hidden'}>
-              {searchVisited && <GlyphBrowser />}
+              {searchVisited && <GlyphBrowser active={mode === 'studio' && tab === 'search'} />}
             </div>
           </aside>
           <section className="canvas-column">

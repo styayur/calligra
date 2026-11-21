@@ -7,8 +7,9 @@ import { layoutText, placeGlyph, textLines } from '../../lib/composition'
 import { useEditorStore } from '../../stores/editor'
 import type { BatchLayout, Glyph } from '../../types'
 import { Button } from '../ui'
+import { installedPacks } from '../../lib/privateLibrary'
 
-export function BatchComposer() {
+export function BatchComposer({ active }: { active: boolean }) {
   const projectText = useEditorStore((s) => s.project.text)
   const settings = useEditorStore((s) => s.project.composition)
   const [text, setText] = useState(() => {
@@ -30,6 +31,10 @@ export function BatchComposer() {
   const [style, setStyle] = useState('行书')
   const [source, setSource] = useState<CandidateSource>('fonts')
   const [policy, setPolicy] = useState<CandidatePolicy>(DEFAULT_POLICY)
+  const [packNames, setPackNames] = useState<string[]>([])
+  useEffect(() => {
+    if (active) void installedPacks().then((packs) => setPackNames(packs.filter((pack) => pack.enabled).map((pack) => pack.name))).catch(() => undefined)
+  }, [active])
   const [punctuation, setPunctuation] = useState(false)
   const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
@@ -79,7 +84,7 @@ export function BatchComposer() {
         plan.positions.map((p) => p.character),
         async (character) => {
           // Initial composition fetches a small page; further variants load only on selection.
-          const page = await initialCandidates(character, source, policy.writing_tradition === 'Japanese' ? '' : style, 4, undefined, { ...policy, vertical: layout === 'vertical-rtl' })
+          const page = await initialCandidates(character, source, (policy.writing_tradition === 'Japanese' || policy.dataset) ? '' : style, 4, undefined, { ...policy, vertical: layout === 'vertical-rtl' })
           return page.items[0]
         },
         (done, total) => setStatus(`正在加载字库 ${done}/${total} 个不同字…`),
@@ -139,7 +144,7 @@ export function BatchComposer() {
       <div className="field-grid">
         <label>
           书体
-          <select aria-label="书体" value={style} disabled={source === 'private' || policy.writing_tradition === 'Japanese'} onChange={(e) => setStyle(e.target.value)}>
+          <select aria-label="书体" value={style} disabled={source === 'private' || !!policy.dataset || policy.writing_tradition === 'Japanese'} onChange={(e) => setStyle(e.target.value)}>
             <option>楷书</option>
             <option>行书</option>
             <option>草书</option>
@@ -149,14 +154,20 @@ export function BatchComposer() {
           来源
           <select
             aria-label="字形来源"
-            value={source}
-            onChange={(e) => setSource(e.target.value as CandidateSource)}
+            value={source === 'all' && policy.dataset ? 'pack:' + policy.dataset : source}
+            onChange={(e) => {
+              const value = e.target.value
+              setSource(value.startsWith('pack:') ? 'all' : value as CandidateSource)
+              setPolicy({ ...policy, dataset: value.startsWith('pack:') ? value.slice(5) : undefined })
+            }}
           >
             <option value="fonts">字体</option>
             <option value="original">原帖</option>
             <option value="all">字体与原帖</option>
             <option value="fallback">结构替补</option>
             <option value="private">个人字库</option>
+            {policy.dataset && !packNames.includes(policy.dataset) && <option value={'pack:' + policy.dataset}>{policy.dataset}（未启用）</option>}
+            {packNames.map((name) => <option key={name} value={'pack:' + name}>{name}</option>)}
           </select>
         </label>
       </div>

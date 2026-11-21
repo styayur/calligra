@@ -71,11 +71,37 @@ def main():
         with Image.open(BytesIO(base64.b64decode(url.split(",")[1]))) as cropped:
             assert cropped.mode == "RGBA" and cropped.getpixel((0, 0))[3] == 0
             assert cropped.getbbox() == (8, 8, 33, 35)
+        page.get_by_role("button", name="素材", exact=True).click()
+        page.get_by_text("可选字库", exact=True).click()
+        page.get_by_label("已核实分包来源与许可").check()
+        def import_chunk(rows):
+            value = {"schema_version": 1, "id": "synthetic-pack", "name": "测试字库",
+                     "version": "1", "source": "Synthetic test fixture", "glyphs": rows}
+            page.get_by_label("安装本机字库分包").set_input_files({
+                "name": "test-pack.json", "mimeType": "application/json", "buffer": json.dumps(value).encode(),
+            })
+        import_chunk(glyphs[:1])
+        expect(page.get_by_text("测试字库 · 1 · 1 字形")).to_be_visible()
+        import_chunk(glyphs)
+        expect(page.get_by_text("测试字库 · 1 · 2 字形")).to_be_visible()
+        page.get_by_role("button", name="禁用", exact=True).click()
+        expect(page.get_by_role("button", name="启用", exact=True)).to_be_visible()
+        page.get_by_role("button", name="启用", exact=True).click()
+        page.get_by_role("button", name="集字工作台", exact=True).click()
+        page.get_by_label("字形来源").select_option("pack:测试字库")
+        page.get_by_role("button", name="生成作品", exact=True).click()
+        expect(page.locator(".composer .feedback")).to_contain_text("已排入 2 字")
+        assert page.locator(".character-strip button").count() == 2
+        page.get_by_role("button", name="素材", exact=True).click()
+        page.get_by_text("可选字库", exact=True).click()
+        page.get_by_role("button", name="卸载", exact=True).click()
+        expect(page.get_by_text("测试字库 · 1 · 2 字形")).to_have_count(0)
+        page.get_by_role("button", name="集字工作台", exact=True).click()
         page.get_by_label("项目菜单").click()
         page.get_by_role("link", name="教程", exact=True).click()
         expect(page.get_by_role("heading", name="使用指南", exact=True)).to_be_visible()
         browser.close()
-    print("PASS: two labelled scan crops, transparent ink, local reload, original bytes, composition, 400px layout and offline guide")
+    print("PASS: two labelled scan crops, transparent ink, local reload, original bytes, composition, pack lifecycle, 400px layout and offline guide")
 
 
 if __name__ == "__main__":
