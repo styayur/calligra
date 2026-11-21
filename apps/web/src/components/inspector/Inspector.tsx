@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { Copy, Trash2, X } from 'lucide-react'
 import { useEditorStore } from '../../stores/editor'
 import { SimilarGlyphs } from './SimilarGlyphs'
 import { Button } from '../ui'
 import type { GlyphTransform } from '../../types'
 import { semanticIdentity } from '../../lib/identity'
+import { originalScan, PRIVATE_DATASET } from '../../lib/privateLibrary'
+import { saveFile } from '../../lib/download'
 
 export function Inspector() {
   const glyph = useEditorStore((s) => s.project.glyphs.find((g) => g.id === s.selectedId))
@@ -16,7 +19,20 @@ export function Inspector() {
     beginHistory,
     reorderGlyph,
   } = useEditorStore()
+  const [scanError, setScanError] = useState('')
   if (!glyph) return null
+  const extraction = glyph.metadata?.extraction as { mode?: string } | undefined
+  const scanned = glyph.source.dataset === PRIVATE_DATASET && !!glyph.source.source_checksum
+  const viewScan = async () => {
+    setScanError('')
+    try {
+      const scan = await originalScan(glyph.source.source_checksum!)
+      if (!scan) throw new Error('当前设备没有这份原图')
+      await saveFile(String(glyph.metadata?.original_filename || 'source-image'), scan)
+    } catch (error) {
+      setScanError(error instanceof Error ? error.message : '无法读取本机原图')
+    }
+  }
   const patch = (value: Partial<GlyphTransform>) =>
     setGlyphTransform(glyph.id, value, { recordHistory: false })
   return (
@@ -188,15 +204,17 @@ export function Inspector() {
             {
               {
                 font: '字体字形',
-                original: '原帖字形',
+                original: glyph.metadata?.history_unverified ? '用户导入' : '原帖字形',
                 fallback: '结构替补',
                 generated: '生成字形',
               }[glyph.provenance.type]
             }
           </span>
-          {glyph.asset.processing === 'ink-mask' && <span>已净底</span>}
+          {glyph.asset.processing === 'ink-mask' && <span>{extraction?.mode === 'restored' ? '已修复' : '已净底'}</span>}
           <span>{glyph.source.license || '授权未标注'}</span>
         </div>
+        {scanned && <Button variant="secondary" size="sm" onClick={() => void viewScan()}>下载原图</Button>}
+        {scanError && <p role="status">{scanError}</p>}
         <details className="advanced provenance-details"><summary>来源详情 / Glyph details</summary>
           <dl>
             <dt>Semantic character</dt><dd>{semanticIdentity(glyph).text}</dd>

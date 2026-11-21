@@ -8,6 +8,8 @@ from pathlib import Path
 from PIL import Image
 from playwright.sync_api import sync_playwright, expect
 
+expected_version = json.loads((Path(__file__).resolve().parents[1] / 'release/version.json').read_text(encoding='utf-8'))['version']
+
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
@@ -23,7 +25,7 @@ def main():
         page.goto(args.url); page.wait_for_load_state('networkidle')
         composer=page.locator('.composer')
         page.get_by_label('项目菜单').click()
-        expect(page.get_by_test_id('app-version')).to_have_text('0.7.1')
+        expect(page.get_by_test_id('app-version')).to_have_text(expected_version)
         page.get_by_role('button',name='第三方许可 / Third-party licences',exact=True).click()
         notices=json.loads((Path(__file__).resolve().parents[1]/'third_party/manifest.json').read_text(encoding='utf-8'))
         expect(page.frame_locator('iframe').locator('details')).to_have_count(len(notices['components']))
@@ -54,6 +56,7 @@ def main():
         expect(composer.locator('.feedback')).to_contain_text('已排入 13 字',timeout=120000)
         again=project(); assert [g['asset']['checksum'] for g in original['glyphs']]==[g['asset']['checksum'] for g in again['glyphs']]
         page.get_by_role('button',name='选择第1字骨',exact=True).click()
+        page.get_by_text('字形分析', exact=True).click()
         expect(page.locator('.visual-readout .profile-values')).to_be_visible(timeout=60000)
         expect(page.locator('.variant-grid')).to_contain_text('Klee One',timeout=60000)
         expect(page.locator('.variant-grid')).to_contain_text('Yuji Syuku',timeout=60000)
@@ -121,7 +124,7 @@ def main():
         expect(composer.get_by_label('Tradition',exact=True)).to_have_value('Japanese')
         restored=project(); assert restored['glyphs']==history['glyphs']
         # Long Japanese composition with repeated kana, vertical punctuation, and ZIP attribution.
-        page.get_by_role('button',name='长卷模式 · 自动成篇',exact=True).click()
+        page.get_by_role('button',name='长卷模式',exact=True).click()
         roll=page.locator('.roll-controls')
         roll.get_by_label('Variant type').select_option('') if roll.get_by_label('Variant type').is_visible() else roll.locator('summary').filter(has_text='字形与跨传统探索').click()
         roll.get_by_label('Variant type').select_option('')

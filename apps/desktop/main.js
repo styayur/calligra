@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, net, protocol, shell } = require('electron')
 const path = require('node:path')
 const { pathToFileURL } = require('node:url')
+const companion = require('./companion.cjs')
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -23,8 +24,17 @@ const rendererDirectory = () => {
 
 function registerAppProtocol() {
   const root = rendererDirectory()
+  const handleCompanion = companion(app)
   protocol.handle('app', (request) => {
     const url = new URL(request.url)
+    if (url.hostname !== 'bundle') return new Response('Not found', { status: 404 })
+    if (url.pathname.startsWith('/_companion/')) {
+      const origin = request.headers.get('origin')
+      if ((origin && origin !== 'app://bundle') || request.headers.get('sec-fetch-site') === 'cross-site') {
+        return new Response('Forbidden', { status: 403 })
+      }
+      return handleCompanion(request, url.pathname.slice('/_companion/'.length), url.search)
+    }
     let pathname = decodeURIComponent(url.pathname)
     if (!pathname || pathname === '/') pathname = '/index.html'
     const target = path.resolve(root, '.' + pathname)
@@ -54,6 +64,12 @@ function createWindow() {
 
   // Explicit automation switch keeps native RC smoke tests out of the user's desktop.
   window.once('ready-to-show', () => { if (!app.commandLine.hasSwitch('release-smoke-test')) window.show() })
+  window.webContents.on('will-navigate', (event, details) => {
+    const url = URL.parse(event.url ?? (typeof details === 'string' ? details : details?.url) ?? '')
+    if (url?.protocol === 'app:' && url.hostname === 'bundle') return
+    event.preventDefault()
+    if (url?.protocol === 'https:' || url?.protocol === 'http:') void shell.openExternal(url.href)
+  })
   window.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https://') || url.startsWith('http://')) shell.openExternal(url)
     return { action: 'deny' }

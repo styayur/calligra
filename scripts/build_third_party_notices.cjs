@@ -24,7 +24,6 @@ for (const font of readJson('apps/web/public/fonts/asset-manifest.json').fonts) 
       `${catalog.designer}; font provenance, not manuscript originals. ${catalog.attribution||''}`)
 }
 add('codh','CODH Kuzushiji sample','historical','v2 (2019-11-11)','https://codh.rois.ac.jp/char-shape/','CC-BY-SA-4.0','third_party/japanese/codh/CC-BY-SA-4.0.txt','japanese/licenses/CC-BY-SA-4.0.txt','20 crops and ink-mask derivatives; 日本古典籍くずし字データセット (国文研所蔵／CODH加工), DOI 10.20676/00000340. Changes and original checksums are in japanese/glyphs.json. Not MIT.')
-add('nccu','NCCU Cursive Chinese Calligraphy Dataset','historical',null,'https://github.com/nccuviplab/CursiveChineseCalligraphyDataset','MIT','samples/cursive/raw/LICENSE','demo/licenses/nccu-mit.txt','VIPLab, National Chengchi University; bundled Test subset.')
 add('arphic','Hanzi Writer / Make Me A Hanzi / Arphic','structural',null,'https://github.com/chanind/hanzi-writer-data','ARPHIC-PUBLIC-LICENSE','third_party/hanzi-writer/ARPHICPL.TXT','demo/licenses/arphic-public-license.txt','Modified structural SVGs retain Arphic licence/notice obligations; fallback provenance.')
 add('demo','Synthetic demonstration glyphs','fixture',null,'https://github.com/styayur/calligra','CC0-1.0','third_party/CC0-1.0.txt','demo/licenses/CC0-1.0.txt','Synthetic examples, not historical manuscripts.')
 add('harfbuzz','HarfBuzz WASM engine','software','863d3f7787c6df18d20e4535c5906bf3eb803bd5','https://github.com/harfbuzz/harfbuzz','Old-MIT','third_party/harfbuzz/HarfBuzz-COPYING.txt','licenses/HarfBuzz-COPYING.txt')

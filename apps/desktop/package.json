@@ -1,6 +1,6 @@
 {
   "name": "calligraphy-studio-desktop",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "private": true,
   "description": "Offline desktop build of Calligraphy Studio",
   "main": "main.js",
@@ -44,6 +44,7 @@
     },
     "files": [
       "main.js",
+      "companion.cjs",
       "build/icon.png",
       {
         "from": "../web/dist",
@@ -51,6 +52,17 @@
         "filter": [
           "**/*"
         ]
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "../api",
+        "to": "companion",
+        "filter": ["app/**/*.py", "launch_companion.py", "requirements-companion.txt"]
+      },
+      {
+        "from": "../../third_party/japanese/codh/CC-BY-SA-4.0.txt",
+        "to": "companion/CC-BY-SA-4.0.txt"
       }
     ],
     "asar": true,

@@ -1,27 +1,53 @@
 """Actual packaged Electron renderer smoke test, isolated from the user's drafts.
 
 Requires Windows and Playwright Chromium. This launches the supplied executable
-(unpacked or portable) with an explicit hidden test switch and local CDP port.
-Installer wizard / installed shortcuts remain human checks, not simulated results.
+(unpacked, installed, or portable) with an explicit hidden test switch and local CDP port.
+The silent install check is intended for an isolated Windows CI runner.
 """
-import argparse,json,os,socket,subprocess,time
+import argparse,json,os,socket,subprocess,tempfile,time
 from pathlib import Path
 from PIL import Image
 from playwright.sync_api import sync_playwright,expect
+
+expected_version = json.loads((Path(__file__).resolve().parents[1] / 'release/version.json').read_text(encoding='utf-8'))['version']
 ROOT=Path(__file__).resolve().parents[1]
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--exe',type=Path,required=True);parser.add_argument('--output',type=Path,required=True)
+    launch = parser.add_mutually_exclusive_group(required=True)
+    launch.add_argument('--exe', type=Path)
+    launch.add_argument('--installer', type=Path)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--companion', action='store_true', help='Exercise Companion on an isolated installed Windows build')
     args=parser.parse_args()
     if os.name!='nt':parser.error('Native Windows smoke requires Windows')
+    if args.companion and not args.installer: parser.error('--companion requires --installer')
     args.output.parent.mkdir(parents=True,exist_ok=True)
-    workspace=(ROOT/'work/native-smoke'/args.exe.stem/f'run-{time.time_ns()}').resolve();workspace.mkdir(parents=True,exist_ok=True)
+    executable = args.exe or args.installer
+    if not executable.is_file():
+        parser.error(f'Missing Windows executable: {executable}')
+    workspace = (ROOT/'work/native-smoke'/executable.stem/f'run-{time.time_ns()}').resolve()
     assert workspace.is_relative_to((ROOT/'work').resolve())
+    workspace.mkdir(parents=True)
+    # Use a normal-length Windows profile and installation path. Python native
+    # extensions on hosts with legacy MAX_PATH enforcement need this as well.
+    runtime = Path(tempfile.mkdtemp(prefix='cg-smoke-'))
+    (workspace / 'runtime-path.txt').write_text(str(runtime), encoding='utf-8')
+    if args.installer:
+        destination = runtime / 'app'
+        # NSIS consumes the unquoted path after its final /D= switch.
+        program = str(executable.resolve())
+        command = subprocess.list2cmdline([program, '/S']) + f' /D={destination}'
+        with (workspace / 'installer.log').open('wb') as log:
+            subprocess.run(command, executable=program, check=True, timeout=240,
+                           stdout=log, stderr=log, creationflags=subprocess.CREATE_NO_WINDOW)
+        executable = destination / 'Calligraphy Studio.exe'
+        assert executable.is_file(), 'The installer did not place the application in the requested destination'
     with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
     env=dict(os.environ);env.pop('ELECTRON_RUN_AS_NODE',None)
-    checks=[];errors=[]
+    checks=['silent installer executed'] if args.installer else []
+    errors=[]
     with (workspace/'process.log').open('wb') as log:
-        process=subprocess.Popen([str(args.exe.resolve()),'--release-smoke-test',f'--remote-debugging-port={port}',f'--user-data-dir={workspace/"profile"}'],env=env,stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW)
+        process=subprocess.Popen([str(executable.resolve()),'--release-smoke-test',f'--remote-debugging-port={port}',f'--user-data-dir={runtime/"profile"}'],env=env,stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW)
         browser=None
         try:
             with sync_playwright() as playwright:
@@ -39,14 +65,14 @@ def main():
                 # No network is needed by the packaged workbench.
                 page.route('https://**',lambda route:route.abort());page.route('http://**',lambda route:route.abort())
                 page.get_by_label('项目菜单').click()
-                expect(page.get_by_test_id('app-version')).to_have_text('0.7.1')
+                expect(page.get_by_test_id('app-version')).to_have_text(expected_version)
                 page.get_by_role('button',name='第三方许可 / Third-party licences',exact=True).click()
                 frame=page.frame_locator('iframe[title="Bundled third-party licence texts"]')
                 notice_count=len(json.loads((ROOT/'third_party/manifest.json').read_text(encoding='utf-8'))['components'])
                 expect(frame.locator('details')).to_have_count(notice_count)
                 expect(frame.locator('body')).to_contain_text('CODH Kuzushiji')
                 page.get_by_label('关闭第三方许可').click();page.get_by_label('项目菜单').click()
-                checks.append(f'version 0.7.1 and offline {notice_count}-component licence viewer')
+                checks.append(f'version {expected_version} and offline {notice_count}-component licence viewer')
                 composer=page.locator('.composer')
                 composer.get_by_label('字形来源',exact=True).select_option('fonts')
                 def compose(text,count):
@@ -106,6 +132,11 @@ def main():
                 # Preserve the inspected DOM/metadata as evidence; visible UI acceptance is manual.
                 (workspace/'native-provenance.html').write_text(page.content(),encoding='utf-8')
                 checks.append('historical sample / DOI / rights provenance inspector')
+                if args.companion:
+                    page.get_by_label('关闭字形调整').click()
+                    from test_local_workbench_browser import exercise_workbench
+                    exercise_workbench(page, installed_windows=True)
+                    checks.append('installed Companion bootstrap, generated Windows GDI font, DOCX and ODT export')
                 assert not errors,errors
                 browser.close()
                 browser=None
@@ -113,7 +144,7 @@ def main():
             if process.poll() is None:
                 try:process.wait(timeout=8)
                 except subprocess.TimeoutExpired:subprocess.run(['taskkill','/PID',str(process.pid),'/T','/F'],capture_output=True)
-    result={'executable':args.exe.name,'evidence_directory':str(workspace),'status':'PASS','checks':checks,'errors':errors,'installer_wizard':'NOT EXECUTED — human native test required','physical_android':'NOT EXECUTED — requires physical device'}
+    result={'executable':executable.name,'installer':args.installer.name if args.installer else None,'evidence_directory':str(workspace),'runtime_directory':str(runtime),'status':'PASS','checks':checks,'errors':errors,'installer_wizard':'NOT EXECUTED — human native test required','physical_android':'NOT EXECUTED — requires physical device'}
     args.output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(result,ensure_ascii=False,indent=2))
 if __name__=='__main__':main()

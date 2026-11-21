@@ -18,7 +18,7 @@ export function validateProject(value: unknown): ProjectDocument {
     const c = p.composition
     if (
       !['grid', 'horizontal-ltr', 'vertical-rtl'].includes(c.layout) ||
-      !['fonts', 'original', 'all', 'fallback'].includes(c.source) ||
+      !['fonts', 'original', 'all', 'fallback', 'private'].includes(c.source) ||
       typeof c.style !== 'string' ||
       typeof c.punctuation !== 'boolean' ||
       ![c.columns, c.size, c.gap, c.margin].every(Number.isFinite) ||

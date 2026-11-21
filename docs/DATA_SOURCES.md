@@ -40,13 +40,11 @@ Raw archives/receipts live under ignored `data/imports/`; runtime images under i
 ### NCCU Cursive Chinese Calligraphy Dataset
 
 - Repository: https://github.com/nccuviplab/CursiveChineseCalligraphyDataset
-- Source license: MIT
-- Upstream description: 5,301 cursive character categories after removing numeric directory suffixes; 96×96 grayscale images; Training / Validation / Test splits.
-- Attribution: VIPLab, Department of Computer Science, National Chengchi University, Taipei. The upstream README states that images were reorganized and redistributed with permission from the administrator of https://shufa.supfree.net/.
-- Integration: `NCCUCursiveProvider`, CLI import command, and a 30-image Test subset in `samples/cursive/raw`.
-- Rights metadata: commercial use, derivatives, redistribution, and research use are marked allowed with attribution required.
+- Images: downstream redistribution and derivative rights are unverified.
+- Attribution: VIPLab, Department of Computer Science, National Chengchi University, Taipei. The publisher credits permission to reorganize and redistribute images from shufa.supfree.net.
+- Local integration: obtain and authorize the files independently, then use the opt-in provider with `python -m app.cli import-cursive-nccu --root <local-directory>`. Legacy startup seeding only runs when explicitly enabled. Private import records withhold commercial, derivative and font permissions.
 
-The upstream repository is about 1.4 GB. This project bundles only a small Test subset so the application can run immediately; use the import CLI for the authorized full checkout.
+The repository MIT notice covers software and documentation. The earlier 30-image sample, its derived resources and its metadata are excluded from the v0.8.0 distribution. The importer uses generated fixtures for its regression tests. [Publisher README](https://github.com/nccuviplab/CursiveChineseCalligraphyDataset) · [Repository MIT notice](https://github.com/nccuviplab/CursiveChineseCalligraphyDataset/blob/master/LICENSE)
 
 ### Google Fonts OFL Calligraphy Fonts
 
@@ -95,7 +93,7 @@ Hanzi Writer is not classified as AI and is never labeled as a historical origin
 - Repository: https://github.com/SCUT-DLVCLab/MCCD
 - Data license: CC BY-NC-ND 4.0, non-commercial research only.
 - Integration: LMDB and manifest import providers only. No MCCD images are bundled in this repository.
-- Consequences: the built-in rights record forbids commercial use and derivative generation by default.
+- The [publisher's terms](https://github.com/SCUT-DLVCLab/MCCD/blob/main/README.md) require approved access for the archive password and limit use to non-commercial research. Its data licence restricts sharing derivatives. Existing providers are for approved local research use, and the built-in rights record forbids commercial use and derivative generation.
 
 ## Reviewed but not imported
 
@@ -121,8 +119,15 @@ It is a standards glyph resource, not specifically a cursive calligraphy corpus.
 
 - Repository: https://github.com/209-Tongji/HCSU
 - Data license: CC BY-NC 4.0.
-- Suitable for non-commercial research experiments, but not bundled or enabled for unrestricted product use without separate permission.
+- The [dataset licence](https://github.com/209-Tongji/HCSU/blob/main/DATA_LICENSE) permits sharing and adaptation for non-commercial purposes with attribution, a licence link and notice of changes. Commercial use requires separate permission. The [publisher](https://github.com/209-Tongji/HCSU) also describes the data as provided for academic and non-commercial research. Calligra keeps HCSU out of public bundles and does not use it for font generation.
 
 ### BCSS
 
 The public repository currently documents that the dataset will be released in the future and does not contain the image corpus. No dataset images were imported.
+
+
+## Optional OCR models
+
+The local OCR companion uses tesserocr 2.13.0 (MIT) with the Tesseract engine (Apache-2.0). Language weights come from [Tesseract tessdata_fast 4.1.0](https://github.com/tesseract-ocr/tessdata_fast/tree/4.1.0), Apache-2.0. Install the binding separately via apps/api/requirements-ocr.txt and configure local language files. The standard Web, Windows and Android bundles omit the OCR runtime and model files.
+
+The single-character model is an experimental reference for modern print. Historical text still needs manual reading. Run scripts/evaluate_extraction_ocr.py to measure suggestions, accuracy and correction counts on eight synthetic Chinese glyphs and twenty CODH crops with source labels. The evaluation uses the pinned model revision 65727574dfcd264acbb0c3e07860e4e9e9b22185.

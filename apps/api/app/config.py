@@ -28,9 +28,7 @@ class Settings(BaseSettings):
     demo_manifest: Path = Field(
         default_factory=lambda: PROJECT_ROOT / "samples" / "demo" / "manifest.csv"
     )
-    cursive_sample_root: Path = Field(
-        default_factory=lambda: PROJECT_ROOT / "samples" / "cursive" / "raw"
-    )
+    cursive_sample_root: Path | None = None
     hanzi_data_dir: Path = Field(
         default_factory=lambda: PROJECT_ROOT / "data" / "hanzi-writer"
     )
@@ -38,17 +36,21 @@ class Settings(BaseSettings):
         default_factory=lambda: PROJECT_ROOT / "samples" / "fonts" / "manifest.json"
     )
     seed_demo: bool = True
-    seed_cursive: bool = True
+    seed_cursive: bool = False
     seed_fonts: bool = True
     include_noncommercial_fonts: bool = True
     auto_index_embeddings: bool = True
     auto_index_limit: int = 5000
     fetch_remote_hanzi: bool = True
+    enable_local_workbench: bool = False
+    libreoffice_path: Path | None = None
+    ocr_model_dir: Path | None = None
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        configured = [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        return configured + (["app://bundle"] if self.enable_local_workbench else [])
 
 
 @lru_cache

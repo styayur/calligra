@@ -4,6 +4,7 @@ from sqlalchemy import case, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.models import Calligrapher, Dynasty, Glyph, GlyphSource, Style
+from app.providers.nccu_cursive import NCCU_RIGHTS, is_nccu_source
 from app.schemas import (
     GlyphAppearanceSchema,
     GlyphAssetSchema,
@@ -16,6 +17,7 @@ from app.schemas import (
 
 
 def glyph_to_schema(glyph: Glyph) -> GlyphRead:
+    restricted = is_nccu_source(glyph.source.dataset, glyph.source.source_uri)
     return GlyphRead(
         id=glyph.id,
         character=glyph.character,
@@ -29,9 +31,9 @@ def glyph_to_schema(glyph: Glyph) -> GlyphRead:
             style=glyph.style.name if glyph.style else None,
             dynasty=glyph.dynasty.name if glyph.dynasty else None,
             work=glyph.source.work,
-            license=glyph.source.license,
-            license_url=glyph.source.license_url,
-            rights=glyph.source.rights or {},
+            license=None if restricted else glyph.source.license,
+            license_url=None if restricted else glyph.source.license_url,
+            rights=NCCU_RIGHTS if restricted else glyph.source.rights or {},
             language=glyph.language, locale=glyph.locale, script=glyph.script,
             writing_tradition=glyph.writing_tradition, orthography=glyph.orthography,
             period=glyph.period, region=glyph.region,
@@ -130,7 +132,11 @@ class GlyphService:
             statement = statement.where(or_(Glyph.variant_type.is_(None), Glyph.variant_type != "hentaigana"))
             statement = statement.where(or_(Glyph.orthography.is_(None), Glyph.orthography != 'historical-kana'))
         if commercial_only:
-            statement = statement.where(Glyph.source.has(GlyphSource.rights["commercial_use"].as_boolean() == True))
+            statement = statement.where(Glyph.source.has(
+                (GlyphSource.rights["commercial_use"].as_boolean() == True)
+                & ~GlyphSource.dataset.ilike("NCCU Cursive%")
+                & ~func.coalesce(GlyphSource.source_uri, "").ilike("%github.com/nccuviplab/cursivechinesecalligraphydataset%")
+            ))
         if designer:
             statement = statement.where(Calligrapher.name == designer)
         return statement

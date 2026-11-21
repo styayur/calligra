@@ -1,3 +1,1 @@
-from app.routes import compose, fallback, glyphs, metadata, projects, search, similarity
-
-__all__ = ["compose", "fallback", "glyphs", "metadata", "projects", "search"]
+"""API route modules are loaded explicitly by their host application."""

@@ -1,11 +1,13 @@
 """Keep runner SDK drift from changing publication signature validation."""
 import importlib.util
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
+version = json.loads((ROOT / 'release/version.json').read_text(encoding='utf-8'))
 spec = importlib.util.spec_from_file_location('android_gate', ROOT / 'scripts/validate_android_release.py')
 gate = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(gate)
@@ -23,7 +25,7 @@ def test_pinned_sdk_and_fail_closed_signing(tmp_path, monkeypatch, certificate_o
     def run(command, **kwargs):
         assert Path(command[0]).parent.name == '36.0.0'
         output = certificate_output if 'apksigner' in Path(command[0]).name else (
-            "package: name='io.github.styayur.calligraphystudio' versionCode='8' versionName='0.7.1'"
+            f"package: name='io.github.styayur.calligraphystudio' versionCode='{version['android_version_code']}' versionName='{version['version']}'"
         )
         return SimpleNamespace(stdout=output)
 

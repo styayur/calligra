@@ -41,7 +41,7 @@ def seed_demo_if_empty(database: Database, settings: Settings) -> int:
     return result.imported
 
 def seed_cursive_if_missing(database: Database, settings: Settings) -> int:
-    if not settings.seed_cursive or not settings.cursive_sample_root.is_dir():
+    if not settings.seed_cursive or not settings.cursive_sample_root or not settings.cursive_sample_root.is_dir():
         return 0
 
     with database.session() as session:

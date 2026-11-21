@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "version": "0.7.1",
+  "version": "0.8.0",
   "components": [
     {
       "id": "application",
       "name": "Calligra",
       "category": "application",
-      "version": "0.7.1",
+      "version": "0.8.0",
       "source_uri": "https://github.com/styayur/calligra",
       "license": "GPL-3.0-or-later",
       "license_text": {
@@ -157,19 +157,6 @@
         "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
       },
       "notes": "20 crops and ink-mask derivatives; 日本古典籍くずし字データセット (国文研所蔵／CODH加工), DOI 10.20676/00000340. Changes and original checksums are in japanese/glyphs.json. Not MIT."
-    },
-    {
-      "id": "nccu",
-      "name": "NCCU Cursive Chinese Calligraphy Dataset",
-      "category": "historical",
-      "version": null,
-      "source_uri": "https://github.com/nccuviplab/CursiveChineseCalligraphyDataset",
-      "license": "MIT",
-      "license_text": {
-        "path": "demo/licenses/nccu-mit.txt",
-        "sha256": "abd7aa8222b1fa2185b8fb70a61b8bba0ab59c2157880dee0a21b1d734fcc08e"
-      },
-      "notes": "VIPLab, National Chengchi University; bundled Test subset."
     },
     {
       "id": "arphic",

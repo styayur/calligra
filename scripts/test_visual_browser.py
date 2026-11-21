@@ -23,6 +23,7 @@ with sync_playwright() as p:
     page.get_by_role('button',name='生成作品',exact=True).click()
     expect(page.locator('.composer .feedback')).to_contain_text('已排入 10 字',timeout=60000)
     page.get_by_role('button',name='选择第1字明',exact=True).click()
+    page.get_by_text('字形分析', exact=True).click()
     expect(page.locator('.visual-readout .profile-values')).to_be_visible(timeout=60000)
     page.get_by_label('按协调度排序').check()
     expect(page.locator('.difference-row')).to_have_count(11)
@@ -41,6 +42,7 @@ with sync_playwright() as p:
     # Source feature disk cache survives reload.
     page.reload();page.wait_for_load_state('networkidle')
     page.get_by_role('button',name='选择第1字明',exact=True).click()
+    page.get_by_text('字形分析', exact=True).click()
     expect(page.locator('.visual-readout .profile-values')).to_be_visible(timeout=60000)
     disk=None if args.built else page.evaluate("async()=>({... (await import(performance.getEntriesByType('resource').find(e=>e.name.includes('/src/lib/featureCache.ts')).name)).featureStats})")
     if not args.built:
@@ -59,7 +61,7 @@ with sync_playwright() as p:
     page.screenshot(path=str(out/'studio-1000.png'))
     page.get_by_label('集字内容',exact=True).fill('山'*1001)
     expect(page.get_by_role('button',name='生成作品',exact=True)).to_be_disabled()
-    page.get_by_role('button',name='长卷模式 · 自动成篇',exact=True).click()
+    page.get_by_role('button',name='长卷模式',exact=True).click()
     page.get_by_label('长卷内容',exact=True).fill('明月松间照清泉石上流'*103+'😀')
     started=time.monotonic();page.get_by_role('button',name='自动生成长卷',exact=True).click()
     expect(page.locator('.roll-controls .feedback')).to_contain_text('已生成 1031 字 / 11 页',timeout=120000)

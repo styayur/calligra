@@ -52,7 +52,6 @@
   "datasets": [
     "Demo",
     "Hanzi Writer Structural Data",
-    "NCCU Cursive Chinese Calligraphy Dataset",
     "OFL Calligraphy Fonts"
   ]
 }

@@ -20,10 +20,13 @@ def validate():
         assert manifest['release']==version and manifest['schema_version']==release['schema_version']
     assert f'content="{version}"' in (ROOT/'apps/web/index.html').read_text(encoding='utf-8')
     assert version in (ROOT/f'release/RELEASE_NOTES_{version}.md').read_text(encoding='utf-8')
-    workflow=(ROOT/'.github/workflows/release-all.yml').read_text(encoding='utf-8')
-    # Dispatch selects a Git tag ref now; validate the concrete package/note names.
-    assert set(re.findall(r'CalligraphyStudio-(?:Setup|Portable)-(\d+\.\d+\.\d+)-x64\.exe',workflow))=={version}
-    assert f'RELEASE_NOTES_{version}.md' in workflow
+    for name in ['release-all.yml', 'ci.yml']:
+        workflow=(ROOT/'.github/workflows'/name).read_text(encoding='utf-8')
+        assert not re.search(r'CalligraphyStudio-(?:Setup|Portable)-\d+\.\d+\.\d+-x64\.exe', workflow)
+        assert 'CalligraphyStudio-Setup-$taskVersion-x64.exe' in workflow
+        assert 'CalligraphyStudio-Portable-$taskVersion-x64.exe' in workflow
+    release_workflow = (ROOT/'.github/workflows/release-all.yml').read_text(encoding='utf-8')
+    assert 'release/RELEASE_NOTES_${VERSION}.md' in release_workflow
     assert 'SCHEMA_VERSION = 2' in (ROOT/'apps/api/app/domain.py').read_text(encoding='utf-8')
     assert 'SCHEMA_VERSION = 2' in (ROOT/'apps/web/src/lib/identity.ts').read_text(encoding='utf-8')
     assert 'APP_VERSION' in (ROOT/'apps/web/src/components/editor/Toolbar.tsx').read_text(encoding='utf-8')

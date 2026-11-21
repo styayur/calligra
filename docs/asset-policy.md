@@ -22,7 +22,7 @@ Japanese runtime font files use `.ttf.gzip`, not `.gz`: Android AAPT strips/deco
 | --- | --- | --- |
 | `samples/fonts/ofl/` | Original OFL font files used to generate glyph assets | Keep license text, source URL, designer, and checksum |
 | `samples/fonts/licenses/` | OFL license texts | Keep verbatim and alongside the font record |
-| `samples/cursive/raw/` | Limited NCCU cursive test subset | Keep dataset license and source metadata |
+| `tests/fixtures/historical-page/` | CODH historical page for regression | Keep the CC BY-SA 4.0 attribution, image checksum and reference crops |
 | `third_party/hanzi-writer/` | Hanzi Writer/Arphic structural data and license | Preserve modification and redistribution notices |
 | `apps/web/public/fonts/` | Browser-ready font derivatives and catalog | Record source font, transform command, and checksum |
 

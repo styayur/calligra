@@ -4,10 +4,11 @@ python scripts/test_studio_browser.py --url http://127.0.0.1:5178 --channel msed
 Requires playwright and pillow. Screenshots/downloads go into ignored work/.
 """
 import argparse
-import base64
+from hashlib import sha256
 import io
 import json
 from pathlib import Path
+from urllib.parse import urljoin
 from PIL import Image
 from playwright.sync_api import sync_playwright, expect
 
@@ -124,18 +125,24 @@ with sync_playwright() as p:
     grid = project()['glyphs']
     assert grid[0]['transform']['y'] == grid[1]['transform']['y']
     assert grid[2]['transform']['y'] > grid[0]['transform']['y']
-    page.get_by_label('集字内容').fill('春眠不觉晓')
-    page.locator('.composer').get_by_label('书体', exact=True).select_option('草书')
+    page.locator('.composer').get_by_label('Tradition', exact=True).select_option('Japanese')
+    page.get_by_label('集字内容').fill('あの水')
     page.get_by_label('字形来源').select_option('original')
     page.get_by_role('button', name='生成作品', exact=True).click()
     expect(page.locator('.composer .feedback')).to_contain_text('已排入')
     originals = project()['glyphs']
-    assert all(g['provenance']['type'] == 'original' for g in originals)
+    assert len(originals) == 3
+    assert all(g['provenance']['type'] == 'original' and g['source']['dataset'] == 'CODH Kuzushiji' for g in originals)
     for glyph in originals:
         assert glyph['asset']['processing'] == 'ink-mask'
-        ink = Image.open(io.BytesIO(base64.b64decode(glyph['asset']['url'].split(',')[1]))).convert('RGBA')
-        assert ink.getpixel((0, 0))[3] == 0
-        assert ink.getchannel('A').getbbox() is not None
+        asset_url = glyph['asset']['url']
+        response = page.request.get(urljoin(args.url.rstrip('/') + '/', asset_url))
+        assert response.ok, asset_url
+        data = response.body()
+        assert sha256(data).hexdigest() == glyph['asset']['checksum']
+        with Image.open(io.BytesIO(data)) as ink:
+            low, high = ink.getchannel('A').getextrema()
+            assert 0 <= low < high <= 255 and low < 128
 
     # Import a saved project, reject malformed data before replacing the current work.
     page.on('dialog', lambda dialog: dialog.accept())

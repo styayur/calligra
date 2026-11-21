@@ -1,0 +1,49 @@
+{
+  "image": "wang-epitaph-heading.jpg",
+  "image_uri": "https://iiifod.npm.gov.tw/iiif/2/B2I%2FB2I000065N000000000PAA/full/900,/0/default.jpg",
+  "record_uri": "https://digitalarchive.npm.gov.tw/Collection/Detail/33675?dep=P",
+  "attribution": "北魏王君墓誌碑額墨拓本。國立故宮博物院，台北，CC BY 4.0 @ www.npm.gov.tw",
+  "license": "CC-BY-4.0",
+  "license_uri": "https://creativecommons.org/licenses/by/4.0/",
+  "sha256": "1f612ca1fa0d096a01bdc8d2efb53d9c176052e7007b3d644fdf4cdf16c55fb2",
+  "source_dimensions": [
+    900,
+    678
+  ],
+  "fixture_dimensions": [
+    900,
+    678
+  ],
+  "processing": "Uncropped archival photo, delivered at 900 pixels wide by the museum IIIF endpoint",
+  "annotation": "Manually boxed left column against the institution transcription. Alternate spellings and eroded labels were omitted.",
+  "tradition": "Chinese",
+  "labels": [
+    {
+      "text": "君",
+      "source_bbox": [
+        259,
+        230,
+        70,
+        72
+      ]
+    },
+    {
+      "text": "墓",
+      "source_bbox": [
+        257,
+        306,
+        71,
+        69
+      ]
+    },
+    {
+      "text": "銘",
+      "source_bbox": [
+        256,
+        376,
+        74,
+        69
+      ]
+    }
+  ]
+}

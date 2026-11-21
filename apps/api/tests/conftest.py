@@ -16,7 +16,7 @@ from app.services.glyph_importer import GlyphImporter
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEMO_MANIFEST = PROJECT_ROOT / "samples" / "demo" / "manifest.csv"
-CURSIVE_ROOT = PROJECT_ROOT / "samples" / "cursive" / "raw"
+from nccu_fixture import make_cursive_fixture
 FONT_MANIFEST = PROJECT_ROOT / "samples" / "fonts" / "manifest.json"
 DEMO_RIGHTS = {
     "commercial_use": True,
@@ -53,7 +53,7 @@ def client(tmp_path_factory: pytest.TempPathFactory) -> Iterator[TestClient]:
         )
         importer.import_provider(
             NCCUCursiveProvider(
-                dataset_root=CURSIVE_ROOT,
+                dataset_root=make_cursive_fixture(tmp_path / "local-cursive"),
                 split="Test",
                 limit_per_character=2,
                 include_augmented=False,

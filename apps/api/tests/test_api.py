@@ -36,7 +36,8 @@ def test_cursive_search(client: TestClient) -> None:
         item["source"]["dataset"] == "NCCU Cursive Chinese Calligraphy Dataset"
         for item in payload["items"]
     )
-    assert all(item["source"]["license"] == "MIT" for item in payload["items"])
+    assert all(item["source"]["license"] is None for item in payload["items"])
+    assert all(item["source"]["rights"]["redistribution_allowed"] is False for item in payload["items"])
 
 
 def test_metadata_and_single_glyph(client: TestClient) -> None:
@@ -126,7 +127,7 @@ def test_fallback_real_and_missing(client: TestClient) -> None:
     assert missing.json()["resolved"] is False
 
 
-def test_cursive_batch_composition(client: TestClient) -> None:
+def test_cursive_batch_blocks_derivative_composition(client: TestClient) -> None:
     response = client.post(
         "/api/compose/batch",
         json={
@@ -144,12 +145,8 @@ def test_cursive_batch_composition(client: TestClient) -> None:
             "use_structural_fallback": False,
         },
     )
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["total_characters"] == 2
-    assert payload["resolved_characters"] == 2
-    assert payload["missing"] == []
-    assert all(item["glyph"]["source"]["style"] == "草书" for item in payload["placements"])
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Rights policy requires explicit derivatives_allowed=true"
 
 
 def test_visual_similarity_index(client: TestClient) -> None:

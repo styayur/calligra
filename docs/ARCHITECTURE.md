@@ -142,3 +142,11 @@ Calligraphy Studio is a multi-surface product with one shared project model.
 - New visual features require a feature version and cache-invalidation strategy.
 - New export fields require manifest/schema documentation.
 - New platform shells reuse the web build and document native-only capabilities.
+
+
+## Local material and typesetting workspaces
+
+- Scan extraction works in the browser and native WebViews. The original scan is stored as a local blob keyed by SHA-256. A reviewed crop is a normal Glyph with a source checksum, image checksum, original page coordinates, processing options and explicit review status. User-supplied historical labels are unverified.
+- IndexedDB library schema 2 retains private glyphs and scans from schema 1. A pack index separates installed pack metadata from per-character glyph records. Each authorized JSON chunk installs in one transaction and can be re-imported, disabled or removed. The standard Glyph fields are used for project export, composition, and font work.
+- The opt-in FastAPI companion compiles outline fonts with fontTools and transforms selected DOCX/ODT text. Requests use an explicit loopback destination. The core editor, static Pages, and offline exports do not require this service.
+- Office processing edits only supported XML in the main document, copies other ZIP entries unchanged, and reports missing characters and skipped complex content. Optional LibreOffice is a local renderer for screened packages. Install the target font locally for its use in generated PDFs.

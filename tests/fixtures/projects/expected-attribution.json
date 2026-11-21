@@ -3,7 +3,7 @@
     "schema_version": 2,
     "artwork_license": null,
     "share_alike_licences": [],
-    "licence_boundary": "Third-party source licences do not inherit the MIT application licence. OFL font licences do not automatically apply to artwork.",
+    "licence_boundary": "Third-party source licences retain their own terms alongside the GPL-3.0-or-later application licence. OFL font licences do not automatically apply to artwork.",
     "glyphs": [
       {
         "id": "fixture:chinese",
@@ -42,7 +42,7 @@
     "schema_version": 2,
     "artwork_license": null,
     "share_alike_licences": [],
-    "licence_boundary": "Third-party source licences do not inherit the MIT application licence. OFL font licences do not automatically apply to artwork.",
+    "licence_boundary": "Third-party source licences retain their own terms alongside the GPL-3.0-or-later application licence. OFL font licences do not automatically apply to artwork.",
     "glyphs": [
       {
         "id": "fixture:chinese",
@@ -88,7 +88,7 @@
     "schema_version": 2,
     "artwork_license": null,
     "share_alike_licences": [],
-    "licence_boundary": "Third-party source licences do not inherit the MIT application licence. OFL font licences do not automatically apply to artwork.",
+    "licence_boundary": "Third-party source licences retain their own terms alongside the GPL-3.0-or-later application licence. OFL font licences do not automatically apply to artwork.",
     "glyphs": [
       {
         "id": "fixture:yuji-syuku:あ",
@@ -397,7 +397,7 @@
     "schema_version": 2,
     "artwork_license": null,
     "share_alike_licences": [],
-    "licence_boundary": "Third-party source licences do not inherit the MIT application licence. OFL font licences do not automatically apply to artwork.",
+    "licence_boundary": "Third-party source licences retain their own terms alongside the GPL-3.0-or-later application licence. OFL font licences do not automatically apply to artwork.",
     "glyphs": [
       {
         "id": "fixture:yuji-akari:あ",
@@ -557,7 +557,7 @@
     "share_alike_licences": [
       "CC-BY-SA-4.0"
     ],
-    "licence_boundary": "Third-party source licences do not inherit the MIT application licence. OFL font licences do not automatically apply to artwork.",
+    "licence_boundary": "Third-party source licences retain their own terms alongside the GPL-3.0-or-later application licence. OFL font licences do not automatically apply to artwork.",
     "glyphs": [
       {
         "id": "codh:v2:200006663_00002_2:C0003:1688:585",
@@ -643,7 +643,7 @@
     "schema_version": 2,
     "artwork_license": null,
     "share_alike_licences": [],
-    "licence_boundary": "Third-party source licences do not inherit the MIT application licence. OFL font licences do not automatically apply to artwork.",
+    "licence_boundary": "Third-party source licences retain their own terms alongside the GPL-3.0-or-later application licence. OFL font licences do not automatically apply to artwork.",
     "glyphs": [
       {
         "id": "fixture:yuji-syuku:骨",
