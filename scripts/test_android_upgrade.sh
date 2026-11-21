@@ -14,9 +14,21 @@ launch() {
   adb logcat -c
   adb shell am start -W -n "$package/.MainActivity" | tee "$evidence/$generation-launch.txt"
   grep -q '^Status: ok' "$evidence/$generation-launch.txt"
-  adb shell uiautomator dump /sdcard/calligra-upgrade.xml
-  adb pull /sdcard/calligra-upgrade.xml "$evidence/$generation-screen.xml"
+  # Android may report the activity launched while its WebView restores the
+  # workspace. Inspect the actual editor before recording the candidate.
+  local attempt
+  for attempt in {1..12}; do
+    adb shell uiautomator dump /sdcard/calligra-upgrade.xml
+    adb pull /sdcard/calligra-upgrade.xml "$evidence/$generation-screen.xml"
+    if [[ "$generation" == baseline ]] || grep -Eq '集字内容|生成作品' "$evidence/$generation-screen.xml"; then
+      break
+    fi
+    sleep 2
+  done
   grep -q "package=\"$package\"" "$evidence/$generation-screen.xml"
+  if [[ "$generation" == candidate ]]; then
+    grep -Eq '集字内容|生成作品' "$evidence/$generation-screen.xml"
+  fi
   adb exec-out screencap -p > "$evidence/$generation-screen.png"
   local pid
   pid=$(adb shell pidof -s "$package" | tr -d '\r')
