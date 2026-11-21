@@ -287,6 +287,14 @@ jobs:
         env:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: python scripts/validate_package.py --web-zip "CalligraphyStudio-Web-$VERSION.zip"
+      - name: Run browser checks from the offline ZIP
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          python -m zipfile -e "CalligraphyStudio-Web-$VERSION.zip" work/offline-web
+          python -m http.server 5179 --bind 127.0.0.1 --directory work/offline-web > /tmp/calligraphy-zip-http.log 2>&1 &
+          python scripts/test_studio_browser.py --url http://127.0.0.1:5179
+          python scripts/test_extraction_browser.py --url http://127.0.0.1:5179
       - uses: actions/upload-artifact@v7
         with:
           name: web-release
