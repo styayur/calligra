@@ -1,8 +1,8 @@
 """Actual packaged Electron renderer smoke test, isolated from the user's drafts.
 
 Requires Windows and Playwright Chromium. This launches the supplied executable
-(unpacked or portable) with an explicit hidden test switch and local CDP port.
-Installer wizard / installed shortcuts remain human checks, not simulated results.
+(unpacked, installed, or portable) with an explicit hidden test switch and local CDP port.
+The silent install check is intended for an isolated Windows CI runner.
 """
 import argparse,json,os,socket,subprocess,time
 from pathlib import Path
@@ -13,17 +13,35 @@ expected_version = json.loads((Path(__file__).resolve().parents[1] / 'release/ve
 ROOT=Path(__file__).resolve().parents[1]
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--exe',type=Path,required=True);parser.add_argument('--output',type=Path,required=True)
+    launch = parser.add_mutually_exclusive_group(required=True)
+    launch.add_argument('--exe', type=Path)
+    launch.add_argument('--installer', type=Path)
+    parser.add_argument('--output', type=Path, required=True)
     args=parser.parse_args()
     if os.name!='nt':parser.error('Native Windows smoke requires Windows')
     args.output.parent.mkdir(parents=True,exist_ok=True)
-    workspace=(ROOT/'work/native-smoke'/args.exe.stem/f'run-{time.time_ns()}').resolve();workspace.mkdir(parents=True,exist_ok=True)
+    executable = args.exe or args.installer
+    if not executable.is_file():
+        parser.error(f'Missing Windows executable: {executable}')
+    workspace = (ROOT/'work/native-smoke'/executable.stem/f'run-{time.time_ns()}').resolve()
     assert workspace.is_relative_to((ROOT/'work').resolve())
+    workspace.mkdir(parents=True)
+    if args.installer:
+        destination = workspace / 'app'
+        # NSIS consumes the unquoted path after its final /D= switch.
+        program = str(executable.resolve())
+        command = subprocess.list2cmdline([program, '/S']) + f' /D={destination}'
+        with (workspace / 'installer.log').open('wb') as log:
+            subprocess.run(command, executable=program, check=True, timeout=240,
+                           stdout=log, stderr=log, creationflags=subprocess.CREATE_NO_WINDOW)
+        executable = destination / 'Calligraphy Studio.exe'
+        assert executable.is_file(), 'The installer did not place the application in the requested destination'
     with socket.socket() as sock:sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
     env=dict(os.environ);env.pop('ELECTRON_RUN_AS_NODE',None)
-    checks=[];errors=[]
+    checks=['silent installer executed'] if args.installer else []
+    errors=[]
     with (workspace/'process.log').open('wb') as log:
-        process=subprocess.Popen([str(args.exe.resolve()),'--release-smoke-test',f'--remote-debugging-port={port}',f'--user-data-dir={workspace/"profile"}'],env=env,stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW)
+        process=subprocess.Popen([str(executable.resolve()),'--release-smoke-test',f'--remote-debugging-port={port}',f'--user-data-dir={workspace/"profile"}'],env=env,stdout=log,stderr=log,creationflags=subprocess.CREATE_NO_WINDOW)
         browser=None
         try:
             with sync_playwright() as playwright:
@@ -115,7 +133,7 @@ def main():
             if process.poll() is None:
                 try:process.wait(timeout=8)
                 except subprocess.TimeoutExpired:subprocess.run(['taskkill','/PID',str(process.pid),'/T','/F'],capture_output=True)
-    result={'executable':args.exe.name,'evidence_directory':str(workspace),'status':'PASS','checks':checks,'errors':errors,'installer_wizard':'NOT EXECUTED — human native test required','physical_android':'NOT EXECUTED — requires physical device'}
+    result={'executable':executable.name,'installer':args.installer.name if args.installer else None,'evidence_directory':str(workspace),'status':'PASS','checks':checks,'errors':errors,'installer_wizard':'NOT EXECUTED — human native test required','physical_android':'NOT EXECUTED — requires physical device'}
     args.output.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(result,ensure_ascii=False,indent=2))
 if __name__=='__main__':main()

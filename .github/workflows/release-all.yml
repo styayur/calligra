@@ -145,10 +145,7 @@ jobs:
           python -m pip install playwright pillow
           python scripts/test_windows_native.py --exe "apps/desktop/release/win-unpacked/Calligraphy Studio.exe" --output work/windows-native-unpacked.json
           python scripts/test_windows_native.py --exe $taskPortable --output work/windows-native-portable.json
-          $taskInstall = Join-Path $env:RUNNER_TEMP "calligra-$taskVersion-installed"
-          $taskInstaller = Start-Process -FilePath $taskSetup -ArgumentList '/S', "/D=$taskInstall" -WindowStyle Hidden -Wait -PassThru
-          if ($taskInstaller.ExitCode -ne 0) { throw "Installer failed: $($taskInstaller.ExitCode)" }
-          python scripts/test_windows_native.py --exe (Join-Path $taskInstall 'Calligraphy Studio.exe') --output work/windows-native-installed.json
+          python scripts/test_windows_native.py --installer $taskSetup --output work/windows-native-installed.json
           Copy-Item apps/web/dist/build-meta.json apps/desktop/release/windows-build-provenance.json
           $taskSignatures = Get-ChildItem apps/desktop/release/*.exe | ForEach-Object { $taskSignature = Get-AuthenticodeSignature -LiteralPath $_.FullName; @{ name = $_.Name; status = [string]$taskSignature.Status; certificate_thumbprint = $taskSignature.SignerCertificate.Thumbprint } }
           $taskSignatures | ConvertTo-Json | Set-Content -Encoding utf8 apps/desktop/release/windows-signing.json

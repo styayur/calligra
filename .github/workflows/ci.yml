@@ -136,6 +136,8 @@ jobs:
           $taskVersion = (Get-Content -Raw release/version.json | ConvertFrom-Json).version
           $taskPortable = "apps/desktop/release/CalligraphyStudio-Portable-$taskVersion-x64.exe"
           python scripts/test_windows_native.py --exe $taskPortable --output work/windows-native-portable.json
+          $taskSetup = "apps/desktop/release/CalligraphyStudio-Setup-$taskVersion-x64.exe"
+          python scripts/test_windows_native.py --installer $taskSetup --output work/windows-native-installed.json
 
   android:
     runs-on: ubuntu-latest
