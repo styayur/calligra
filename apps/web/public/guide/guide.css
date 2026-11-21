@@ -1,0 +1,11 @@
+html { color: #252d29; background: #f7f5ef; font: 16px/1.7 system-ui, sans-serif; }
+body { margin: auto; max-width: 54rem; padding: 1.5rem clamp(1rem, 5vw, 3rem) 4rem; }
+header, nav { display: flex; flex-wrap: wrap; gap: .4rem 1.3rem; }
+header { border-bottom: 1px solid #dad9ce; padding-bottom: 1rem; }
+header a:first-child { margin-right: auto; font: 600 1.2rem Georgia, serif; }
+a { color: #355941; text-underline-offset: .2em; }
+h1, h2 { font-family: Georgia, 'Noto Serif CJK SC', 'Songti SC', serif; line-height: 1.28; }
+h1 { font-size: clamp(2rem, 8vw, 3.25rem); }
+h2 { font-size: 1.3rem; margin-bottom: .35rem; }
+p { margin-top: 0; }
+section { margin-top: 2rem; }

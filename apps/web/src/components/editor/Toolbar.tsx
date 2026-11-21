@@ -85,7 +85,7 @@ export function Toolbar() {
   }
   return (
     <header className="studio-header">
-      <div className="brand-mark" aria-label="Calligraphy Studio">
+      <div className="brand-mark" aria-label="Calligra">
         <svg viewBox="0 0 96 96" role="img" aria-hidden="true">
           <rect width="96" height="96" rx="20" fill="#0f172a" />
           <rect x="3.5" y="3.5" width="89" height="89" rx="17.5" fill="none" stroke="#d946ef" strokeWidth="3" />
@@ -99,6 +99,7 @@ export function Toolbar() {
           <circle cx="48" cy="55" r="5" fill="#d946ef" />
         </svg>
       </div>
+      <span className="brand-name" aria-hidden="true">Calligra</span>
       <div className="project-heading">
         <input
           value={projectName}
@@ -167,8 +168,8 @@ export function Toolbar() {
           >
             新建空白作品
           </button>
-          <p>项目文件保留字形、排版和来源，可再次编辑。</p>
-          <p>Calligraphy Studio · <span data-testid="app-version">{APP_VERSION}</span></p>
+          <a href={`${import.meta.env.BASE_URL}guide/index.html`}>教程</a>
+          <p>Calligra · <span data-testid="app-version">{APP_VERSION}</span></p>
           <button onClick={() => setLicensesOpen(true)}>第三方许可 / Third-party licences</button>
         </div>
       </details>

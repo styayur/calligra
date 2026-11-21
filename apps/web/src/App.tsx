@@ -129,7 +129,7 @@ export default function App() {
       {mode === 'studio' && <Toolbar />}
       <nav className="mode-switch" aria-label="创作模式">
         <button aria-pressed={mode === 'studio'} onClick={() => setMode('studio')}>
-          集字工作台 · 1000 字
+          集字工作台
         </button>
         <button
           aria-pressed={mode === 'roll'}
@@ -138,7 +138,7 @@ export default function App() {
             setMode('roll')
           }}
         >
-          长卷模式 · 自动成篇
+          长卷模式
         </button>
       </nav>
       <nav className={mode === 'studio' ? 'mobile-nav' : 'hidden'} aria-label="工作区">
@@ -181,9 +181,6 @@ export default function App() {
             <div className={tab === 'search' ? 'search-body' : 'hidden'}>
               {searchVisited && <GlyphBrowser />}
             </div>
-            <footer className="library-footer">
-              集字工作台 <span>写一句，成一幅。</span>
-            </footer>
           </aside>
           <section className="canvas-column">
             <div className="canvas-toolbar">
@@ -208,7 +205,6 @@ export default function App() {
                   />
                 ))}
               </div>
-              <span className="canvas-help">点击选字 · 拖动调整</span>
             </div>
             <WorkHarmony />
             <GlyphCanvas />

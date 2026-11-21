@@ -72,7 +72,6 @@ export function GlyphBrowser() {
   return (
     <div className="glyph-browser panel-scroll">
       <div className="section-title">
-        <h2>查找字形</h2>
         <span>{results.length} 个结果</span>
       </div>
       <div className="search-field">
@@ -128,7 +127,6 @@ export function GlyphBrowser() {
           ))}
         </select>
       </details>
-      <p className="field-hint">点击加入作品，或拖到纸面指定位置。</p>
       {loading ? (
         <p className="feedback" role="status">
           正在查字…
@@ -159,7 +157,6 @@ export function GlyphBrowser() {
               >
                 <img loading="lazy" src={glyph.asset.url} alt={glyph.character} draggable={false} />
                 <div>
-                  <strong>{glyph.character}</strong>
                   <span>{glyph.source.style}</span>
                 </div>
                 <small>{glyph.source.work || glyph.source.dataset}</small>

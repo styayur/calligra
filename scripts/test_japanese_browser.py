@@ -121,7 +121,7 @@ def main():
         expect(composer.get_by_label('Tradition',exact=True)).to_have_value('Japanese')
         restored=project(); assert restored['glyphs']==history['glyphs']
         # Long Japanese composition with repeated kana, vertical punctuation, and ZIP attribution.
-        page.get_by_role('button',name='长卷模式 · 自动成篇',exact=True).click()
+        page.get_by_role('button',name='长卷模式',exact=True).click()
         roll=page.locator('.roll-controls')
         roll.get_by_label('Variant type').select_option('') if roll.get_by_label('Variant type').is_visible() else roll.locator('summary').filter(has_text='字形与跨传统探索').click()
         roll.get_by_label('Variant type').select_option('')

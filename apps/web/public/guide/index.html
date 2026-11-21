@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calligra 使用指南</title>
+  <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+  <header><a href="../">Calligra</a><a href="en/">English</a><a href="ja/" lang="ja">日本語</a></header>
+  <main>
+    <h1>使用指南</h1>
+    <nav aria-label="章节">
+      <a href="#start">快速开始</a><a href="#layout">集字排版</a><a href="#search">查字与替换</a>
+      <a href="#library">字库</a><a href="#extraction">碑帖提取</a><a href="#fonts">字体</a>
+      <a href="#documents">文档</a><a href="#files">文件与平台</a><a href="#rights">来源与授权</a><a href="#help">故障排查</a>
+    </nav>
+    <section id="start"><h2>快速开始</h2><p>在集字内容框录入文字。选择传统、来源和横排、竖排或方格，然后点击「生成作品」。如果有缺字，纸面会保留对应的空位。</p></section>
+    <section id="layout"><h2>集字与排版</h2><p>换行可以分句。用每行或每列字数控制折行，在「间距与留白」调整字距、页边距和标点。超过 1000 字时使用长卷。日文竖排按字格排版。</p></section>
+    <section id="search"><h2>查字与替换</h2><p>在「查字」输入文字、书家或作品，点击候选加入纸面。要换字，先点击纸面或下方字条中的字，再在右侧点选候选。方向键移动选中字形，Shift 加方向键可加大步幅。</p></section>
+    <section id="library"><h2>字库安装与导入</h2><p>离线版本附有开源字体与原帖样本。完整字库可通过本地 API 的导入命令加载。<a href="https://github.com/styayur/calligra/blob/main/docs/DATA_SOURCES.md">数据来源和导入命令</a></p></section>
+    <section id="extraction"><h2>碑帖图像提取</h2><p>当前版本支持检索已经导入的单字素材。整页切字与人工校对功能尚未提供。</p></section>
+    <section id="fonts"><h2>字体制作与下载</h2><p>当前版本可以使用字体字形集字。生成安装字体功能尚未提供。</p></section>
+    <section id="documents"><h2>DOCX / ODT</h2><p>当前版本尚未提供 Word 或 OpenDocument 的字体替换。</p></section>
+    <section id="files"><h2>文件与平台</h2><p>用「保存项目」下载 JSON，以便在其他设备继续编辑。需要发布图片时使用 PNG，长卷支持 ZIP。Web 离线包请先解压，然后按包内说明在本机启动。</p></section>
+    <section id="rights"><h2>数据来源、许可与署名</h2><p>在选中字形后可查看来源。发布作品请保留导出的署名清单，确认各来源允许相应用途。改编的 CC BY-SA 材料需遵守相同方式共享条款。</p></section>
+    <section id="help"><h2>故障排查</h2><p>缺字时可检查所选传统、字库或书体。如果本机草稿保存失败，请用「保存项目」保存 JSON。如果离线包无法加载字形，请确认通过本地 HTTP 打开。</p></section>
+  </main>
+</body>
+</html>

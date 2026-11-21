@@ -1132,3 +1132,28 @@ input[type='checkbox'] {
 .provenance-details dl { font-size: 12px; }
 .provenance-details dt { margin-top: 10px; font-weight: 600; }
 .provenance-details dd { margin: 2px 0 0; overflow-wrap: anywhere; }
+
+/* Keep the controls compact and give the paper the remaining workspace. */
+.brand-name {
+  font-family: Georgia, 'Noto Serif CJK SC', serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+.studio-header { height: 58px; }
+.panel-tabs button { height: 42px; }
+.composer { padding-block: 16px; }
+.composer .section-title label { font-size: 13px; font-weight: 600; }
+.composer textarea { min-height: 88px; }
+.menu-popover a {
+  display: block;
+  padding: 9px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+.menu-popover a:hover { background: #f0f3ef; }
+.glyph-card img { object-fit: contain; }
+@media (max-width: 760px) {
+  .brand-name { display: none; }
+  .studio-header { height: auto; min-height: 56px; }
+}

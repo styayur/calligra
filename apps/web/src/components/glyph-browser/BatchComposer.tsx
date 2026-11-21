@@ -114,7 +114,7 @@ export function BatchComposer() {
       setStatus(
         missing.length
           ? `已排入 ${glyphs.length}/${count} 字，缺字「${missing.join('、')}」已留空位。可换书体重新集字。`
-          : `已排入 ${glyphs.length} 字。${glyphs.some((g) => g.source.source_role === 'coverage-fallback') ? '部分汉字使用日文覆盖字体。' : ''}${plan.fit < 1 ? '纸面已等比缩小；可调整每行或列字数改善阅读。' : ''}点击纸面上的字，可选择其他字形。`,
+          : `已排入 ${glyphs.length} 字。${glyphs.some((g) => g.source.source_role === 'coverage-fallback') ? '部分汉字使用日文覆盖字体。' : ''}${plan.fit < 1 ? '纸面已等比缩小；可调整每行或列字数改善阅读。' : ''}`,
       )
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '集字失败，请重试')
@@ -125,12 +125,9 @@ export function BatchComposer() {
   return (
     <fieldset className="composer" disabled={loading} aria-label="集字排版">
       <div className="section-title">
-        <h2>文字集字</h2>
+        <label htmlFor="compose-text">集字内容</label>
         <span>{count} / 1000 字</span>
       </div>
-      <label className="sr-only" htmlFor="compose-text">
-        集字内容
-      </label>
       <textarea
         id="compose-text"
         value={text}
@@ -138,16 +135,7 @@ export function BatchComposer() {
         rows={5}
         placeholder="输入文字，换行分句"
       />
-      <div className="sample-row">
-        <span>试一试</span>
-        {['明月松间照\n清泉石上流', '春眠不觉晓\n处处闻啼鸟', '山水清音'].map((sample, i) => (
-          <button key={sample} onClick={() => setText(sample)}>
-            {['山居秋暝', '春晓', '四字横幅'][i]}
-          </button>
-        ))}
-      </div>
       <SourcePolicyControls policy={policy} onChange={setPolicy} />
-      {policy.writing_tradition === 'Japanese' && <div className="sample-row"><span>日本語</span><button onClick={() => setText('日本の書道\nあいうえお\nアイウエオ')}>漢字とかな</button><button onClick={() => { setText('「春の海」、ゆらり。'); setPunctuation(true) }}>句読点</button></div>}
       <div className="field-grid">
         <label>
           书体
@@ -158,25 +146,19 @@ export function BatchComposer() {
           </select>
         </label>
         <label>
-          来源 / Source
+          来源
           <select
             aria-label="字形来源"
             value={source}
             onChange={(e) => setSource(e.target.value as CandidateSource)}
           >
-            <option value="fonts">字体 / Font</option>
-            <option value="original">原帖 / Original</option>
-            <option value="all">字体与原帖 / Fonts & historical</option>
-            <option value="fallback">结构替补 / Structural fallback</option>
+            <option value="fonts">字体</option>
+            <option value="original">原帖</option>
+            <option value="all">字体与原帖</option>
+            <option value="fallback">结构替补</option>
           </select>
         </label>
       </div>
-      <p className="field-hint">{source === 'fonts' ? (
-        policy.writing_tradition === 'Japanese'
-          ? 'Yuji 书道、Klee 手写；缺字时使用日文覆盖字体。変体仮名需明确选择。'
-          : '内置三款开源字体，按实际字库覆盖集字。'
-      ) : '使用已收录的原帖图片；缺字会留空并提示。'}</p>
-      {policy.writing_tradition === 'Japanese' && layout === 'vertical-rtl' && <p className="field-hint">日文字体使用 vert / vrt2 与竖排句读点位置；不支持连绵字、禁则处理或縦中横。Japanese vertical layout is a glyph-cell composition.</p>}
       <div className="segmented" aria-label="排版方向">
         {(
           [
