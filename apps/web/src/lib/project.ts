@@ -7,15 +7,21 @@ function checkTypography(text: string, settings: NonNullable<ProjectDocument['co
   const typography = settings.typography
   if (!typography) return settings.shapedRuns === undefined
   if (typeof typography !== 'object' ||
-      !['mixed', 'kinsoku', 'compressPunctuation', 'automaticTcy', 'discretionary']
-        .every((key) => typeof typography[key as 'mixed'] === 'boolean') ||
+      !(['mixed', 'kinsoku', 'compressPunctuation', 'automaticTcy', 'discretionary'] as const)
+        .every((key) => typeof typography[key] === 'boolean') ||
       !Array.isArray(typography.tcy) || typography.tcy.length > 1000 ||
+      (typography.connectedKana !== undefined && typeof typography.connectedKana !== 'boolean') ||
       (typography.spans !== undefined && (!Array.isArray(typography.spans) || typography.spans.length > 1000))) return false
   const boundaries = new Set([0])
   let index = 0
   for (const cluster of textCharacters(text)) { index += cluster.length; boundaries.add(index) }
   const range = (record: { start: number; end: number } | null | undefined) =>
     record && boundaries.has(record.start) && boundaries.has(record.end) && record.start < record.end
+  const flow = typography.flow
+  if (flow !== undefined && (!flow || !['natural', 'fluent'].includes(flow.mode) ||
+    !Number.isFinite(flow.intensity) || flow.intensity < 0 || flow.intensity > 1 ||
+    !Array.isArray(flow.pins) || flow.pins.length > 1000 ||
+    !flow.pins.every((pin) => range(pin) && typeof pin.glyphId === 'string' && pin.glyphId.length <= 256))) return false
   if (!typography.tcy.every((item) => range(item) && /^[A-Za-z0-9.+%/-]{1,8}$/.test(text.slice(item.start, item.end)))) return false
   if (typography.spans && !typography.spans.every((item) => range(item) &&
     (item.language === undefined || ['und', 'zh', 'ja', 'ko', 'en'].includes(item.language)) &&
@@ -90,6 +96,11 @@ export function validateProject(value: unknown): ProjectDocument {
     )
       throw new Error(uiText("项目包含无效字形"))
     ids.add(g.id)
+    if (g.textRange !== undefined &&
+      (!g.textRange || !Number.isInteger(g.textRange.start) || !Number.isInteger(g.textRange.end) ||
+        g.textRange.start < 0 || g.textRange.end <= g.textRange.start ||
+        p.text?.slice(g.textRange.start, g.textRange.end) !== g.character))
+      throw new Error(uiText("项目 Unicode 身份无效"))
     if (
       typeof g.source.dataset !== 'string' ||
       !['calligrapher', 'style', 'dynasty', 'work', 'license', 'license_url','language','locale','script','writing_tradition','orthography','period','region','source_collection','source_uri','attribution','designer','dataset_version','source_checksum','license_text'].every((key) => {

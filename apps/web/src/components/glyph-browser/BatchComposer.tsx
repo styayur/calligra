@@ -53,6 +53,11 @@ export function BatchComposer({ active }: { active: boolean }) {
   const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
   const compose = useEditorStore((s) => s.compose)
+  const selectedGlyph = useEditorStore((s) => s.project.glyphs.find((g) => g.id === s.selectedId))
+  const pin = text === projectText && selectedGlyph?.textRange && segmentText(selectedGlyph.character).length === 1
+    ? { ...selectedGlyph.textRange, glyphId: typeof selectedGlyph.metadata?.font_id === 'string'
+        ? selectedGlyph.metadata.font_id : selectedGlyph.glyph_id }
+    : undefined
   const setComposition = useEditorStore((s) => s.setComposition)
   useEffect(() => {
     if (previousText.current !== projectText) setText(projectText ?? '')
@@ -207,8 +212,9 @@ export function BatchComposer({ active }: { active: boolean }) {
         value={text}
         onChange={(e) => {
           setText(e.target.value)
-          if (typography?.tcy.length || typography?.spans?.length)
-            setTypography({ ...typography, tcy: [], spans: undefined })
+          if (typography?.tcy.length || typography?.spans?.length || typography?.flow?.pins.length)
+            setTypography({ ...typography, tcy: [], spans: undefined,
+              flow: typography.flow && { ...typography.flow, pins: [] } })
         }}
         rows={5}
         placeholder={uiText("输入文字，换行分句")}
@@ -225,7 +231,7 @@ export function BatchComposer({ active }: { active: boolean }) {
         </select>
       </label>
       <SourcePolicyControls policy={policy} onChange={updatePolicy} />
-      <TypographyControls value={typography} onChange={setTypography} input={textInput} vertical={layout === 'vertical-rtl'} />
+      <TypographyControls value={typography} onChange={setTypography} input={textInput} vertical={layout === 'vertical-rtl'} pin={pin} />
       <div className="field-grid">
         {regional ? <RegionalFontSelect policy={policy} onChange={(next) => saveFontPreference(next, 'fonts')} /> : <label>
           {uiText("书体")}

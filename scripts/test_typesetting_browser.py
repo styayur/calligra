@@ -2,13 +2,16 @@
 import argparse
 from base64 import b64decode
 from hashlib import sha256
+from io import BytesIO
 import json
 from pathlib import Path
+from zipfile import ZipFile
 
 from playwright.sync_api import expect, sync_playwright
+from PIL import Image, ImageChops
 
 
-def exercise(page):
+def exercise(page, gallery=None):
     composer = page.locator(".composer")
     field = composer.get_by_label("集字内容", exact=True)
     tradition = composer.get_by_label("Tradition", exact=True)
@@ -89,14 +92,117 @@ def exercise(page):
     reloaded = save()
     assert reloaded["composition"]["shapedRuns"] == variation["composition"]["shapedRuns"]
     assert reloaded["glyphs"] == variation["glyphs"]
+    flow = exercise_flow(page, composer, compose, gallery)
+    scroll = exercise_scroll(page)
     return {"horizontal_ligature": first["metadata"]["shaping"], "horizontal_groups": ["12", "AI", "No.1", "xyz"],
+            "scroll": scroll,
+            "flow": flow,
             "variation_glyph_id": mapped, "nominal_glyph_id": nominal, "project_round_trip": True}
+
+def exercise_flow(page, composer, compose, gallery):
+    selection = composer.get_by_label("字形排列", exact=True)
+    mode_enabled = composer.get_by_label("启用 OpenType 排版", exact=True)
+    tradition = composer.get_by_label("Tradition", exact=True)
+    cases = [
+        ("Chinese", "行书", "山水日月山水", False),
+        ("Chinese", "草书", "山水日月山水", False),
+        ("Japanese", "yuji-boku", "日かな月かな 山水", True),
+        ("Korean", "kr-coverage-serif", "한漢 한글", True),
+    ]
+    results = []
+    for index, (culture, font, raw, mixed) in enumerate(cases):
+        tradition.select_option(culture)
+        if culture == "Chinese":
+            composer.get_by_label("书体", exact=True).select_option(font)
+        else:
+            composer.get_by_label("字体", exact=True).select_option(font)
+        for mode in ("grid", "natural", "fluent"):
+            mode_enabled.set_checked(mode != "grid")
+            if mode == "grid":
+                composer.get_by_role("button", name="方格", exact=True).click()
+            else:
+                composer.get_by_role("button", name="横排", exact=True).click()
+                selection.select_option(mode)
+                composer.get_by_label("混合文字传统").set_checked(mixed)
+            project = compose(raw if mode == "grid" else None)
+            glyphs = project["glyphs"]
+            assert "".join(glyph["character"] for glyph in glyphs) == raw.replace(" ", "")
+            if mode != "grid":
+                assert all(raw[glyph["textRange"]["start"]:glyph["textRange"]["end"]] == glyph["character"]
+                           for glyph in glyphs)
+                assert all(glyph["transform"]["rotation"] == 0 for glyph in glyphs)
+            ids = [glyph["metadata"]["font_id"] for glyph in glyphs]
+            page.get_by_role("button", name="导出作品", exact=True).click()
+            with page.expect_download() as event:
+                page.get_by_role("button", name="下载 PNG", exact=True).click()
+            data = Path(event.value.path()).read_bytes()
+            png = ZipFile(BytesIO(data)) if data.startswith(b"PK") else None
+            if png:
+                data = png.read(next(name for name in png.namelist() if name.endswith(".png")))
+            image = Image.open(BytesIO(data)).convert("RGB")
+            bounds = ImageChops.difference(image, Image.new("RGB", image.size, "white")).getbbox()
+            assert bounds and 0 < bounds[0] < bounds[2] < image.width and 0 < bounds[1] < bounds[3] < image.height
+            if gallery:
+                gallery.mkdir(parents=True, exist_ok=True)
+                (gallery / f"{index + 1}-{mode}.png").write_bytes(data)
+            if page.get_by_role("dialog", name="导出作品设置").is_visible():
+                page.get_by_label("关闭导出设置").click()
+            gaps = [
+                right["transform"]["x"] - left["transform"]["x"] - sum(
+                    item["asset"]["width"] * item["transform"]["scaleX"] / 2 for item in (left, right)
+                ) for left, right in zip(glyphs, glyphs[1:])
+                if abs(left["transform"]["y"] - right["transform"]["y"]) < project["composition"]["size"] / 2
+            ]
+            if mode != "grid":
+                assert not gaps or min(gaps) >= -3, (culture, mode, gaps)
+            results.append({"case": culture, "requested_font_or_style": font, "text": raw, "mode": mode,
+                            "font_ids": ids, "png_sha256": sha256(data).hexdigest(),
+                            "ink_bounds": bounds, "horizontal_box_gaps_px": [round(gap, 2) for gap in gaps]})
+    return results
+
+
+
+def exercise_scroll(page):
+    page.get_by_role("button", name="长卷模式", exact=True).click()
+    scroll = page.get_by_role("main", name="长卷模式")
+    scroll.get_by_label("Tradition", exact=True).select_option("Japanese")
+    scroll.get_by_label("字体", exact=True).select_option("yuji-boku")
+    original = "日本12月\n「かな」\nAI fi"
+    scroll.get_by_label("长卷内容", exact=True).fill(original)
+    scroll.get_by_label("长卷每页列数").fill("2")
+    scroll.get_by_text("高级排版", exact=True).click()
+    scroll.get_by_label("启用 OpenType 排版").check()
+    scroll.get_by_role("button", name="自动生成长卷", exact=True).click()
+    expect(scroll.get_by_role("status")).to_contain_text("2 页", timeout=60_000)
+    canvas = scroll.get_by_label("长卷第 1 页")
+    page.wait_for_function("""() => {
+      const canvas = document.querySelector('.roll-page canvas');
+      const pixels = canvas?.getContext('2d')?.getImageData(0, 0, 800, 1100).data;
+      return pixels?.some((value, index) => index % 4 === 0 && value < 128);
+    }""")
+    with page.expect_download() as event:
+        scroll.get_by_role("button", name="批量导出 ZIP", exact=True).click()
+    preview = canvas.evaluate("canvas => canvas.toDataURL()")
+    with ZipFile(event.value.path()) as output:
+        manifest = json.loads(output.read("manifest.json"))
+        assert manifest["text"] == original and not manifest["missing"], manifest
+        assert len(manifest["pages"]) == 2
+        slots = [slot for item in manifest["pages"] for slot in item["slots"]]
+        assert all(original[slot["start"]:slot["end"]] == slot["character"] for slot in slots)
+        assert all(manifest["glyphs"][slot["glyph"]]["metadata"]["font_id"] == "yuji-boku" for slot in slots)
+        assert next(slot for slot in slots if slot["character"] == "12")["position"]["rotation"] == 0
+        observed = Image.open(BytesIO(b64decode(preview.split(",", 1)[1]))).convert("RGB")
+        exported = Image.open(BytesIO(output.read("pages/0001.png"))).convert("RGB")
+        assert ImageChops.difference(observed, exported).getbbox() is None
+        assert ImageChops.difference(exported, Image.new("RGB", (800, 1100), "white")).getbbox()
+    return {"pages": len(manifest["pages"]), "source_ranges": len(slots), "preview_matches_png": True}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", required=True)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--gallery", type=Path)
     args = parser.parse_args()
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
@@ -105,7 +211,7 @@ def main():
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.goto(args.url, wait_until="networkidle")
-        evidence = exercise(page)
+        evidence = exercise(page, args.gallery)
         assert not errors, errors
         browser.close()
     if args.output:

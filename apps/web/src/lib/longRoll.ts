@@ -1,5 +1,6 @@
 import { uiText } from "../i18n"
 import type { Glyph } from '../types'
+import type { TextRun } from '../types/typesetting'
 import { textLines } from './composition'
 import { loadImage } from './featureCache'
 
@@ -16,9 +17,13 @@ export interface RollSlot {
   column: number
   glyph: Glyph | null
   cost: number | null
+  start?: number
+  end?: number
 }
 export interface RollPage {
   slots: RollSlot[]
+  measured?: boolean
+  runs?: TextRun[]
 }
 export function paginateRoll(text: string, options: RollOptions): RollPage[] {
   const { rows, columns, vertical } = options
@@ -80,15 +85,15 @@ export async function renderRollPage(
     const g = slot.glyph
     if (!images.has(g.asset.url)) images.set(g.asset.url, await loadImage(g.asset.url))
     signal?.throwIfAborted()
-    const image = images.get(g.asset.url)!,
-      factor = (size * 0.86) / Math.max(image.naturalWidth, image.naturalHeight)
-    ctx.drawImage(
-      image,
-      x - (image.naturalWidth * factor) / 2,
-      y - (image.naturalHeight * factor) / 2,
-      image.naturalWidth * factor,
-      image.naturalHeight * factor,
-    )
+    const image = images.get(g.asset.url)!
+    const factor = (size * 0.86) / Math.max(image.naturalWidth, image.naturalHeight)
+    const transform = page.measured ? g.transform : { x, y, rotation: 0, scaleX: factor, scaleY: factor }
+    ctx.save()
+    ctx.translate(transform.x, transform.y)
+    ctx.rotate(transform.rotation * Math.PI / 180)
+    ctx.scale(transform.scaleX, transform.scaleY)
+    ctx.drawImage(image, -image.naturalWidth / 2, -image.naturalHeight / 2)
+    ctx.restore()
   }
 }
 

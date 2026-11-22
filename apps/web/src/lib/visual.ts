@@ -1,6 +1,6 @@
 /** Versioned, deterministic descriptors on a 64×64, alpha-composited ink field.
  * Coordinates are normalized to the source image, not a tight crop. */
-export const FEATURE_VERSION = 'visual-1'
+export const FEATURE_VERSION = 'visual-2'
 export const RESOLUTION = 64
 export interface VisualProfile {
   version: string
@@ -18,6 +18,8 @@ export interface VisualProfile {
   distance: number[]
   skeleton: { length: number; branches: number; endpoints: number }
   orientation: number[]
+  /** Approximate geometry of skeleton ends near the four ink edges. */
+  flowEdges: ([number, number, number, number] | [])[]
   topology: { components: number; holes: number; euler: number }
   persistence: number[][]
 }
@@ -233,6 +235,7 @@ export function extractVisualProfile(ink: Float32Array, n = RESOLUTION): VisualP
   }
   let length = 0,
     endpoints = 0
+  const ends: { x: number; y: number; dx: number; dy: number; bend: number }[] = []
   const junctions = new Uint8Array(n * n)
   for (let y = 1; y <= n; y++)
     for (let x = 1; x <= n; x++) {
@@ -240,7 +243,16 @@ export function extractVisualProfile(ink: Float32Array, n = RESOLUTION): VisualP
       if (!sk[i]) continue
       const p = neighbors(i),
         degree = p.reduce((s, v) => s + v, 0)
-      if (degree === 1) endpoints++
+      if (degree === 1) {
+        endpoints++
+        const steps = [-stride, -stride + 1, 1, stride + 1, stride, stride - 1, -1, -stride - 1]
+        const first = p.indexOf(1)
+        const next = i + steps[first]
+        const second = neighbors(next).findIndex((value, k) => value && (first + 4) % 8 !== k)
+        const angle = first * Math.PI / 4
+        ends.push({ x, y, dx: Math.sin(angle), dy: -Math.cos(angle),
+          bend: second < 0 ? 0 : Math.sin((second - first) * Math.PI / 4) })
+      }
       const transitions = p.reduce((s, v, k) => s + (!v && p[(k + 1) % 8] ? 1 : 0), 0)
       if (transitions >= 3) junctions[(y - 1) * n + x - 1] = 1
       length += p[2] + p[4] + Math.SQRT2 * (p[3] + p[5])
@@ -258,6 +270,13 @@ export function extractVisualProfile(ink: Float32Array, n = RESOLUTION): VisualP
     holes = components(mask, n, false).enclosed
   const bw = empty ? 0 : right - left + 1,
     bh = empty ? 0 : bottom - top + 1
+  const edge = (axis: 'x' | 'y', sign: number): VisualProfile['flowEdges'][number] => {
+    const endpoint = ends.reduce<typeof ends[number] | undefined>((best, next) =>
+      !best || sign * next[axis] > sign * best[axis] ? next : best, undefined)
+    if (!endpoint) return []
+    return axis === 'x' ? [endpoint.y / n, sign * endpoint.dx, endpoint.dy, endpoint.bend]
+      : [endpoint.x / n, sign * endpoint.dy, endpoint.dx, -endpoint.bend]
+  }
   return {
     version: FEATURE_VERSION,
     empty,
@@ -280,6 +299,7 @@ export function extractVisualProfile(ink: Float32Array, n = RESOLUTION): VisualP
       endpoints,
     },
     orientation: normalize(orientation),
+    flowEdges: [edge('x', -1), edge('x', 1), edge('y', -1), edge('y', 1)],
     topology: { components: cc, holes, euler: cc - holes },
     persistence: persistenceH0(ink, n),
   }

@@ -2,7 +2,7 @@ import { uiText } from "../../i18n"
 import { guideUrl } from '../../i18n'
 import { exportLibraryBackup, importLibraryBackup } from '../../lib/libraryBackup'
 import { useEffect, useState, type FormEvent } from 'react'
-import { cropGlyph, locateCrops, openScan, type Crop, type InkOptions } from '../../lib/extraction'
+import { cropGlyph, gridCrops, locateCrops, openScan, type Crop, type InkOptions } from '../../lib/extraction'
 import { sha256 } from '../../lib/fontShaper'
 import { migrateGlyph, textCharacters, unicodeScript } from '../../lib/identity'
 import { parseGlyphPack, type GlyphPack } from '../../lib/glyphPacks'
@@ -24,6 +24,8 @@ interface Candidate extends Crop {
   id: number
   character: string
   recognition?: Recognition
+  location?: 'projection' | 'guided-grid'
+  connectedKana?: boolean
 }
 
 function Preview({ scan, box, options }: {
@@ -66,6 +68,8 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
   const [active, setActive] = useState<number>()
   const [nextId, setNextId] = useState(1)
   const [vertical, setVertical] = useState(true)
+  const [gridRows, setGridRows] = useState(3)
+  const [gridColumns, setGridColumns] = useState(1)
   const [traditionalChinese, setTraditionalChinese] = useState(true)
   const [tradition, setTradition] = useState('Chinese')
   const [work, setWork] = useState('')
@@ -130,15 +134,32 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
     void run(async () => {
       const found = locateCrops(scan.context.getImageData(0, 0, scan.canvas.width, scan.canvas.height), options, vertical)
       if (!found.length) throw new Error(uiText("未找到候选切框，请调整阈值或手动切框"))
-      setCrops(found.map((box, id) => newCandidate(box, id)))
+      setCrops(found.map((box, id) => ({ ...newCandidate(box, id), location: 'projection' })))
       setActive(0)
       setNextId(found.length)
     })
   }
 
+  const divideRegion = () => {
+    if (!scan || !current || current.character) return
+    void run(async () => {
+      const { x, y, width, height } = current
+      if (![x, y, width, height].every(Number.isInteger) || x < 0 || y < 0 || width < 1 || height < 1 ||
+          x + width > scan.canvas.width || y + height > scan.canvas.height)
+        throw new Error(uiText('切框必须在原图范围内'))
+      const boxes = gridCrops({ x, y, width, height }, gridRows, gridColumns, vertical)
+      if (crops.length - 1 + boxes.length > 200) throw new RangeError(uiText('行列数无效，最多生成 200 个切框。'))
+      setCrops(crops.flatMap((crop) => crop.id === current.id ? boxes.map((box, index) => ({
+        ...newCandidate(box, nextId + index), location: 'guided-grid' as const,
+      })) : [crop]))
+      setActive(nextId)
+      setNextId(nextId + boxes.length)
+    })
+  }
+
   const recognize = () => {
     if (!scan) return
-    const unreviewed = crops.filter((crop) => !crop.character.trim())
+    const unreviewed = crops.filter((crop) => !crop.character.trim() && !crop.connectedKana)
     if (!unreviewed.length) return
     void run(async () => {
       const images = unreviewed.map(({ x, y, width, height }) => {
@@ -222,9 +243,13 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
       const checksum = await sha256(scan.bytes.buffer)
       const records: Glyph[] = []
       let imageBytes = 0
-      for (const { id: _id, character: label, recognition, ...box } of reviewed) {
+      for (const { id: _id, character: label, recognition, connectedKana, location, ...box } of reviewed) {
         const character = label.trim()
-        if (textCharacters(character).length !== 1) throw new Error(uiText("每个切框仅可确认一个字形"))
+        const grouped = connectedKana && tradition === 'Japanese' &&
+          /^[\p{Script=Hiragana}\p{Script=Katakana}\p{M}]+$/u.test(character) &&
+          textCharacters(character).length >= 2 && [...character].length <= 16
+        if (connectedKana && !grouped) throw new Error(uiText('连绵切框须确认 2–16 个连续假名。'))
+        if (!grouped && textCharacters(character).length !== 1) throw new Error(uiText("每个切框仅可确认一个字形"))
         const image = cropGlyph(scan.context, box, options)
         const url = image.toDataURL()
         imageBytes += url.length
@@ -246,6 +271,8 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
           provenance: { type: 'original' },
           metadata: { original_filename: file.name, page: page.trim(), source_bbox: box,
             glyph_review: 'user-confirmed', history_unverified: true, extraction: options,
+            crop_location: location || 'manual',
+            original_group: grouped ? { text: character, region: box } : undefined,
             recognition: recognition ? { ...recognition, corrected: recognition.suggestion !== character } : undefined },
           transform: { x: 0, y: 0, scaleX: 1, scaleY: 1, rotation: 0, skewX: 0, skewY: 0 },
           appearance: { opacity: 1, blendMode: 'source-over' },
@@ -379,6 +406,22 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
                   <button type="button" onClick={() => edit({ character: current.recognition!.suggestion! })}>{uiText("采用建议")}</button></>
               : uiText("识别结果不确定，请人工录入")}</p>}
             <label>{uiText("确认文字")}<input value={current.character} maxLength={32} onChange={(event) => edit({ character: event.target.value })} /></label>
+            {tradition === 'Japanese' && <label className="check-field">
+              <input type="checkbox" checked={Boolean(current.connectedKana)}
+                onChange={(event) => edit({ connectedKana: event.target.checked })} />
+              {uiText('同一原图切框内的连绵假名')}
+            </label>}
+            <details className="advanced">
+              <summary>{uiText('辅助等分切框')}</summary>
+              <div className="field-grid">
+                <label>{uiText('切框行数')}<input type="number" min="1" max="200" value={gridRows}
+                  onChange={(event) => setGridRows(Number(event.target.value))} /></label>
+                <label>{uiText('切框列数')}<input type="number" min="1" max="200" value={gridColumns}
+                  onChange={(event) => setGridColumns(Number(event.target.value))} /></label>
+              </div>
+              <button type="button" disabled={Boolean(current.character)}
+                onClick={divideRegion}>{uiText('等分当前切框')}</button>
+            </details>
             <div className="scan-actions">
               <button type="button" onClick={split}>{uiText("拆分")}</button>
               <button type="button" onClick={merge}>{uiText("与下一框合并")}</button>

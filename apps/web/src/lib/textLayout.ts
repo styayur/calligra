@@ -91,6 +91,7 @@ export function layoutUnits(text: string, options: TypesettingOptions): { cluste
   const bounds = new Set([0, ...clusters.map((cluster) => cluster.end)])
   const spans = validateRanges(options.spans || [], bounds)
   const regions = validateRanges(options.tcy, bounds)
+  const originalGroups = new Map(validateRanges(options.originalGroups || [], bounds).map((range) => [range.start, range.end]))
   if (regions.some(({ start, end }) => !/^[A-Za-z0-9.+%/-]{1,8}$/.test(text.slice(start, end)))) {
     throw new RangeError('Tate-chū-yoko accepts one to eight Latin or numeric characters')
   }
@@ -110,23 +111,25 @@ export function layoutUnits(text: string, options: TypesettingOptions): { cluste
     const auto = vertical && options.automaticTcy && !/[\p{Script=Latin}0-9]/u.test(previous)
       ? compact.exec(text.slice(cluster.start, cluster.start + 10))?.[0] : undefined
     const autoEnd = auto ? cluster.start + auto.length : undefined
-    const end = vertical && region?.start === cluster.start ? region.end : autoEnd
+    const groupEnd = originalGroups.get(cluster.start)
+    const end = groupEnd ?? (vertical && region?.start === cluster.start ? region.end : autoEnd)
     const grouped = end !== undefined && bounds.has(end) &&
       (!region || region.start === cluster.start || region.start >= end) &&
       (!spans[spanIndex] || (span ? end <= span.end : end <= spans[spanIndex].start))
     const stop = grouped ? end : cluster.end
     const value = text.slice(cluster.start, stop)
-    const kind = grouped ? 'tcy' : hardBreak.test(value) ? 'break'
+    const kind = grouped ? groupEnd ? 'original-group' : 'tcy' : hardBreak.test(value) ? 'break'
       : horizontalSpace.test(value) || zeroWidth.test(value) ? 'space' : 'glyph'
-    const script = grouped ? 'Latin' : cluster.script
+    const script = kind === 'tcy' ? 'Latin' : cluster.script
     const inferred = scriptTradition(script) || ((script === 'Han' || !script) ? cues[index]?.tradition : undefined)
     const explicitLanguage = span?.language ?? options.language
-    const tradition = span?.tradition || (options.mixed && (inferred || traditions[explicitLanguage])) || options.tradition
+    const tradition = span?.tradition || (kind === 'original-group' ? 'Japanese' : undefined) ||
+      (options.mixed && (inferred || traditions[explicitLanguage])) || options.tradition
     const language = explicitLanguage !== 'und' ? explicitLanguage : script === 'Latin' ? 'en' : languages[tradition]
     const orientation = vertical ? verticalOrientation(value) : 'U'
     const direction = vertical && kind !== 'tcy' && orientation !== 'R' ? 'ttb' : 'ltr'
     units.push({ start: cluster.start, end: stop, script, text: value, kind, direction, orientation,
-      language, tradition, advanceEm: unitAdvance(value, script, kind, options) })
+      language, tradition, advanceEm: kind === 'original-group' ? segmentText(value).length : unitAdvance(value, script, kind, options) })
     if (grouped) while (clusters[index + 1] && clusters[index + 1].start < stop) index++
   }
   return { clusters, units }

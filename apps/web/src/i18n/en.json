@@ -633,5 +633,22 @@
   "自动纵中横": "Automatic horizontal groups in vertical text",
   "在正文中选中最多八个拉丁字符或数字，再指定纵中横。": "Select up to eight Latin letters or digits to set a horizontal group.",
   "将所选文字设为纵中横": "Set horizontal group for selection",
-  "撤销上一个纵中横范围": "Undo last horizontal group"
+  "撤销上一个纵中横范围": "Undo last horizontal group",
+  "字形排列": "Glyph arrangement",
+  "标准 OpenType": "Standard OpenType",
+  "自然": "Natural",
+  "行草协调（实验性）": "Fluent arrangement (experimental)",
+  "调整强度": "Adjustment strength",
+  "固定所选字形": "Pin selected glyph",
+  "清除固定字形": "Clear pinned glyphs",
+  "协调依据字形轮廓估计，保留原有笔画。规整字格可关闭 OpenType 排版。": "Flow is estimated from glyph geometry and keeps the original strokes. Turn off OpenType to use the fixed grid.",
+  "固定字形与当前来源或文字不匹配。": "A pinned glyph no longer matches the selected source or text.",
+  "行列数无效，最多生成 200 个切框。": "Enter valid row and column counts for up to 200 boxes.",
+  "连绵切框须确认 2–16 个连续假名。": "Confirm 2–16 consecutive kana for the connected crop.",
+  "使用已校对的原帖连绵假名（个人字库或全部来源）": "Use reviewed connected kana from scans (personal library or all sources)",
+  "同一原图切框内的连绵假名": "Connected kana in one original crop",
+  "辅助等分切框": "Divide a selected region",
+  "切框行数": "Crop rows",
+  "切框列数": "Crop columns",
+  "等分当前切框": "Divide current box"
 }

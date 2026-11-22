@@ -1,10 +1,13 @@
 """Real historical page projection metrics and manual crop/reopen acceptance."""
 import argparse
+from base64 import b64decode
 from hashlib import sha256
+from io import BytesIO
 import json
 from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
+from PIL import Image, ImageChops
 
 ROOT = Path(__file__).resolve().parents[1] / "tests/fixtures/historical-page"
 
@@ -47,6 +50,7 @@ def exercise(browser, url, manifest):
     page.get_by_role("button", name="素材", exact=True).click()
     page.get_by_label("原图", exact=True).set_input_files(scan)
     page.locator(".scan-fields select").first.select_option(source.get("tradition", "Japanese"))
+    page.get_by_label("图像处理").select_option("original")
     for index, (label, rect) in enumerate(labels):
         if index:
             page.get_by_role("button", name="新增切框").click()
@@ -64,11 +68,46 @@ def exercise(browser, url, manifest):
     with page.expect_download() as original:
         page.get_by_role("button", name="原图", exact=True).first.click()
     assert sha256(original.value.path().read_bytes()).hexdigest() == source["sha256"]
+    records = page.evaluate("""() => new Promise((resolve, reject) => {
+        const database = indexedDB.open('calligra-private-library', 2);
+        database.onerror = () => reject(database.error);
+        database.onsuccess = () => {
+            const request = database.result.transaction('glyphs').objectStore('glyphs').getAll();
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result);
+        };
+    })""")
+    with Image.open(scan) as original:
+        for label, (x, y, w, h) in labels:
+            glyph = next(glyph for glyph in records if glyph["character"] == label)
+            assert glyph["metadata"]["source_bbox"] == {"x": x, "y": y, "width": w, "height": h}
+            assert glyph["source"]["source_checksum"] == source["sha256"]
+            png = Image.open(BytesIO(b64decode(glyph["asset"]["url"].split(",")[1]))).convert("RGB")
+            assert png.size == (w, h)
+            diff = ImageChops.difference(png, original.convert("RGB").crop((x, y, x+w, y+h)))
+            assert all(high <= 4 for _, high in diff.getextrema())
+    assisted = None
+    if source.get("guided_region"):
+        page.get_by_label("原图", exact=True).set_input_files(scan)
+        for field, value in zip(("左 (px)", "上 (px)", "宽 (px)", "高 (px)"), source["guided_region"], strict=True):
+            page.get_by_label(field, exact=True).fill(str(value))
+        page.get_by_text("辅助等分切框", exact=True).click()
+        page.get_by_role("button", name="等分当前切框").click()
+        expect(boxes).to_have_count(3)
+        proposed = boxes.evaluate_all("""(boxes) => boxes.map(box =>
+            ['left','top','width','height'].map(key => parseFloat(box.style[key])))""")
+        proposals_guided = [[p / 100 * scale for p, scale in zip(box, (width, height, width, height), strict=True)]
+                            for box in proposed]
+        scores = [max(overlap(box, truth) for box in proposals_guided) for _, truth in labels]
+        assert min(scores) >= .5
+        assisted = {"boxes": len(proposals_guided), "iou": [round(iou, 4) for iou in scores],
+                    "region_edits": 4, "user_supplied_region": source["guided_region"]}
     page.close()
     return {"source": source["image_uri"], "image_sha256": source["sha256"], "labels": len(labels),
               "proposals": len(proposals), "feedback": feedback,
             "matches_at_iou_0_5": sum(m["best_iou"] >= .5 for m in metrics),
-              "ground_truth_is_partial": True, "manual_reviewed_and_reopened": len(labels), "scores": metrics}
+              "ground_truth_is_partial": True, "manual_reviewed_and_reopened": len(labels),
+              "original_pixels_checked": len(labels), "assisted": assisted, "scores": metrics}
 
 
 def main():
@@ -79,7 +118,7 @@ def main():
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         result = [exercise(browser, args.url, ROOT / name)
-                  for name in ("manifest.json", "wang-epitaph-manifest.json")]
+                  for name in ("manifest.json", "wang-epitaph-manifest.json", "diguchi-holdout-manifest.json")]
         browser.close()
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

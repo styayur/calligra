@@ -102,9 +102,10 @@ function shapedFontGlyph(
   }
 }
 
-export function fontGlyphForCluster(font: FontEntry, cluster: OpenTypeCluster): Glyph {
+export async function fontGlyphForCluster(font: FontEntry, cluster: OpenTypeCluster): Promise<Glyph> {
   const { text } = cluster.sequence
-  const id = 'font-run:' + font.id + ':' + cluster.checksum.slice(0, 24)
+  const identity = await sha256(new TextEncoder().encode(text).buffer)
+  const id = 'font-run:' + font.id + ':' + identity.slice(0, 24) + ':' + cluster.checksum.slice(0, 24)
   return shapedFontGlyph(font, id, text, {
     type: 'raster', url: cluster.url, checksum: cluster.checksum,
     width: cluster.width, height: cluster.height, bbox: [0, 0, cluster.width, cluster.height],

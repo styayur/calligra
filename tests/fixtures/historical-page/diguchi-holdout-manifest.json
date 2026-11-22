@@ -1,0 +1,18 @@
+{
+  "image": "diguchi-00007-1.jpg",
+  "sha256": "da2b147b7466552eb4e1c2f202da22812f8a8e2330f1cd65ef6b20d6d0e6864c",
+  "license": "CC-BY-SA-4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "attribution": "日本古典籍くずし字データセット（国文研ほか所蔵／CODH加工）, DOI 10.20676/00000340",
+  "work": "ぢぐち",
+  "page": "200006663_00007_1",
+  "source_uri": "https://codh.rois.ac.jp/char-shape/book/200006663/",
+  "image_uri": "https://codh.rois.ac.jp/char-shape/iiif/200006663/200006663_00007_1.tif/full/900,/0/default.jpg",
+  "source_dimensions": [2134, 3046],
+  "fixture_dimensions": [900, 1285],
+  "changes": "IIIF resize to 900 px; holdout page for localization, with partial CODH coordinate labels.",
+  "labels": [
+    { "text": "い", "source_bbox": [1414, 598, 132, 87] },
+    { "text": "あ", "source_bbox": [854, 418, 103, 108] }
+  ]
+}

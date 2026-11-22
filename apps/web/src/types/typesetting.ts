@@ -6,6 +6,12 @@ export type InlineDirection = 'ltr' | 'ttb'
 export type Tradition = 'Chinese' | 'Japanese' | 'Korean'
 export interface TextRange { start: number; end: number }
 export interface TextSpan extends TextRange { language?: TextLanguage; tradition?: Tradition }
+export interface GlyphPin extends TextRange { glyphId: string }
+export interface FlowSettings {
+  mode: 'natural' | 'fluent'
+  intensity: number
+  pins: GlyphPin[]
+}
 export interface TextCluster extends TextRange {
   text: string
   script: string | null
@@ -41,7 +47,7 @@ export interface TextRun extends TextRange {
 export interface LayoutUnit extends TextRange {
   text: string
   script: string | null
-  kind: 'glyph' | 'space' | 'break' | 'tcy'
+  kind: 'glyph' | 'space' | 'break' | 'tcy' | 'original-group'
   direction: InlineDirection
   orientation: VerticalOrientation
   language: TextLanguage
@@ -63,9 +69,11 @@ export interface TypesettingOptions {
   automaticTcy: boolean
   tcy: TextRange[]
   spans?: TextSpan[]
+  originalGroups?: TextRange[]
 }
 export type AdvancedTypography = Pick<TypesettingOptions,
-  'mixed' | 'kinsoku' | 'compressPunctuation' | 'automaticTcy' | 'tcy' | 'spans'> & { discretionary: boolean }
+  'mixed' | 'kinsoku' | 'compressPunctuation' | 'automaticTcy' | 'tcy' | 'spans'> &
+  { discretionary: boolean; flow?: FlowSettings; connectedKana?: boolean }
 export interface TextLayout {
   text: string
   clusters: TextCluster[]

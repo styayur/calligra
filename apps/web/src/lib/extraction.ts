@@ -135,6 +135,27 @@ export function locateCrops(image: Pixels, options: InkOptions, vertical: boolea
   return crops
 }
 
+/** Divide an editor-selected regular text region without copying or modifying scan pixels. */
+export function gridCrops(region: Crop, rows: number, columns: number, vertical: boolean): Crop[] {
+  if (!Number.isInteger(rows) || !Number.isInteger(columns) || rows < 1 || columns < 1 ||
+      rows * columns > 200 || columns > region.width || rows > region.height) {
+    throw new RangeError(uiText('行列数无效，最多生成 200 个切框。'))
+  }
+  const boxes: Crop[] = []
+  for (let index = 0; index < rows * columns; index++) {
+    const row = vertical ? index % rows : Math.floor(index / columns)
+    const column = vertical ? columns - 1 - Math.floor(index / rows) : index % columns
+    const left = Math.round(column * region.width / columns)
+    const top = Math.round(row * region.height / rows)
+    boxes.push({
+      x: region.x + left, y: region.y + top,
+      width: Math.round((column + 1) * region.width / columns) - left,
+      height: Math.round((row + 1) * region.height / rows) - top,
+    })
+  }
+  return boxes
+}
+
 function imageDimensions(bytes: Uint8Array): [number, number] | undefined {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
   const match = (offset: number, value: string) => [...value].every((c, i) => bytes[offset + i] === c.charCodeAt(0))

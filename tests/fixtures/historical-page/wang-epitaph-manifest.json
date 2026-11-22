@@ -17,6 +17,7 @@
   "processing": "Uncropped archival photo, delivered at 900 pixels wide by the museum IIIF endpoint",
   "annotation": "Manually boxed left column against the institution transcription. Alternate spellings and eroded labels were omitted.",
   "tradition": "Chinese",
+  "guided_region": [248, 222, 83, 226],
   "labels": [
     {
       "text": "君",
