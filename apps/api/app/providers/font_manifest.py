@@ -114,7 +114,7 @@ class FontManifestProvider(DatasetProvider):
             with TTFont(font_path, lazy=True) as font_file:
                 cmap = font_file.getBestCmap() or {}
             render_font = ImageFont.truetype(str(font_path), FONT_SIZE)
-            shaper = FontShaper(font_path) if entry.get("language") == "ja" else None
+            shaper = FontShaper(font_path) if entry.get("language") in {"ja", "ko"} else None
             for character in sorted(requested):
                 if any(ord(c) not in cmap for c in unicodedata.normalize('NFC', character)):
                     continue

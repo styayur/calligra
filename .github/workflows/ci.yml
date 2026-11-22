@@ -96,11 +96,13 @@ jobs:
           python scripts/test_extraction_browser.py --url http://127.0.0.1:5178
           python scripts/test_historical_page_browser.py --url http://127.0.0.1:5178 --output work/historical-page.json
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5178 --output work/japanese-fonts-web.json --screenshot work/japanese-font-selection.png
+          python scripts/test_korean_browser.py --url http://127.0.0.1:5178 --output work/korean-fonts-web.json
       - uses: actions/upload-artifact@v7
         with:
           name: web-japanese-font-evidence
           path: |
             work/japanese-fonts-web.json
+            work/korean-fonts-web.json
             work/japanese-font-selection.png
           if-no-files-found: error
 
@@ -188,8 +190,11 @@ jobs:
           python -m zipfile -e apps/web/android/app/build/outputs/apk/release/app-release.apk work/android-bundle
           python -m http.server 5180 --bind 127.0.0.1 --directory work/android-bundle/assets/public > /tmp/calligraphy-apk-http.log 2>&1 &
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5180 --output work/japanese-fonts-android.json
+          python scripts/test_korean_browser.py --url http://127.0.0.1:5180 --output work/korean-fonts-android.json
       - uses: actions/upload-artifact@v7
         with:
           name: android-japanese-font-evidence
-          path: work/japanese-fonts-android.json
+          path: |
+            work/japanese-fonts-android.json
+            work/korean-fonts-android.json
           if-no-files-found: error

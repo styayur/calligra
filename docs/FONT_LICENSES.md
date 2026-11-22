@@ -74,3 +74,18 @@ CODH images are not font software. Original crop images and normalized ink masks
 ```
 
 Unknown values should be `null`, not optimistic booleans.
+
+
+## Korean fonts
+
+The Korean catalog distinguishes modern brush and pen designs from supplementary coverage. These are digital fonts. They carry no claims of historical manuscript provenance.
+
+| Catalog ID | Upstream source | License | Bundled use |
+| --- | --- | --- | --- |
+| nanum-brush | [Google Fonts / Naver and Sandoll](https://github.com/google/fonts/tree/16680f8688ffcd467d2eb2146a9ce0343404581d/ofl/nanumbrushscript) | SIL OFL 1.1 | Modern Korean brush lettering |
+| nanum-pen | [Google Fonts / Naver and Sandoll](https://github.com/google/fonts/tree/16680f8688ffcd467d2eb2146a9ce0343404581d/ofl/nanumpenscript) | SIL OFL 1.1 | Modern Korean handwriting |
+| kr-coverage-serif | [Adobe Source Han Serif KR 2.003R](https://github.com/adobe-fonts/source-han-serif/tree/7889f11bf31170b5d092a083b357c8c8130f89e0/SubsetOTF/KR) | SIL OFL 1.1 | Korean regional Hanja coverage and explicitly selected Hangul/Jamo coverage |
+
+The original binaries are unchanged. The browser and Android bundles use lossless gzip transport. The [Korean manifest](../samples/fonts/korean/manifest.json) pins each source and its license and records the font's internal version and original checksum. The runtime manifest separately records compressed checksums.
+
+The Nanum font cmaps each include all 11,172 modern Hangul syllables. For example, the decomposed sequence `남` shapes to the same Nanum glyph as `남` with its original codepoints preserved in the project. The browser fixture independently verifies Korean `漢` using Source Han Serif KR and archaic `ᄒᆞᆫ` with source IDs and raster checksums. The latter is a single fixture for a digital font and establishes no broader historical coverage.

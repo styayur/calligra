@@ -4,9 +4,9 @@ import { getMetadata, searchGlyphs } from '../../api/client'
 import { fontGlyphs } from '../../api/fonts'
 import { useEditorStore } from '../../stores/editor'
 import type { Glyph, MetadataResponse } from '../../types'
-import { JapaneseFontFallback, JapaneseFontSelect } from './JapaneseFontSelect'
+import { RegionalFontFallback, RegionalFontSelect } from './RegionalFontSelect'
 import { SourcePolicyControls } from './SourcePolicyControls'
-import { DEFAULT_POLICY, candidateCompatible, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { usesRegionalFonts, DEFAULT_POLICY, candidateCompatible, type CandidatePolicy } from '../../lib/candidatePolicy'
 import { textCharacters } from '../../lib/identity'
 import { packedGlyphs, installedPacks, privateGlyphs, PRIVATE_DATASET } from '../../lib/privateLibrary'
 import { historicalSample } from '../../api/historical'
@@ -35,7 +35,7 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
   const [retry, setRetry] = useState(0)
   const [packNames, setPackNames] = useState<string[]>([])
   const addGlyph = useEditorStore((s) => s.addGlyph)
-  const japanese = policy.writing_tradition === 'Japanese'
+  const regional = usesRegionalFonts(policy.writing_tradition)
   function clearFilters() {
     setStyle('')
     setDataset('')
@@ -59,10 +59,10 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
     setLoading(true)
     const timer = setTimeout(async () => {
       const term = query.trim()
-      const effectiveStyle = japanese ? '' : style
+      const effectiveStyle = regional ? '' : style
       const fontOnly = Boolean(policy.font_id)
-      const fontPolicy = { ...policy, dataset: dataset || undefined, vertical: japanese && vertical }
-      if (dataset === 'Japanese Coverage Fonts') fontPolicy.allow_font_fallback = true
+      const fontPolicy = { ...policy, dataset: dataset || undefined, vertical: regional && vertical }
+      if (dataset === 'Japanese Coverage Fonts' || dataset === 'Korean Coverage Fonts') fontPolicy.allow_font_fallback = true
       const [library, fonts, historical, local] = await Promise.allSettled([
         fontOnly || dataset === PRIVATE_DATASET || packNames.includes(dataset)
           ? Promise.resolve({ items: [], total: 0 })
@@ -99,7 +99,7 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
         library.status === 'rejected'
           ? (generated.length || privateItems.length)
             ? '原帖服务未连接，当前显示本机字形。'
-            : '字库未连接，请检查服务，或输入单个汉字或假名查询内置字体。'
+            : '字库未连接，请检查服务，或输入单个字查询内置字体。'
           : fonts.status === 'rejected'
             ? '内置字体加载失败，请重试。'
             : '',
@@ -110,7 +110,7 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
       active = false
       clearTimeout(timer)
     }
-  }, [query, style, dataset, calligrapher, limit, retry, policy, visible, packNames, japanese, vertical])
+  }, [query, style, dataset, calligrapher, limit, retry, policy, visible, packNames, regional, vertical])
   return (
     <div className="glyph-browser panel-scroll">
       <div className="section-title">
@@ -125,7 +125,7 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
             setQuery(e.target.value)
             setLimit(40)
           }}
-          placeholder={japanese ? '汉字、假名、书家或作品' : '汉字、书家或作品'}
+          placeholder={policy.writing_tradition === 'Korean' ? '韩文、汉字、书家或作品' : regional ? '汉字、假名、书家或作品' : '汉字、书家或作品'}
         />
       </div>
       <div className="field-grid">
@@ -137,7 +137,7 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
         setLimit(40)
       }} />
       <div className="field-grid">
-        {japanese ? <JapaneseFontSelect policy={policy} onChange={(next) => {
+        {regional ? <RegionalFontSelect policy={policy} onChange={(next) => {
           setPolicy(next)
           clearFilters()
         }} /> : <label>
@@ -158,13 +158,13 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
             onChange={(e) => setDataset(e.target.value)}
           >
             <option value="">全部字库</option>
-            {[...new Set([...(meta?.datasets || ['OFL Calligraphy Fonts']), 'Yuji Japanese Fonts', 'Klee One', 'Japanese Coverage Fonts', 'CODH Kuzushiji', PRIVATE_DATASET, ...packNames])].map((item) => (
+            {[...new Set([...(meta?.datasets || ['OFL Calligraphy Fonts']), PRIVATE_DATASET, ...packNames])].map((item) => (
               <option key={item}>{item}</option>
             ))}
           </select>
         </label>
       </div>
-      {japanese && !dataset && <JapaneseFontFallback policy={policy} onChange={setPolicy} />}
+      {regional && !dataset && <RegionalFontFallback policy={policy} onChange={setPolicy} />}
       <details className="advanced">
         <summary>筛选书家</summary>
         <select

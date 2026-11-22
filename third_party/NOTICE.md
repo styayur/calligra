@@ -81,6 +81,27 @@ Licence: **OFL-1.1**. Source: https://github.com/adobe-fonts/source-han-serif/re
 Bundled text: `fonts/licenses/OFL-jp-coverage-serif.txt` (SHA-256 `9ff5bb567e1b92c801fc1069e5fbf992ff8efccacb9db94e5959a5b3ba9bb903`).
 Adobe / Source Han Serif Project; font provenance, not manuscript originals. Copyright 2017-2022 Adobe; modified subset with renamed internal font family (OFL reserved name Source)
 
+## Nanum Brush Script · Version 1.100;PS 1;hotconv 1.0.57;makeotf.lib2.0.21895
+
+Licence: **OFL-1.1**. Source: https://raw.githubusercontent.com/google/fonts/16680f8688ffcd467d2eb2146a9ce0343404581d/ofl/nanumbrushscript/NanumBrushScript-Regular.ttf.
+
+Bundled text: `fonts/licenses/OFL-nanum-brush.txt` (SHA-256 `eeacf16032901d0ed0456876ec77b8f0fda6b3fecec7d972f8543eb602e6c30f`).
+NAVER / Sandoll; font provenance, not manuscript originals. Copyright 2010 NHN Corporation
+
+## Nanum Pen Script · Version 1.10
+
+Licence: **OFL-1.1**. Source: https://raw.githubusercontent.com/google/fonts/16680f8688ffcd467d2eb2146a9ce0343404581d/ofl/nanumpenscript/NanumPenScript-Regular.ttf.
+
+Bundled text: `fonts/licenses/OFL-nanum-pen.txt` (SHA-256 `eeacf16032901d0ed0456876ec77b8f0fda6b3fecec7d972f8543eb602e6c30f`).
+NAVER / Sandoll; font provenance, not manuscript originals. Copyright 2010 NHN Corporation
+
+## Source Han Serif KR · Version 2.003;hotconv 1.1.1;makeotfexe 2.6.0
+
+Licence: **OFL-1.1**. Source: https://raw.githubusercontent.com/adobe-fonts/source-han-serif/7889f11bf31170b5d092a083b357c8c8130f89e0/SubsetOTF/KR/SourceHanSerifKR-Regular.otf.
+
+Bundled text: `fonts/licenses/OFL-kr-coverage-serif.txt` (SHA-256 `9ff5bb567e1b92c801fc1069e5fbf992ff8efccacb9db94e5959a5b3ba9bb903`).
+Adobe / Source Han Serif Project; font provenance, not manuscript originals. Copyright 2017-2022 Adobe
+
 ## CODH Kuzushiji sample · v2 (2019-11-11)
 
 Licence: **CC-BY-SA-4.0**. Source: https://codh.rois.ac.jp/char-shape/.

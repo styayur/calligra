@@ -233,7 +233,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
           id, character,
           source: { dataset: PRIVATE_DATASET, work: work.trim(), calligrapher: calligrapher.trim(),
             style: style.trim(), period: period.trim(), writing_tradition: tradition,
-            language: tradition === 'Japanese' ? 'ja' : 'zh', script: unicodeScript(character),
+            language: { Japanese: 'ja', Korean: 'ko' }[tradition] || 'zh', script: unicodeScript(character),
             source_checksum: checksum, dataset_version: edition.trim(),
             rights: { derivatives_allowed: permission, redistribution_allowed: permission },
             license: permission ? '用户确认可改作及再分发' : '限本机使用',
@@ -304,7 +304,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
         {scan && <>
           <div className="field-grid">
             <label>传统<select value={tradition} onChange={(event) => setTradition(event.target.value)}>
-              <option value="Chinese">中文</option><option value="Japanese">日本語</option>
+              <option value="Chinese">中文</option><option value="Japanese">日本語</option><option value="Korean">한국어</option>
             </select></label>
             <label>切字方向<select value={vertical ? 'vertical' : 'horizontal'} onChange={(event) => setVertical(event.target.value === 'vertical')}>
               <option value="vertical">竖排，从右向左</option><option value="horizontal">横排，从左向右</option>
@@ -331,7 +331,8 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
               {tradition === 'Chinese' && <label className="check-field">
                 <input type="checkbox" checked={traditionalChinese} onChange={(event) => setTraditionalChinese(event.target.checked)} />识别繁体
               </label>}
-              <div className="scan-actions"><button type="button" disabled={crops.every((crop) => crop.character.trim())} onClick={recognize}>实验识别待校对字</button></div>
+              <div className="scan-actions"><button type="button" disabled={tradition === 'Korean' || crops.every((crop) => crop.character.trim())} onClick={recognize}>实验识别待校对字</button></div>
+              {tradition === 'Korean' && <p className="field-hint">韩文素材支持手动切框、校对和入库。</p>}
             </>}
           </details>
           <div className="scan-page">

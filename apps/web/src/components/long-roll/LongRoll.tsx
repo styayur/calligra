@@ -23,8 +23,8 @@ import { textLines } from '../../lib/composition'
 import { saveFile } from '../../lib/download'
 import { useEditorStore } from '../../stores/editor'
 import type { Glyph } from '../../types'
-import { DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
-import { JapaneseFontFallback, JapaneseFontSelect } from '../glyph-browser/JapaneseFontSelect'
+import { usesRegionalFonts, DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { RegionalFontFallback, RegionalFontSelect } from '../glyph-browser/RegionalFontSelect'
 import { SourcePolicyControls } from '../glyph-browser/SourcePolicyControls'
 import { assertExportRights, attributionFiles } from '../../lib/rights'
 
@@ -113,7 +113,7 @@ export function LongRoll({ active }: { active: boolean }) {
       const candidates = await resolveCharacters(
         characters,
         async (character) => {
-          const page = await initialCandidates(character, source, policy.writing_tradition === 'Japanese' ? '' : style, 8, abort.signal, { ...policy, vertical })
+          const page = await initialCandidates(character, source, usesRegionalFonts(policy.writing_tradition) ? '' : style, 8, abort.signal, { ...policy, vertical })
           if (page.warning) warnings.add(page.warning)
           const items: ProfileCandidate[] = []
           for (const g of page.items.slice(0, 8)) {
@@ -326,7 +326,7 @@ export function LongRoll({ active }: { active: boolean }) {
                 <option value="all">全部</option>
               </select>
             </label>
-            {policy.writing_tradition === 'Japanese' ? <JapaneseFontSelect policy={policy} onChange={(next) => {
+            {usesRegionalFonts(policy.writing_tradition) ? <RegionalFontSelect policy={policy} onChange={(next) => {
               setPolicy(next)
               setSource('fonts')
             }} /> : <label>
@@ -343,8 +343,8 @@ export function LongRoll({ active }: { active: boolean }) {
               </select>
             </label>}
           </div>
-          {policy.writing_tradition === 'Japanese' && source !== 'original' &&
-            <JapaneseFontFallback policy={policy} onChange={setPolicy} />}
+          {usesRegionalFonts(policy.writing_tradition) && source !== 'original' &&
+            <RegionalFontFallback policy={policy} onChange={setPolicy} />}
           <div className="field-grid">
             <label>
               每页行数

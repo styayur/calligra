@@ -43,7 +43,7 @@ def validate_reader(read):
         ids.add(component['id'])
         for file in [component['license_text'],*component.get('additional_notices',[])]:
             assert hashlib.sha256(read(file['path'])).hexdigest()==file['sha256'],f"Licence checksum mismatch: {file['path']}"
-    assert {item for item in ids if not item.startswith('npm:')}=={'application','ma-shan-zheng','zhi-mang-xing','liu-jian-mao-cao','yuji-syuku','yuji-mai','yuji-boku','yuji-akari','yuji-akebono','klee-one','jp-coverage-serif','codh','arphic','demo','harfbuzz','android-native','ionic-native'},'Canonical asset/native component coverage differs'
+    assert {item for item in ids if not item.startswith('npm:')}=={'application','ma-shan-zheng','zhi-mang-xing','liu-jian-mao-cao','yuji-syuku','yuji-mai','yuji-boku','yuji-akari','yuji-akebono','klee-one','jp-coverage-serif','nanum-brush','nanum-pen','kr-coverage-serif','codh','arphic','demo','harfbuzz','android-native','ionic-native'},'Canonical asset/native component coverage differs'
     validate_npm_coverage(manifest,json.loads((ROOT/'apps/web/package-lock.json').read_text(encoding='utf-8')))
     for path in ['THIRD_PARTY_NOTICE.md','third-party-licenses.html']:
         assert read(path)==(PUBLIC/path).read_bytes(),f'Packaged notice differs: {path}'

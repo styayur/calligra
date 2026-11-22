@@ -1,24 +1,25 @@
-import type { CandidatePolicy, ExplorationMode } from '../../lib/candidatePolicy'
+import { traditionLocale, type CandidatePolicy, type ExplorationMode } from '../../lib/candidatePolicy'
 
 export function SourcePolicyControls({ policy, onChange }: { policy: CandidatePolicy; onChange: (value: CandidatePolicy) => void }) {
   const update = (key: keyof CandidatePolicy, value: string) => onChange({ ...policy, [key]: value || undefined })
   return <div className="source-policy">
     <div className="field-grid">
       <label>传统 / Tradition
-        <select aria-label="Tradition" value={policy.writing_tradition || 'Chinese'} onChange={(e) => onChange({ writing_tradition: e.target.value, locale: e.target.value === 'Japanese' ? 'ja-JP' : undefined, mode: 'strict' })}>
-          <option value="Chinese">Chinese · 中文</option><option value="Japanese">Japanese · 日本</option>
+        <select aria-label="Tradition" value={policy.writing_tradition || 'Chinese'} onChange={(e) => onChange({ writing_tradition: e.target.value, locale: traditionLocale(e.target.value), mode: 'strict' })}>
+          <option value="Chinese">Chinese · 中文</option><option value="Japanese">Japanese · 日本</option><option value="Korean">Korean · 한국</option>
         </select>
       </label>
       <label>文字 / Script
         <select aria-label="Script" value={policy.script || ''} onChange={(e) => update('script',e.target.value)}>
           <option value="">全部 / All scripts</option><option value="Han">漢字 / Han · Kanji</option>
+          {policy.writing_tradition === 'Korean' && <><option value="Hangul">한글 / Hangul</option><option value="Latin">拉丁 / Latin</option></>}
           {policy.writing_tradition === 'Japanese' && <><option value="Hiragana">ひらがな / Hiragana</option><option value="Katakana">カタカナ / Katakana</option></>}
         </select>
       </label>
     </div>
     <details className="advanced">
       <summary>字形与跨传统探索 / Variants & exploration</summary>
-      <label>语言 / Language<select aria-label="Language" value={policy.language || ''} onChange={(e) => update('language',e.target.value)}><option value="">未限定 / Any or unknown</option><option value="zh">中文 / zh</option><option value="ja">日本語 / ja</option></select></label>
+      <label>语言 / Language<select aria-label="Language" value={policy.language || ''} onChange={(e) => update('language',e.target.value)}><option value="">未限定 / Any or unknown</option><option value="zh">中文 / zh</option><option value="ja">日本語 / ja</option><option value="ko">한국어 / ko</option></select></label>
       <label>选择规则 / Candidate mode
         <select aria-label="Candidate mode" value={policy.mode || 'strict'} onChange={(e) => onChange({ ...policy, mode: e.target.value as ExplorationMode })}>
           <option value="strict">严格传统 / Strict tradition</option><option value="related">相关字形 / Related variants</option><option value="cross-tradition">跨传统探索 / Cross-tradition exploration</option>
@@ -36,7 +37,7 @@ export function SourcePolicyControls({ policy, onChange }: { policy: CandidatePo
       </label>
       <label>区域 / Locale
         <select aria-label="Locale" value={policy.locale || ''} onChange={(e) => update('locale',e.target.value)}>
-          <option value="">未指定 / Unspecified</option><option value="ja-JP">日本 / ja-JP</option><option value="zh-Hans">简体中文 / zh-Hans</option><option value="zh-Hant">繁体中文 / zh-Hant</option>
+          <option value="">未指定 / Unspecified</option><option value="ja-JP">日本 / ja-JP</option><option value="ko-KR">한국 / ko-KR</option><option value="zh-Hans">简体中文 / zh-Hans</option><option value="zh-Hant">繁体中文 / zh-Hant</option>
         </select>
       </label>
       <label>时期 / Period<input aria-label="Period" value={policy.period || ''} onChange={(e) => update('period',e.target.value)} /></label>

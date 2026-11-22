@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { initialCandidates, resolveCharacters, type CandidateSource } from '../../api/candidates'
-import { JapaneseFontFallback, JapaneseFontSelect } from './JapaneseFontSelect'
+import { RegionalFontFallback, RegionalFontSelect } from './RegionalFontSelect'
 import { SourcePolicyControls } from './SourcePolicyControls'
-import { DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { usesRegionalFonts, DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
 import { layoutText, placeGlyph, textLines, validLayoutDimensions } from '../../lib/composition'
 import { useEditorStore } from '../../stores/editor'
 import type { BatchLayout, CompositionSettings, Glyph } from '../../types'
@@ -72,7 +72,7 @@ export function BatchComposer({ active }: { active: boolean }) {
     setPolicy(settings?.policy || DEFAULT_POLICY)
   }, [settings])
   const count = textLines(text, punctuation).flat().length
-  const japanese = policy.writing_tradition === 'Japanese'
+  const regional = usesRegionalFonts(policy.writing_tradition)
   const settingsFor = (nextPolicy: CandidatePolicy, nextSource: CandidateSource) =>
     ({ layout, columns, size, gap, margin, punctuation, style, source: nextSource, policy: nextPolicy })
 
@@ -108,7 +108,7 @@ export function BatchComposer({ active }: { active: boolean }) {
         plan.positions.map((p) => p.character),
         async (character) => {
           // Initial composition fetches a small page; further variants load only on selection.
-          const page = await initialCandidates(character, source, (japanese || policy.dataset) ? '' : style, 4, undefined, { ...policy, vertical: layout === 'vertical-rtl' })
+          const page = await initialCandidates(character, source, (regional || policy.dataset) ? '' : style, 4, undefined, { ...policy, vertical: layout === 'vertical-rtl' })
           return page.items[0]
         },
         (done, total) => setStatus(`正在加载字库 ${done}/${total} 个不同字…`),
@@ -122,7 +122,7 @@ export function BatchComposer({ active }: { active: boolean }) {
           plan.positions.filter((p) => !resolved.has(p.character)).map((p) => p.character),
         ),
       ]
-      const missingHint = japanese ? '可选择其他字体，或启用缺字补字。' : '可换书体或字形来源。'
+      const missingHint = regional ? '可选择其他字体，或启用缺字补字。' : '可换书体或字形来源。'
       if (!resolved.size)
         throw new Error(`未找到可用字形：${missing.join('、')}。${missingHint}`)
       const glyphs = plan.positions.flatMap((p) => {
@@ -144,7 +144,8 @@ export function BatchComposer({ active }: { active: boolean }) {
       const fallbackFonts = [...new Set(glyphs.filter((g) => policy.font_id &&
         g.metadata?.font_id !== policy.font_id).map((g) => g.source.work).filter(Boolean))]
       const fallbackMessage = [
-        glyphs.some((g) => g.source.source_role === 'coverage-fallback') ? '部分汉字使用日文覆盖字体。' : '',
+        glyphs.some((g) => g.source.source_role === 'coverage-fallback')
+          ? (policy.writing_tradition === 'Korean' ? '部分字使用韩文覆盖字体。' : '部分汉字使用日文覆盖字体。') : '',
         fallbackFonts.length ? `缺字由 ${fallbackFonts.join('、')} 补字。` : '',
       ].join('')
       setStatus(
@@ -173,7 +174,7 @@ export function BatchComposer({ active }: { active: boolean }) {
       />
       <SourcePolicyControls policy={policy} onChange={updatePolicy} />
       <div className="field-grid">
-        {japanese ? <JapaneseFontSelect policy={policy} onChange={(next) => saveFontPreference(next, 'fonts')} /> : <label>
+        {regional ? <RegionalFontSelect policy={policy} onChange={(next) => saveFontPreference(next, 'fonts')} /> : <label>
           书体
           <select aria-label="书体" value={style} disabled={source === 'private' || !!policy.dataset} onChange={(e) => setStyle(e.target.value)}>
             <option>楷书</option>
@@ -190,7 +191,7 @@ export function BatchComposer({ active }: { active: boolean }) {
               const value = e.target.value
               const nextSource = value.startsWith('pack:') ? 'all' : value as CandidateSource
               const next = { ...policy, dataset: value.startsWith('pack:') ? value.slice(5) : undefined }
-              if (japanese) saveFontPreference({ ...next, font_id: undefined, allow_font_fallback: undefined }, nextSource)
+              if (regional) saveFontPreference({ ...next, font_id: undefined, allow_font_fallback: undefined }, nextSource)
               else { setSource(nextSource); setPolicy(next) }
             }}
           >
@@ -204,8 +205,8 @@ export function BatchComposer({ active }: { active: boolean }) {
           </select>
         </label>
       </div>
-      {japanese && (source === 'fonts' || (source === 'all' && !policy.dataset)) &&
-        <JapaneseFontFallback policy={policy} onChange={(next) => saveFontPreference(next)} />}
+      {regional && (source === 'fonts' || (source === 'all' && !policy.dataset)) &&
+        <RegionalFontFallback policy={policy} onChange={(next) => saveFontPreference(next)} />}
       <div className="segmented" aria-label="排版方向">
         {(
           [

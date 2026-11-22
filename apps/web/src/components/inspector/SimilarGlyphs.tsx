@@ -4,8 +4,8 @@ import { useEditorStore } from '../../stores/editor'
 import { harmonyScore, profileCost } from '../../lib/visual'
 import { DifferencePanel, nearestNeighbors, ProfileReadout, useProfiles } from './VisualProfile'
 import type { GlyphInstance, Glyph } from '../../types'
-import { candidateCost, type CandidatePolicy } from '../../lib/candidatePolicy'
-import { JapaneseFontFallback, JapaneseFontSelect } from '../glyph-browser/JapaneseFontSelect'
+import { usesRegionalFonts, candidateCost, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { RegionalFontFallback, RegionalFontSelect } from '../glyph-browser/RegionalFontSelect'
 import { SourcePolicyControls } from '../glyph-browser/SourcePolicyControls'
 
 export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
@@ -13,10 +13,10 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
   const projectPolicy = composition?.policy
   const [policy, setPolicy] = useState<CandidatePolicy>(() => {
     const tradition = glyph.source.writing_tradition || 'Chinese'
-    const japanese = tradition === 'Japanese' && projectPolicy?.writing_tradition === 'Japanese'
+    const regional = usesRegionalFonts(tradition) && projectPolicy?.writing_tradition === tradition
     return { writing_tradition: tradition, locale: glyph.source.locale || undefined, mode: 'strict',
-      font_id: japanese ? projectPolicy?.font_id : undefined,
-      allow_font_fallback: japanese ? projectPolicy?.allow_font_fallback : undefined,
+      font_id: regional ? projectPolicy?.font_id : undefined,
+      allow_font_fallback: regional ? projectPolicy?.allow_font_fallback : undefined,
       variant_type: glyph.variant?.type === 'hentaigana' ? 'hentaigana' : undefined }
   })
   const shaping = glyph.metadata?.shaping as { direction?: string } | undefined
@@ -97,9 +97,9 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
         <h3>换个字形</h3>
               </div>
       <SourcePolicyControls policy={policy} onChange={setPolicy} />
-      {policy.writing_tradition === 'Japanese' && <>
-        <JapaneseFontSelect policy={policy} onChange={setPolicy} />
-        <JapaneseFontFallback policy={policy} onChange={setPolicy} />
+      {usesRegionalFonts(policy.writing_tradition) && <>
+        <RegionalFontSelect policy={policy} onChange={setPolicy} />
+        <RegionalFontFallback policy={policy} onChange={setPolicy} />
       </>}
       <label className="check-field">
         <input type="checkbox" checked={sort} onChange={(e) => setSort(e.target.checked)} />

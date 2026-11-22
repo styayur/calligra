@@ -11,11 +11,11 @@ export async function shapeFontGlyph(entry: ShaperFont, text: string, locale: st
   const hb = await import('harfbuzzjs')
   if (!fonts.has(entry.id)) fonts.set(entry.id, (async () => {
     const response = await fetch(`${import.meta.env.BASE_URL}fonts/${entry.path}`)
-    if (!response.ok) throw new Error('Japanese font could not be loaded')
+    if (!response.ok) throw new Error('Bundled font could not be loaded')
     const compressed = await response.arrayBuffer()
-    if (await sha256(compressed) !== entry.runtime_sha256) throw new Error('Japanese runtime font checksum mismatch')
+    if (await sha256(compressed) !== entry.runtime_sha256) throw new Error('Bundled runtime font checksum mismatch')
     const raw = await new Response(new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
-    if (raw.byteLength > 40 * 1024 * 1024 || await sha256(raw) !== entry.sha256) throw new Error('Japanese source font checksum mismatch')
+    if (raw.byteLength > 40 * 1024 * 1024 || await sha256(raw) !== entry.sha256) throw new Error('Bundled source font checksum mismatch')
     const blob = new hb.Blob(raw), face = new hb.Face(blob), font = new hb.Font(face)
     font.setScale(face.upem, face.upem)
     return { font, blob, face }
@@ -25,13 +25,13 @@ export async function shapeFontGlyph(entry: ShaperFont, text: string, locale: st
   buffer.addText(text)
   buffer.guessSegmentProperties()
   buffer.setLanguage(locale)
-  const script = unicodeScript(text), tag = { Han: 'Hani', Hiragana: 'Hira', Katakana: 'Kana' }[script || '']
+  const script = unicodeScript(text), tag = { Han: 'Hani', Hiragana: 'Hira', Katakana: 'Kana', Hangul: 'Hang', Latin: 'Latn' }[script || '']
   if (tag) buffer.setScript(tag)
   buffer.setDirection(vertical ? hb.Direction.TTB : hb.Direction.LTR)
   const features = [`locl=1`, `vert=${vertical ? 1 : 0}`, `vrt2=${vertical ? 1 : 0}`]
   hb.shape(font, buffer, features.map((f) => hb.Feature.fromString(f)!))
   const infos = buffer.getGlyphInfos(), positions = buffer.getGlyphPositions()
-  if (infos.some((g) => !g.codepoint)) return null
+  if (!infos.length || infos.some((g) => !g.codepoint)) return null
   const paths: { path: Path2D; x: number; y: number }[] = []
   let penX = 0, penY = 0, left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity
   infos.forEach((g, i) => {

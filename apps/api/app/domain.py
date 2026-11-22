@@ -18,7 +18,7 @@ def codepoints(text: str) -> list[str]:
 
 def unicode_script(text: str) -> str | None:
     # Unicode script classification is not evidence of language or tradition.
-    for script in ('Hiragana','Katakana','Han'):
+    for script in ('Hiragana', 'Katakana', 'Han', 'Hangul', 'Latin'):
         if regex.fullmatch(rf'\p{{Script={script}}}[\p{{Script={script}}}\p{{M}}]*',text):
             return script
     return None

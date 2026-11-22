@@ -6,6 +6,8 @@ export function unicodeScript(text: string): string | null {
   if (/^\p{Script=Hiragana}[\p{Script=Hiragana}\p{M}]*$/u.test(text)) return 'Hiragana'
   if (/^\p{Script=Katakana}[\p{Script=Katakana}\p{M}]*$/u.test(text)) return 'Katakana'
   if (/^\p{Script=Han}[\p{Script=Han}\p{M}]*$/u.test(text)) return 'Han'
+  if (/^\p{Script=Hangul}[\p{Script=Hangul}\p{M}]*$/u.test(text)) return 'Hangul'
+  if (/^\p{Script=Latin}[\p{Script=Latin}\p{M}]*$/u.test(text)) return 'Latin'
   return null
 }
 export function semanticIdentity(glyph: Glyph): CharacterIdentity {
