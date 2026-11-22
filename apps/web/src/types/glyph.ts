@@ -95,4 +95,5 @@ export interface Glyph {
 
 export interface GlyphInstance extends Glyph {
   glyph_id: string
+  textRange?: import('./typesetting').TextRange
 }

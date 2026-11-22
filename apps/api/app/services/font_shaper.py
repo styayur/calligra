@@ -9,6 +9,7 @@ import freetype
 import uharfbuzz as hb
 from fontTools.ttLib import TTFont
 from PIL import Image
+from app.domain import variation_pairs
 
 SCRIPT_TAGS = {"Han": "Hani", "Hiragana": "Hira", "Katakana": "Kana", "Hangul": "Hang", "Latin": "Latn"}
 
@@ -27,11 +28,16 @@ class FontShaper:
         self.face = freetype.Face(str(path))
         with TTFont(path, lazy=True) as tt:
             self.names = tt.getGlyphOrder()
+            self.gsub = {item.FeatureTag for item in tt["GSUB"].table.FeatureList.FeatureRecord} \
+                if "GSUB" in tt and tt["GSUB"].table.FeatureList else set()
 
     def shape(self, text: str, *, locale: str | None = None, script: str | None = None,
               vertical: bool = False, features: dict | None = None):
         if not text or len(text) > 32:
             raise ValueError("Shape one bounded Unicode sequence")
+        pairs = variation_pairs(text)
+        if pairs is None or any(not self.font.get_variation_glyph(base, selector) for base, selector in pairs):
+            return None
         buffer = hb.Buffer()
         buffer.add_str(text)
         buffer.guess_segment_properties()
@@ -40,7 +46,9 @@ class FontShaper:
         if script:
             buffer.script = SCRIPT_TAGS.get(script, script)
         buffer.direction = "ttb" if vertical else "ltr"
-        enabled = {"locl": 1, "vert": int(vertical), "vrt2": int(vertical), **(features or {})}
+        enabled = {"locl": 1, "vert": int(vertical and "vert" in self.gsub), "vrt2": 0, **(features or {})}
+        if enabled["vert"] and enabled["vrt2"]:
+            raise ValueError("Choose one vertical substitution strategy")
         hb.shape(self.font, buffer, enabled)
         if any(info.codepoint == 0 for info in buffer.glyph_infos):
             return None

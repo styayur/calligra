@@ -27,7 +27,8 @@ def exercise(context, url):
     page.get_by_role("button", name="下载离线字体", exact=True).click()
     expect(page.get_by_role("button", name="离线字体已就绪", exact=True)).to_be_disabled(timeout=180_000)
     font_count = page.evaluate(cache_fonts)
-    assert font_count == page.evaluate("async () => (await (await fetch('fonts/catalog.json')).json()).length")
+    assert font_count == page.evaluate("""async () => (await (await fetch('fonts/catalog.json')).json())
+      .reduce((count, font) => count + 1 + Number(Boolean(font.opentype)), 0)""")
     cdp.send("PWA.install", {"manifestId": install_id})
     try:
         cdp.send("PWA.changeAppUserSettings", {"manifestId": install_id, "displayMode": "standalone"})

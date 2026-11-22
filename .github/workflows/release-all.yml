@@ -211,9 +211,9 @@ jobs:
           CALLIGRAPHY_ANDROID_CERT_SHA256: ${{ vars.ANDROID_CERT_SHA256 }}
         run: |
           mkdir -p work/android-baseline
-          gh release download v0.8.1 --dir work/android-baseline --pattern 'CalligraphyStudio-Android-0.8.1.apk' --pattern 'SHA256SUMS.txt'
-          (cd work/android-baseline && grep '  CalligraphyStudio-Android-0.8.1.apk$' SHA256SUMS.txt | sha256sum --strict --check -)
-          cert="$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs work/android-baseline/CalligraphyStudio-Android-0.8.1.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')"
+          gh release download v0.9.0 --dir work/android-baseline --pattern 'CalligraphyStudio-Android-0.9.0.apk' --pattern 'SHA256SUMS.txt'
+          (cd work/android-baseline && grep '  CalligraphyStudio-Android-0.9.0.apk$' SHA256SUMS.txt | sha256sum --strict --check -)
+          cert="$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs work/android-baseline/CalligraphyStudio-Android-0.9.0.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')"
           [[ "$cert" == "$(printf '%s' "$CALLIGRAPHY_ANDROID_CERT_SHA256" | tr -d ':' | tr '[:upper:]' '[:lower:]')" ]]
       - name: Enable KVM on the hosted Android runner
         if: needs.prepare.outputs.signed == 'true'
@@ -240,18 +240,23 @@ jobs:
           python-version: '3.12'
       - name: Test font selection from the packaged Android web assets
         run: |
-          python -m pip install playwright
+          python -m pip install playwright pillow
           python -m playwright install --with-deps chromium
           python -m zipfile -e apps/web/android/app/build/outputs/apk/release/app-release.apk work/android-bundle
           python -m http.server 5180 --bind 127.0.0.1 --directory work/android-bundle/assets/public > /tmp/calligraphy-apk-http.log 2>&1 &
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5180 --output work/japanese-fonts-android.json
           python scripts/test_korean_browser.py --url http://127.0.0.1:5180 --output work/korean-fonts-android.json
+          native_project=work/android-upgrade/typesetting-native-project.json
+          args=()
+          if [ -f "$native_project" ]; then args=(--native-project "$native_project"); fi
+          python scripts/test_typesetting_browser.py --url http://127.0.0.1:5180/ --output work/typesetting-android.json "${args[@]}"
       - uses: actions/upload-artifact@v7
         with:
           name: android-japanese-font-evidence
           path: |
             work/japanese-fonts-android.json
             work/korean-fonts-android.json
+            work/typesetting-android.json
           if-no-files-found: error
       - name: Prepare APK
         env:
@@ -329,6 +334,7 @@ jobs:
           python scripts/test_extraction_browser.py --url http://127.0.0.1:5179
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5179 --output work/japanese-fonts-web.json --screenshot work/japanese-font-selection.png
           python scripts/test_korean_browser.py --url http://127.0.0.1:5179 --output work/korean-fonts-web.json
+          python scripts/test_typesetting_browser.py --url http://127.0.0.1:5179/ --output work/typesetting-web.json --gallery work/typesetting-gallery
           python scripts/test_pwa_browser.py --url http://127.0.0.1:5179/ --output work/pwa-linux.json
           python scripts/test_i18n_browser.py --url http://127.0.0.1:5179/ --output work/i18n-web.json
       - uses: actions/upload-artifact@v7
@@ -338,6 +344,8 @@ jobs:
             work/japanese-fonts-web.json
             work/japanese-font-selection.png
             work/korean-fonts-web.json
+            work/typesetting-web.json
+            work/typesetting-gallery/*.png
             work/pwa-linux.json
             work/i18n-web.json
           if-no-files-found: error

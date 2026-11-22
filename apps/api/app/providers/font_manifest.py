@@ -12,7 +12,7 @@ from fontTools.ttLib import TTFont
 from PIL import Image, ImageDraw, ImageFont
 
 from app.providers.base import DatasetProvider, RawGlyphRecord
-from app.domain import codepoints, unicode_script, RightsRecord
+from app.domain import codepoints, is_variation_selector, unicode_script, RightsRecord
 from app.services.font_shaper import FontShaper
 from app.orthography import japanese_variant
 
@@ -116,7 +116,8 @@ class FontManifestProvider(DatasetProvider):
             render_font = ImageFont.truetype(str(font_path), FONT_SIZE)
             shaper = FontShaper(font_path) if entry.get("language") in {"ja", "ko"} else None
             for character in sorted(requested):
-                if any(ord(c) not in cmap for c in unicodedata.normalize('NFC', character)):
+                if any(ord(c) not in cmap and not (shaper and is_variation_selector(ord(c)))
+                       for c in unicodedata.normalize('NFC', character)):
                     continue
                 script = unicode_script(character)
                 shaped = shaper.render(character, locale=entry.get("locale"), script=script, vertical=self.vertical) if shaper else None

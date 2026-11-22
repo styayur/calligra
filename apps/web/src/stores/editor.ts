@@ -112,6 +112,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
           ...structuredClone(glyph),
           id,
           glyph_id: glyph.id,
+          textRange: current.character === glyph.character ? current.textRange : undefined,
           appearance: current.appearance,
           transform: {
             ...current.transform,

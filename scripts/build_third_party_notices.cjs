@@ -27,6 +27,7 @@ add('codh','CODH Kuzushiji sample','historical','v2 (2019-11-11)','https://codh.
 add('arphic','Hanzi Writer / Make Me A Hanzi / Arphic','structural',null,'https://github.com/chanind/hanzi-writer-data','ARPHIC-PUBLIC-LICENSE','third_party/hanzi-writer/ARPHICPL.TXT','demo/licenses/arphic-public-license.txt','Modified structural SVGs retain Arphic licence/notice obligations; fallback provenance.')
 add('demo','Synthetic demonstration glyphs','fixture',null,'https://github.com/styayur/calligra','CC0-1.0','third_party/CC0-1.0.txt','demo/licenses/CC0-1.0.txt','Synthetic examples, not historical manuscripts.')
 add('harfbuzz','HarfBuzz WASM engine','software','863d3f7787c6df18d20e4535c5906bf3eb803bd5','https://github.com/harfbuzz/harfbuzz','Old-MIT','third_party/harfbuzz/HarfBuzz-COPYING.txt','licenses/HarfBuzz-COPYING.txt')
+add('unicode-layout-data','Unicode Character Database layout properties','data','18.0.0','https://www.unicode.org/Public/18.0.0/ucd/','Unicode-3.0','third_party/unicode/18.0.0/LICENSE.txt','licenses/Unicode-3.0.txt','Vertical_Orientation lookup generated from the official UCD. The line breaking data used by the locked @cto.af/linebreak dependency is covered by the Unicode data licence.')
 add('android-native','AndroidX / Kotlin / Cordova native dependencies','native',null,'https://source.android.com/docs/setup/about/licenses','Apache-2.0','third_party/native-APACHE-2.0.txt','licenses/android-native-Apache-2.0.txt','AndroidX copyright The Android Open Source Project; Kotlin copyright JetBrains; Cordova copyright The Apache Software Foundation. Exact resolved native versions are recorded in the Android build dependency report. Capacitor MIT licences are included below.')
 const apacheNative=components.at(-1)
 apacheNative.additional_notices=[license('third_party/Cordova-NOTICE.txt','licenses/Cordova-NOTICE.txt')]
@@ -53,6 +54,18 @@ for (const [relative,entry] of Object.entries(lock.packages).sort()) {
   if (npmIds.has(id)) continue
   npmIds.add(id)
   const texts=fs.readdirSync(dir).filter(f=>/^(licen[sc]e|copying|notice)([.-]|$)/i.test(f) && fs.statSync(path.join(dir,f)).isFile()).sort()
+  if (!texts.length && name === '@cto.af/unicode-trie-runtime' && entry.version === '3.2.11') {
+    const upstream = 'third_party/unicode-trie-runtime/LICENSE.txt'
+    const source = 'https://github.com/cto-af/unicode-trie/blob/8ccc27b7dac5b6a1311ed276c4224824901f4c17/LICENSE'
+    const bytes = fs.readFileSync(path.join(root, upstream), 'utf8').replace(/\r\n/g, '\n')
+    if (hash(bytes) !== 'e59138ecbc0b770010b0781905e2bcc181e4f0735494c58fd9681b24f0246187') {
+      throw Error('The upstream Unicode trie runtime licence changed')
+    }
+    add(id, name, 'locked-production-dependency', entry.version, source, entry.license,
+      upstream, 'licenses/npm/_cto.af_unicode-trie-runtime/3.2.11/LICENSE.txt',
+      'Verbatim licence from the locked npm version’s upstream commit. Its published tarball omits the monorepo licence.')
+    continue
+  }
   if (!texts.length) throw Error(`Missing licence text for ${name}`)
   const files=texts.map(f=>license(`apps/web/${relative}/${f}`,`licenses/npm/${name.replace(/[^\w.-]/g,'_')}/${entry.version}/${f}`))
   components.push({id,name,category:'locked-production-dependency',version:entry.version,source_uri:'https://www.npmjs.com/package/'+name,license:entry.license,license_text:files[0],additional_notices:files.slice(1),notes:'Includes installed production dependency notices; some type-only entries are not emitted in renderer code.'})

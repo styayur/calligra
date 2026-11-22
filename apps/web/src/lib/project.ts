@@ -1,7 +1,48 @@
 import { uiText } from "../i18n"
 import type { ProjectDocument } from '../types'
 import { validLayoutDimensions } from './composition'
-import { codepoints, migrateGlyph } from './identity'
+import { codepoints, migrateGlyph, textCharacters } from './identity'
+
+function checkTypography(text: string, settings: NonNullable<ProjectDocument['composition']>) {
+  const typography = settings.typography
+  if (!typography) return settings.shapedRuns === undefined && settings.flowCosts === undefined
+  if (typeof typography !== 'object' ||
+      !(['mixed', 'kinsoku', 'compressPunctuation', 'automaticTcy', 'discretionary'] as const)
+        .every((key) => typeof typography[key] === 'boolean') ||
+      !Array.isArray(typography.tcy) || typography.tcy.length > 1000 ||
+      (typography.connectedKana !== undefined && typeof typography.connectedKana !== 'boolean') ||
+      (typography.spans !== undefined && (!Array.isArray(typography.spans) || typography.spans.length > 1000))) return false
+  const boundaries = new Set([0])
+  let index = 0
+  for (const cluster of textCharacters(text)) { index += cluster.length; boundaries.add(index) }
+  const range = (record: { start: number; end: number } | null | undefined) =>
+    record && boundaries.has(record.start) && boundaries.has(record.end) && record.start < record.end
+  const flow = typography.flow
+  if (flow !== undefined && (!flow || !['natural', 'fluent'].includes(flow.mode) ||
+    !Number.isFinite(flow.intensity) || flow.intensity < 0 || flow.intensity > 1 ||
+    !Array.isArray(flow.pins) || flow.pins.length > 1000 ||
+    !flow.pins.every((pin) => range(pin) && typeof pin.glyphId === 'string' && pin.glyphId.length <= 256))) return false
+  if (!typography.tcy.every((item) => range(item) && /^[A-Za-z0-9.+%/-]{1,8}$/.test(text.slice(item.start, item.end)))) return false
+  if (typography.spans && !typography.spans.every((item) => range(item) &&
+    (item.language === undefined || ['und', 'zh', 'ja', 'ko', 'en'].includes(item.language)) &&
+    (item.tradition === undefined || ['Chinese', 'Japanese', 'Korean'].includes(item.tradition)))) return false
+  const runs = settings.shapedRuns
+  const costs = settings.flowCosts
+  if (costs !== undefined && (!Array.isArray(costs) || costs.length > 1000 ||
+    !costs.every((cost) => Number.isFinite(cost) && cost >= 0))) return false
+  if (runs === undefined) return true
+  return Array.isArray(runs) && runs.length <= 1000 && runs.every((run) => range(run) &&
+    run.text === text.slice(run.start, run.end) && ['ltr', 'ttb'].includes(run.direction) &&
+    ['U', 'R', 'Tu', 'Tr'].includes(run.orientation) &&
+    Array.isArray(run.sequences) && run.sequences.length <= 1000 &&
+    run.sequences.every((sequence) => range(sequence) && sequence.start >= run.start && sequence.end <= run.end &&
+      sequence.text === text.slice(sequence.start, sequence.end) && typeof sequence.fontId === 'string' &&
+      Array.isArray(sequence.positions) && sequence.positions.length <= 5000 &&
+      sequence.positions.every((glyph) => glyph && Number.isInteger(glyph.id) && glyph.id > 0 &&
+        boundaries.has(glyph.cluster) && glyph.cluster >= sequence.start && glyph.cluster < sequence.end &&
+        [glyph.x, glyph.y, glyph.advanceX, glyph.advanceY, glyph.width, glyph.height, glyph.rotation]
+          .every((metric) => Number.isFinite(metric) && Math.abs(metric) < 5000))))
+}
 
 export function validateProject(value: unknown): ProjectDocument {
   const p = value as ProjectDocument
@@ -24,6 +65,7 @@ export function validateProject(value: unknown): ProjectDocument {
       typeof c.style !== 'string' ||
       typeof c.punctuation !== 'boolean' ||
       (c.textLanguage !== undefined && !['und', 'zh', 'ja', 'ko', 'en'].includes(c.textLanguage)) ||
+      !checkTypography(p.text || '', c) ||
       !validLayoutDimensions(c)
     )
       throw new Error(uiText("项目排版参数无效"))
@@ -57,6 +99,11 @@ export function validateProject(value: unknown): ProjectDocument {
     )
       throw new Error(uiText("项目包含无效字形"))
     ids.add(g.id)
+    if (g.textRange !== undefined &&
+      (!g.textRange || !Number.isInteger(g.textRange.start) || !Number.isInteger(g.textRange.end) ||
+        g.textRange.start < 0 || g.textRange.end <= g.textRange.start ||
+        p.text?.slice(g.textRange.start, g.textRange.end) !== g.character))
+      throw new Error(uiText("项目 Unicode 身份无效"))
     if (
       typeof g.source.dataset !== 'string' ||
       !['calligrapher', 'style', 'dynasty', 'work', 'license', 'license_url','language','locale','script','writing_tradition','orthography','period','region','source_collection','source_uri','attribution','designer','dataset_version','source_checksum','license_text'].every((key) => {

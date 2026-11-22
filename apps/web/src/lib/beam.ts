@@ -14,6 +14,9 @@ export interface BeamOptions {
   progress?: (done: number) => void
   policy?: CandidatePolicy
   weights?: CandidateWeights
+  choicesAt?: ProfileCandidate[][]
+  adjacentCost?: (previous: VisualProfile, next: VisualProfile) => number
+  onCost?: (cost: number) => void
 }
 interface State {
   cost: number
@@ -41,10 +44,13 @@ export async function selectSequence(
     pair = new Map<string, number>()
   for (const items of candidates.values())
     for (const item of items) unary.set(item.id, profileCost(item.profile, context))
+  for (const items of options.choicesAt || [])
+    for (const item of items) if (!unary.has(item.id)) unary.set(item.id, profileCost(item.profile, context))
   let beam: State[] = [{ cost: 0, candidate: null, parent: null, recent: [] }]
   for (let i = 0; i < characters.length; i++) {
     options.signal?.throwIfAborted()
-    const choices = (candidates.get(characters[i]) || []).filter((c) => !c.glyph || candidateCompatible(c.glyph,options.policy || {})),
+    const choices = (options.choicesAt?.[i] ?? candidates.get(characters[i]) ?? [])
+      .filter((c) => c.character === characters[i] && (!c.glyph || candidateCompatible(c.glyph, options.policy || {}))),
       next: State[] = []
     for (const state of beam) {
       if (!choices.length) {
@@ -60,8 +66,8 @@ export async function selectSequence(
         let adjacent = 0
         if (state.candidate) {
           const key = JSON.stringify([candidate.id, state.candidate.id])
-          if (!pair.has(key))
-            pair.set(key, profileCost(candidate.profile, [state.candidate.profile]))
+          if (!pair.has(key)) pair.set(key, profileCost(candidate.profile, [state.candidate.profile]) +
+            (options.adjacentCost?.(state.candidate.profile, candidate.profile) || 0))
           adjacent = pair.get(key)!
         }
         const repeats = state.recent.filter((c) => c.character === candidate.character)
@@ -93,6 +99,7 @@ export async function selectSequence(
   }
   const chosen: (string | null)[] = []
   let node: State | null = beam[0]
+  options.onCost?.(node.cost)
   while (node?.parent) {
     chosen.push(node.candidate?.id || null)
     node = node.parent

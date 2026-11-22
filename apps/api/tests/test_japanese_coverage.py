@@ -57,7 +57,8 @@ def test_fallback_is_japanese_font_with_exportable_rights_and_vertical_shaping(c
     assert record.metadata["source_role"] == "coverage-fallback"
     assert record.metadata["license_text"] == fallback["bundle_license_text"]
     shaped = FontShaper(JP.parent / fallback["path"]).shape("㐆", locale="ja-JP", vertical=True)
-    assert shaped and shaped[1]["direction"] == "ttb" and shaped[1]["features"]["vert"] == 1
+    assert shaped and shaped[1]["direction"] == "ttb"
+    assert shaped[1]["features"]["vert"] == shaped[1]["features"]["vrt2"] == 0
     response = client.post("/api/compose/batch", json={"text": "㐆", "writing_tradition": "Japanese", "locale": "ja-JP", "layout": "vertical-rtl"})
     assert response.status_code == 200, response.text
     result = response.json()

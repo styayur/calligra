@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "release": "0.9.0",
+  "release": "0.10.0",
   "font_packs": [
     "fonts/manifest.json",
     "fonts/japanese/manifest.json",
@@ -14,7 +14,7 @@
     "historical-sample",
     "optional-local-corpus"
   ],
-  "canonical_sha256": "950641c6948e6e4e812bd2738f5f919aa268e558ddcfbdb92fcc75aa8990d834",
+  "canonical_sha256": "217e5314d76e3970fd025327d6782550c453d9fc5722f15164050d33fe425c99",
   "fonts": [
     {
       "id": "ma-shan-zheng",
@@ -32,7 +32,11 @@
       "license_text": "fonts/licenses/OFL-ma-shan-zheng.txt",
       "source_role": null,
       "original_sha256": null,
-      "subset_command": null
+      "subset_command": null,
+      "opentype": {
+        "path": "apps/web/public/fonts/ma-shan-zheng.ttf.gzip",
+        "sha256": "22f2128a536f6b800d9daf6c0c2cc611cdb3c39de9e58a1e61ddfa99bd7273e4"
+      }
     },
     {
       "id": "zhi-mang-xing",
@@ -50,7 +54,11 @@
       "license_text": "fonts/licenses/OFL-zhi-mang-xing.txt",
       "source_role": null,
       "original_sha256": null,
-      "subset_command": null
+      "subset_command": null,
+      "opentype": {
+        "path": "apps/web/public/fonts/zhi-mang-xing.ttf.gzip",
+        "sha256": "9c18b65e6d0e3eeb88c57d5c71428458d21f86eb3b4c84662600ece75b57bc35"
+      }
     },
     {
       "id": "liu-jian-mao-cao",
@@ -68,7 +76,11 @@
       "license_text": "fonts/licenses/OFL-liu-jian-mao-cao.txt",
       "source_role": null,
       "original_sha256": null,
-      "subset_command": null
+      "subset_command": null,
+      "opentype": {
+        "path": "apps/web/public/fonts/liu-jian-mao-cao.ttf.gzip",
+        "sha256": "8773530499c1b0ca6cb30838e1d77c4c8cc8a51cecd6d26cef863c443bd52abb"
+      }
     },
     {
       "id": "yuji-syuku",

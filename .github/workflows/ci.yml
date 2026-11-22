@@ -46,6 +46,7 @@ jobs:
         run: |
           python scripts/validate_assets.py
           python scripts/report_japanese_coverage.py
+          python scripts/build_unicode_layout_data.py --check
           python scripts/validate_third_party.py
           python scripts/validate_version.py
 
@@ -95,6 +96,7 @@ jobs:
           python scripts/test_historical_page_browser.py --url http://127.0.0.1:5178 --output work/historical-page.json
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5178 --output work/japanese-fonts-web.json --screenshot work/japanese-font-selection.png
           python scripts/test_korean_browser.py --url http://127.0.0.1:5178 --output work/korean-fonts-web.json
+          python scripts/test_typesetting_browser.py --url http://127.0.0.1:5178/ --output work/typesetting-web.json --gallery work/typesetting-gallery
           python scripts/test_pwa_browser.py --url http://127.0.0.1:5178/ --output work/pwa-linux.json
           python scripts/test_i18n_browser.py --url http://127.0.0.1:5178/ --output work/i18n-web.json
       - uses: actions/upload-artifact@v7
@@ -103,6 +105,9 @@ jobs:
           path: |
             work/japanese-fonts-web.json
             work/korean-fonts-web.json
+            work/typesetting-web.json
+            work/typesetting-gallery/*.png
+            work/historical-page.json
             work/japanese-font-selection.png
             work/pwa-linux.json
             work/i18n-web.json
@@ -170,16 +175,18 @@ jobs:
           python-version: '3.12'
       - name: Test font selection from the packaged Android web assets
         run: |
-          python -m pip install playwright
+          python -m pip install playwright pillow
           python -m playwright install --with-deps chromium
           python -m zipfile -e apps/web/android/app/build/outputs/apk/release/app-release.apk work/android-bundle
           python -m http.server 5180 --bind 127.0.0.1 --directory work/android-bundle/assets/public > /tmp/calligraphy-apk-http.log 2>&1 &
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5180 --output work/japanese-fonts-android.json
           python scripts/test_korean_browser.py --url http://127.0.0.1:5180 --output work/korean-fonts-android.json
+          python scripts/test_typesetting_browser.py --url http://127.0.0.1:5180/ --output work/typesetting-android.json
       - uses: actions/upload-artifact@v7
         with:
           name: android-japanese-font-evidence
           path: |
             work/japanese-fonts-android.json
             work/korean-fonts-android.json
+            work/typesetting-android.json
           if-no-files-found: error

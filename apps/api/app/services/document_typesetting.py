@@ -14,6 +14,7 @@ from zipfile import BadZipFile, ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 from fontTools.ttLib import TTFont, TTLibError
 import regex
+from app.domain import variation_pairs
 
 WORD = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 ODT_TEXT = "urn:oasis:names:tc:opendocument:xmlns:text:1.0"
@@ -257,7 +258,7 @@ def replace_odt(doc, node, pieces, style):
     node.parentNode.removeChild(node)
 
 
-def convert(data, kind, family, coverage, options=Selection()):
+def convert(data, kind, family, coverage, options=Selection(), *, variations=frozenset()):
     if kind not in {"docx", "odt"} or not family.strip() or len(family) > 120:
         raise ValueError("Invalid document format or font family")
     parts = archive_entries(data)
@@ -287,7 +288,11 @@ def convert(data, kind, family, coverage, options=Selection()):
         for cluster in regex.findall(r"\X", value):
             target = (regex.fullmatch(r"\p{Script=Han}\p{M}*", cluster) if options.han_only
                       else not cluster.isspace())
-            eligible = bool(target) and len(cluster) == 1 and ord(cluster) in coverage
+            pairs = variation_pairs(cluster) if len(cluster) == 2 else None
+            eligible = bool(target) and (
+                len(cluster) == 1 and ord(cluster) in coverage or
+                bool(pairs) and pairs[0] in variations
+            )
             if target:
                 required.add(cluster)
                 if not eligible:
@@ -314,6 +319,18 @@ def convert(data, kind, family, coverage, options=Selection()):
         candidates = [(node, node.data) for node in odt_text_nodes(paragraph)] if odt else [
             (run, run_text(run)[1]) for run in word_runs(paragraph)
             if not options.original_font or word_font(run) == options.original_font]
+        # A combining sequence split by formatting must stay in the original font.
+        offset = 0
+        boundaries = {0, *(match.end() for match in regex.finditer(r"\X", plain))}
+        for _, value in ((node, node.data) for node in odt_text_nodes(paragraph)) if odt else (
+            (run, run_text(run)[1]) for run in word_runs(paragraph)
+        ):
+            offset += len(value)
+            if offset not in boundaries:
+                report["skipped_complex_paragraphs"].append(number)
+                break
+        if number in report["skipped_complex_paragraphs"]:
+            continue
         for node, value in candidates:
             pieces = plan(value)
             changes = sum(use_font for _, use_font in pieces)
@@ -349,7 +366,13 @@ def convert_with_font(document, kind, font_data, selection=Selection()):
         family = font["name"].getBestFamilyName()
         if not family:
             raise ValueError("Font family absent")
-        output, report = convert(document, kind, family, set(font.getBestCmap() or {}), selection)
+        cmap = font.getBestCmap() or {}
+        variations = {
+            (base, selector) for table in font["cmap"].tables if table.format == 14
+            for selector, substitutions in table.uvsDict.items() for base, name in substitutions
+            if name is not None or base in cmap
+        }
+        output, report = convert(document, kind, family, set(cmap), selection, variations=variations)
     report["font_family"] = family
     return output, report
 

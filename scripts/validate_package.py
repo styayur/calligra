@@ -36,6 +36,11 @@ def validate(path: Path, prefix: str):
             file = font['runtime']['path'].removeprefix('apps/web/public/')
             if hashlib.sha256(read(file)).hexdigest() != font['runtime']['sha256']:
                 raise ValueError(f'Packaged font checksum mismatch: {file}')
+            if font.get('opentype'):
+                package = font['opentype']
+                source = package['path'].removeprefix('apps/web/public/')
+                if hashlib.sha256(read(source)).hexdigest() != package['sha256']:
+                    raise ValueError(f'Packaged OpenType source checksum mismatch: {source}')
             read(font['license_text'])
         historical = json.loads(read('japanese/glyphs.json'))
         expected = json.loads((public / 'japanese/glyphs.json').read_text(encoding='utf-8'))

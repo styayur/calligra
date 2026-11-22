@@ -13,6 +13,27 @@ export function unicodeScript(text: string): string | null {
 export function semanticIdentity(glyph: Glyph): CharacterIdentity {
   return glyph.identity || { text: glyph.character, codepoints: codepoints(glyph.character) }
 }
+
+export function isVariationSelector(codepoint: number): boolean {
+  return (codepoint >= 0xfe00 && codepoint <= 0xfe0f) ||
+    (codepoint >= 0xe0100 && codepoint <= 0xe01ef)
+}
+
+/** Structural variation sequences retain source codepoints. The font resolves cmap format 14. */
+export function variationPairs(text: string): Array<[number, number]> | undefined {
+  const pairs: Array<[number, number]> = []
+  let previous: string | undefined
+  for (const character of text) {
+    const selector = character.codePointAt(0)!
+    if (isVariationSelector(selector)) {
+      if (!previous || /[\p{M}\p{C}\s]/u.test(previous) ||
+          (selector >= 0xe0100 && !/\p{Ideographic}/u.test(previous))) return undefined
+      pairs.push([previous.codePointAt(0)!, selector])
+    }
+    previous = character
+  }
+  return pairs
+}
 /** Enrich missing legacy fields without inferring culture from shared Han. */
 export function migrateGlyph<T extends Glyph>(glyph: T): T {
   const source = glyph.source

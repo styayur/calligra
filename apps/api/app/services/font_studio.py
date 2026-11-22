@@ -19,7 +19,7 @@ from fontTools.pens.ttGlyphPen import TTGlyphPen
 from PIL import Image
 import regex
 
-from app.domain import require_rights
+from app.domain import require_rights, variation_pairs
 from app.schemas import GlyphRead
 
 SUPPORTED = {"ttf", "otf", "woff2"}
@@ -32,6 +32,13 @@ Point = tuple[int, int]
 
 def supported_character(text: str) -> bool:
     return len(text) == 1 and regex.fullmatch(r"[\p{L}\p{N}\p{P}\p{S}]", text) is not None
+
+
+def supported_variation(text: str) -> tuple[int, int] | None:
+    pairs = variation_pairs(text)
+    if len(text) == 2 and supported_character(text[0]) and pairs:
+        return pairs[0]
+    return None
 
 
 def read_mask(glyph: GlyphRead, assets: Path | None) -> Image.Image:
@@ -123,7 +130,7 @@ def emit_outline(pen, mask: Image.Image):
 
 def compile_font(glyphs: list[GlyphRead], target: str, family: str, formats: set[str],
                  assets: Path | None = None, approved_work: bool = False):
-    """The first explicitly selected eligible form wins for a given scalar."""
+    """Use the first confirmed outline for each scalar or variation sequence."""
     if not re.fullmatch(r"[A-Za-z][A-Za-z0-9 -]{1,47}", family):
         raise ValueError("Use a font family of 2–48 ASCII letters, digits, spaces or hyphens")
     family = family.strip()
@@ -143,8 +150,8 @@ def compile_font(glyphs: list[GlyphRead], target: str, family: str, formats: set
                 raise ValueError("This source has not been cleared for font generation")
             if glyph.source.license == USER_PERMISSION and not approved_work:
                 raise ValueError("Private sources require explicit local rights confirmation")
-            if not supported_character(glyph.character):
-                raise ValueError("Multi-codepoint sequences and control characters are outside this export")
+            if not supported_character(glyph.character) and not supported_variation(glyph.character):
+                raise ValueError("This export supports single characters and confirmed variation sequences")
         except ValueError as error:
             blocked.append({"id": glyph.id, "character": glyph.character, "reason": str(error)})
             continue
@@ -173,10 +180,17 @@ def compile_font(glyphs: list[GlyphRead], target: str, family: str, formats: set
     derivative_license = "CC-BY-SA-4.0" if "CC-BY-SA-4.0" in licenses else ""
     coverage["outline_derivation"] = "Binary raster contours normalized to a 1000-unit em"
     coverage["derivative_license"] = derivative_license or None
-    coverage["variant_selection"] = "One confirmed outline per scalar; alternative shapes are not assigned to another character."
+    coverage["variant_selection"] = "Confirmed variation sequences use cmap format 14; scalar mappings retain their own outlines."
     ps_name = family.replace(" ", "") + "-Regular"
-    cmap = {ord(c): f"uni{ord(c):04X}" if ord(c) <= 0xffff else f"u{ord(c):05X}" for c in masks}
-    order = [".notdef", "space", *(cmap[k] for k in sorted(cmap))]
+    cmap = {ord(c): f"uni{ord(c):04X}" if ord(c) <= 0xffff else f"u{ord(c):05X}"
+            for c in masks if supported_character(c)}
+    variations = sorted((base, selector, f"uvs{base:X}.{selector:X}", c)
+                        for c in masks if (pair := supported_variation(c)) is not None
+                        for base, selector in [pair])
+    order = [".notdef", "space", *(cmap[k] for k in sorted(cmap)), *(name for _, _, name, _ in variations)]
+    uvs = [(base, selector, name) for base, selector, name, _ in variations]
+    image_by_name = {cmap[ord(c)]: image for c, image in masks.items() if supported_character(c)}
+    image_by_name.update((name, masks[c]) for _, _, name, c in variations)
     cmap[32] = "space"
     timestamp = int((datetime(2026, 1, 1, tzinfo=timezone.utc) - datetime(1904, 1, 1, tzinfo=timezone.utc)).total_seconds())
     names = {
@@ -196,9 +210,8 @@ def compile_font(glyphs: list[GlyphRead], target: str, family: str, formats: set
         builder.font.recalcTimestamp = False
         builder.setupHead(created=timestamp, modified=timestamp)
         builder.setupGlyphOrder(order)
-        builder.setupCharacterMap(cmap)
+        builder.setupCharacterMap(cmap, uvs=uvs or None)
         outlines = {}
-        image_by_name = {cmap[ord(c)]: image for c, image in masks.items()}
         for name in order:
             pen = TTGlyphPen(None) if is_ttf else T2CharStringPen(1000 if name != "space" else 500, None)
             if name in image_by_name:

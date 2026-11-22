@@ -1,6 +1,7 @@
 import type { GlyphInstance } from './glyph'
 import type { BatchLayout } from './composition'
 import type { CandidatePolicy } from '../lib/candidatePolicy'
+import type { AdvancedTypography, TextRun } from './typesetting'
 
 export type TextLanguage = 'und' | 'zh' | 'ja' | 'ko' | 'en'
 
@@ -17,6 +18,9 @@ export interface CompositionSettings {
   source: 'fonts' | 'original' | 'all' | 'fallback' | 'private'
   /** Optional cultural and font preferences. Schema 2 projects without a font ID use Auto. */
   policy?: CandidatePolicy
+  typography?: AdvancedTypography
+  shapedRuns?: TextRun[]
+  flowCosts?: number[]
 }
 
 export interface CanvasConfig {

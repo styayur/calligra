@@ -4,12 +4,16 @@ import { ArrowRight, Loader2 } from 'lucide-react'
 import { initialCandidates, resolveCharacters, type CandidateSource } from '../../api/candidates'
 import { RegionalFontFallback, RegionalFontSelect } from './RegionalFontSelect'
 import { SourcePolicyControls } from './SourcePolicyControls'
+import { TypographyControls } from './TypographyControls'
 import { usesRegionalFonts, DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
 import { layoutText, placeGlyph, textLines, validLayoutDimensions } from '../../lib/composition'
 import { useEditorStore } from '../../stores/editor'
 import type { BatchLayout, CompositionSettings, Glyph, TextLanguage } from '../../types'
 import { Button } from '../ui'
 import { installedPacks } from '../../lib/privateLibrary'
+import type { AdvancedTypography } from '../../types/typesetting'
+import { segmentText } from '../../lib/textLayout'
+import { composeTypeset } from '../../lib/typesetComposition'
 
 const DEFAULT_SETTINGS: CompositionSettings = {
   layout: 'vertical-rtl', columns: 5, size: 160, gap: 12, margin: 64,
@@ -38,6 +42,9 @@ export function BatchComposer({ active }: { active: boolean }) {
   const [style, setStyle] = useState('行书')
   const [source, setSource] = useState<CandidateSource>('fonts')
   const [policy, setPolicy] = useState<CandidatePolicy>(DEFAULT_POLICY)
+  const textInput = useRef<HTMLTextAreaElement>(null)
+  const [typography, setTypography] = useState<AdvancedTypography | undefined>(settings?.typography)
+  useEffect(() => setTypography(settings?.typography), [settings?.typography])
   const [packNames, setPackNames] = useState<string[]>([])
   useEffect(() => {
     if (active) void installedPacks().then((packs) => setPackNames(packs.filter((pack) => pack.enabled).map((pack) => pack.name))).catch(() => undefined)
@@ -46,6 +53,11 @@ export function BatchComposer({ active }: { active: boolean }) {
   const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
   const compose = useEditorStore((s) => s.compose)
+  const selectedGlyph = useEditorStore((s) => s.project.glyphs.find((g) => g.id === s.selectedId))
+  const pin = text === projectText && selectedGlyph?.textRange && segmentText(selectedGlyph.character).length === 1
+    ? { ...selectedGlyph.textRange, glyphId: typeof selectedGlyph.metadata?.font_id === 'string'
+        ? selectedGlyph.metadata.font_id : selectedGlyph.glyph_id }
+    : undefined
   const setComposition = useEditorStore((s) => s.setComposition)
   useEffect(() => {
     if (previousText.current !== projectText) setText(projectText ?? '')
@@ -73,7 +85,7 @@ export function BatchComposer({ active }: { active: boolean }) {
     setPolicy(settings?.policy || DEFAULT_POLICY)
   }, [settings])
   const textLanguage = settings?.textLanguage || 'und'
-  const count = textLines(text, punctuation).flat().length
+  const count = typography ? segmentText(text).length : textLines(text, punctuation).flat().length
   const regional = usesRegionalFonts(policy.writing_tradition)
   const settingsFor = (nextPolicy: CandidatePolicy, nextSource: CandidateSource) =>
     ({ layout, columns, size, gap, margin, punctuation, style, source: nextSource, policy: nextPolicy, textLanguage })
@@ -82,7 +94,8 @@ export function BatchComposer({ active }: { active: boolean }) {
     setPolicy(nextPolicy)
     setSource(nextSource)
     const next = settingsFor(nextPolicy, nextSource)
-    if (validLayoutDimensions(next)) setComposition(next)
+    if (validLayoutDimensions(next)) setComposition({ ...next, typography: settings?.typography,
+      shapedRuns: settings?.shapedRuns, flowCosts: settings?.flowCosts })
     else {
       setComposition({ ...(settings ?? DEFAULT_SETTINGS), policy: nextPolicy, source: nextSource })
       setStatus(uiText("字体偏好已保存，排版数值已恢复为上次的有效设置。"))
@@ -98,6 +111,32 @@ export function BatchComposer({ active }: { active: boolean }) {
     setLoading(true)
     setStatus(uiText("正在加载字库…"))
     try {
+      if (typography) {
+        const base = settingsFor(policy, source)
+        if (!validLayoutDimensions(base)) throw new Error(uiText('请填写有效的排版数值'))
+        const tradition = policy.writing_tradition === 'Chinese' || policy.writing_tradition === 'Korean'
+          ? policy.writing_tradition : policy.writing_tradition === 'Japanese' ? 'Japanese' : 'Chinese'
+        const result = await composeTypeset(text, {
+          ...typography, layout, measure: columns, size, gap, margin, style, source, policy,
+          tradition, language: textLanguage,
+        })
+        if (useEditorStore.getState().project !== previousProject)
+          throw new Error(uiText('作品已更改，请重新生成以应用这段文字。'))
+        const missing = [...new Set(result.missing.map((unit) => unit.text))]
+        const missingHint = uiText('可选择其他字体，或启用缺字补字。')
+        if (!result.glyphs.length) throw new Error(uiText('未找到可用字形：{{v0}}。{{v1}}', {
+          v0: missing.join('、'), v1: missingHint,
+        }))
+        compose(result.glyphs, {
+          width: result.width, height: result.height, background: previousProject.canvas.background,
+        }, text, { ...base, typography, shapedRuns: result.runs, flowCosts: result.flowCosts })
+        setStatus(missing.length
+          ? uiText('已排入 {{v0}}/{{v1}} 字，缺字「{{v2}}」已留空位。{{v3}}{{v4}}', {
+            v0: result.glyphs.length, v1: count, v2: missing.join('、'), v3: missingHint, v4: '',
+          })
+          : uiText('已排入 {{v0}} 字。{{v1}}{{v2}}', { v0: result.glyphs.length, v1: '', v2: '' }))
+        return
+      }
       const plan = layoutText(text, {
         layout,
         columns,
@@ -169,8 +208,14 @@ export function BatchComposer({ active }: { active: boolean }) {
       </div>
       <textarea
         id="compose-text"
+        ref={textInput}
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => {
+          setText(e.target.value)
+          if (typography?.tcy.length || typography?.spans?.length || typography?.flow?.pins.length)
+            setTypography({ ...typography, tcy: [], spans: undefined,
+              flow: typography.flow && { ...typography.flow, pins: [] } })
+        }}
         rows={5}
         placeholder={uiText("输入文字，换行分句")}
       />
@@ -186,6 +231,7 @@ export function BatchComposer({ active }: { active: boolean }) {
         </select>
       </label>
       <SourcePolicyControls policy={policy} onChange={updatePolicy} />
+      <TypographyControls value={typography} onChange={setTypography} input={textInput} vertical={layout === 'vertical-rtl'} pin={pin} />
       <div className="field-grid">
         {regional ? <RegionalFontSelect policy={policy} onChange={(next) => saveFontPreference(next, 'fonts')} /> : <label>
           {uiText("书体")}

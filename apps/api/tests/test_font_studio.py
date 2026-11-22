@@ -68,3 +68,23 @@ def test_private_rights_and_asset_integrity():
     character.asset.checksum = "0" * 64
     with pytest.raises(ValueError, match="SHA-256"):
         compile_font([character], "日", "Calligra Test", {"ttf"}, approved_work=True)
+
+
+def test_confirmed_ivs_builds_a_distinct_cmap_14_entry():
+    base, variant, absent = "垕", "垕\U000E0102", "垕\U000E01EF"
+    files, coverage = compile_font([glyph(base), glyph(variant), glyph("fi")],
+                                   f"{base}{variant}{absent}", "Calligra Test",
+                                   {"ttf", "otf", "woff2"}, approved_work=True)
+    assert coverage["covered"] == [base, variant]
+    assert coverage["missing"] == [absent]
+    for fmt in ("ttf", "otf", "woff2"):
+        with TTFont(BytesIO(files[f"CalligraTest-Regular.{fmt}"])) as font:
+            table = next(table for table in font["cmap"].tables if table.format == 14)
+            assert table.uvsDict == {0xE0102: [(ord(base), "uvs5795.E0102")]}
+            assert font.getBestCmap()[ord(base)] != "uvs5795.E0102"
+            font.flavor = None
+            sfnt = BytesIO()
+            font.save(sfnt)
+        shaper = hb.Font(hb.Face(sfnt.getvalue()))
+        assert shaper.get_variation_glyph(ord(base), 0xE0102) != shaper.get_nominal_glyph(ord(base))
+        assert shaper.get_variation_glyph(ord(base), 0xE01EF) is None

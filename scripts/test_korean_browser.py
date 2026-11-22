@@ -69,6 +69,7 @@ def exercise(page):
     page.locator("input[type=file]").set_input_files(
         {"name": "korean.json", "mimeType": "application/json",
          "buffer": json.dumps(project).encode()})
+    expect(page.get_by_text("项目已载入", exact=True)).to_be_visible()
     expect(font).to_have_value("kr-coverage-serif")
     tradition.select_option("Japanese")
     expect(font).to_have_value("")

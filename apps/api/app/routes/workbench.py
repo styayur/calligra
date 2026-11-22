@@ -2,7 +2,6 @@
 
 from io import BytesIO
 from ipaddress import ip_address
-from importlib.util import find_spec
 from secrets import compare_digest
 import json
 from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile
@@ -18,7 +17,7 @@ from PIL import Image
 from app.schemas import GlyphRead
 from app.services.document_pdf import render_pdf
 from app.services.document_typesetting import MAX_ARCHIVE, Selection, convert_with_font
-from app.services.extraction_ocr import recognize_glyphs
+from app.services.extraction_ocr import available_models, recognize_glyphs
 from app.services.font_studio import MAX_GLYPHS, MAX_REQUEST, SUPPORTED, compile_font
 
 router = APIRouter(prefix="/workbench", tags=["local workbench"])
@@ -43,13 +42,15 @@ def require_local(request: Request):
 def status(request: Request):
     require_local(request)
     settings = request.app.state.settings
+    models = available_models(settings.ocr_model_dir)
     return JSONResponse({
         "ready": True,
         "protocol": 1,
         "fonts": True,
         "documents": True,
         "pdf": bool(settings.libreoffice_path and settings.libreoffice_path.is_file()),
-        "ocr": bool(settings.ocr_model_dir and settings.ocr_model_dir.is_dir() and find_spec("tesserocr")),
+        "ocr": bool(models),
+        **({"ocr_models": models} if models else {}),
     }, headers={"Cache-Control": "no-store"})
 
 

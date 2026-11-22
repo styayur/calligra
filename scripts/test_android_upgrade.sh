@@ -3,7 +3,7 @@
 set -euo pipefail
 
 package=io.github.styayur.calligraphystudio
-baseline=work/android-baseline/CalligraphyStudio-Android-0.8.1.apk
+baseline=work/android-baseline/CalligraphyStudio-Android-0.9.0.apk
 candidate=apps/web/android/app/build/outputs/apk/release/app-release.apk
 evidence=work/android-upgrade
 mkdir -p "$evidence"
@@ -40,7 +40,7 @@ launch() {
 adb install "$baseline" | tee "$evidence/baseline-install.txt"
 launch baseline
 adb shell dumpsys package "$package" > "$evidence/baseline-package.txt"
-grep -q 'versionName=0\.8\.1' "$evidence/baseline-package.txt"
+grep -q 'versionName=0\.9\.0' "$evidence/baseline-package.txt"
 
 adb install -r "$candidate" | tee "$evidence/upgrade-install.txt"
 launch candidate
@@ -56,4 +56,5 @@ for field in 'appId|userId' 'dataDir' 'firstInstallTime'; do
   [[ "$before" == "$after" ]]
 done
 python scripts/test_android_update_screen.py --output "$evidence"
+python scripts/test_android_typesetting.py --output "$evidence"
 echo 'PASS: existing production certificate accepted an in-place Android emulator upgrade; app ID, data path, and original install time preserved.'

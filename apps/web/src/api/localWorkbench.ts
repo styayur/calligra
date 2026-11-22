@@ -15,6 +15,7 @@ export interface CompanionStatus {
   documents?: boolean
   pdf?: boolean
   ocr?: boolean
+  ocr_models?: string[]
 }
 
 function connection(code: string) {

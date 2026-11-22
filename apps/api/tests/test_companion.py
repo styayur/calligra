@@ -3,6 +3,7 @@ import argparse
 import pytest
 from fastapi.testclient import TestClient
 
+from app.services import extraction_ocr
 from launch_companion import create_companion, exact_origin
 
 ORIGIN = "https://styayur.github.io"
@@ -41,3 +42,16 @@ def test_authentication_origin_and_content_limits():
     oversized = local.post("/api/workbench/fonts", headers={**AUTH, "Content-Type": "application/json",
                            "Content-Length": "100000000"}, content=b"{}")
     assert oversized.status_code == 413
+
+
+def test_status_advertises_configured_ocr_languages(tmp_path, monkeypatch):
+    monkeypatch.setattr(extraction_ocr, "find_spec", lambda module: module == "tesserocr")
+    (tmp_path / "kor.traineddata").write_bytes(b"fixture")
+    (tmp_path / "jpn.traineddata").touch()
+    (tmp_path / "unknown.traineddata").write_bytes(b"fixture")
+    app = create_companion(TOKEN, [ORIGIN], ocr_model_dir=tmp_path)
+    local = TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 12345))
+    response = local.get("/api/workbench/status", headers=AUTH)
+    assert response.status_code == 200
+    assert response.json()["ocr"] is True
+    assert response.json()["ocr_models"] == ["kor"]

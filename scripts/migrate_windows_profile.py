@@ -30,11 +30,19 @@ def legacy_page(executable, profile):
         try:
             deadline = time.monotonic() + 20
             active_port = profile / "DevToolsActivePort"
-            while not active_port.is_file() and time.monotonic() < deadline and process.poll() is None:
+            endpoint = []
+            while time.monotonic() < deadline and process.poll() is None:
+                # Chromium can create this file before its exclusive write handle closes.
+                try:
+                    endpoint = active_port.read_text(encoding="utf-8").splitlines()
+                except (FileNotFoundError, PermissionError):
+                    endpoint = []
+                if len(endpoint) >= 2:
+                    break
                 time.sleep(0.1)
-            if not active_port.is_file():
+            if len(endpoint) < 2:
                 raise RuntimeError("The isolated Calligraphy Studio v0.8.1 renderer could not start.")
-            port, socket_path = active_port.read_text(encoding="utf-8").splitlines()[:2]
+            port, socket_path = endpoint[:2]
             if not port.isdecimal() or not socket_path.startswith("/devtools/browser/"):
                 raise RuntimeError("Unexpected debugging endpoint for the isolated renderer.")
             with sync_playwright() as playwright:

@@ -28,6 +28,10 @@ import { usesRegionalFonts, DEFAULT_POLICY, type CandidatePolicy } from '../../l
 import { RegionalFontFallback, RegionalFontSelect } from '../glyph-browser/RegionalFontSelect'
 import { SourcePolicyControls } from '../glyph-browser/SourcePolicyControls'
 import { assertExportRights, attributionFiles } from '../../lib/rights'
+import type { TextLanguage } from '../../types'
+import type { AdvancedTypography } from '../../types/typesetting'
+import { TypographyControls } from '../glyph-browser/TypographyControls'
+import { typesetScroll } from '../../lib/typesetComposition'
 
 interface RollResult {
   pages: RollPage[]
@@ -42,6 +46,8 @@ interface RollResult {
   beam: number
   variation: number
   policy: CandidatePolicy
+  typography?: AdvancedTypography
+  language?: TextLanguage
 }
 function PagePreview({
   page,
@@ -85,13 +91,22 @@ export function LongRoll({ active }: { active: boolean }) {
     [source, setSource] = useState<CandidateSource>('fonts'),
     [beam, setBeam] = useState(8),
     [variation, setVariation] = useState(0.2)
+  const [typography, setTypography] = useState<AdvancedTypography | undefined>(() => {
+    const settings = useEditorStore.getState().project.composition?.typography
+    return settings && { ...settings, flow: settings.flow && { ...settings.flow, pins: [] } }
+  })
   const [result, setResult] = useState<RollResult | null>(null),
     [status, setStatus] = useState(''),
     [busy, setBusy] = useState(false),
     [scroll, setScroll] = useState(0),
     [viewport, setViewport] = useState(800)
   const controller = useRef<AbortController | null>(null),
-    scroller = useRef<HTMLDivElement>(null)
+    scroller = useRef<HTMLDivElement>(null),
+    textInput = useRef<HTMLTextAreaElement>(null)
+  const changeText = (value: string) => {
+    setText(value)
+    setTypography((previous) => previous && { ...previous, tcy: [], spans: undefined })
+  }
   useEffect(() => () => controller.current?.abort(), [])
   useEffect(() => {
     if (!active || !scroller.current) return
@@ -99,14 +114,32 @@ export function LongRoll({ active }: { active: boolean }) {
     observer.observe(scroller.current)
     return () => observer.disconnect()
   }, [active, result])
-  const count = textLines(text, punctuation).flat().length
+  const count = textLines(text, punctuation || Boolean(typography)).flat().length
   const generate = async () => {
     const abort = new AbortController()
     controller.current = abort
     setBusy(true)
     try {
-      const options = { rows, columns, vertical, punctuation },
-        pages = paginateRoll(text, options),
+      const options = { rows, columns, vertical, punctuation }
+      if (typography) {
+        const language = useEditorStore.getState().project.composition?.textLanguage || 'und'
+        const tradition = policy.writing_tradition === 'Japanese' || policy.writing_tradition === 'Korean'
+          ? policy.writing_tradition : 'Chinese'
+        const shaped = await typesetScroll(text, {
+          ...options, ...typography, layout: vertical ? 'vertical-rtl' : 'horizontal-ltr',
+          language, tradition, signal: abort.signal,
+          source, style, policy,
+        })
+        setResult({ ...shaped, options, text, source, style, beam, variation, policy, typography, language,
+          warnings: [], score: null, singleVariants: 0 })
+        setScroll(0)
+        if (scroller.current) scroller.current.scrollTop = 0
+        setStatus(uiText("已生成 {{v0}} 字 / {{v1}} 页；缺字 {{v2}} 处。", {
+          v0: shaped.count, v1: shaped.pages.length, v2: shaped.missing.reduce((sum, item) => sum + item.positions.length, 0),
+        }))
+        return
+      }
+      const pages = paginateRoll(text, options),
         characters = pages.flatMap((p) => p.slots.map((s) => s.character))
       const warnings = new Set<string>(),
         byId = new Map<string, Glyph>(),
@@ -247,13 +280,19 @@ export function LongRoll({ active }: { active: boolean }) {
           beam: result.beam,
           variation: result.variation,
           policy: result.policy,
+          typography: result.typography,
+          language: result.language,
         },
         score: result.score,
         missing: result.missing,
         warnings: result.warnings,
         glyphs,
         pages: result.pages.map((p) => ({
-          slots: p.slots.map((s) => ({ ...s, glyph: s.glyph?.id || null })),
+          runs: p.runs,
+          flowCosts: p.flowCosts,
+          slots: p.slots.map((s) => ({
+            ...s, glyph: s.glyph?.id || null, position: p.measured ? s.glyph?.transform : undefined,
+          })),
         })),
       }
       files.push(
@@ -299,15 +338,16 @@ export function LongRoll({ active }: { active: boolean }) {
           <label>
             {uiText("长卷内容")} <span>{count} {uiText("/ 20000 字")}</span>
             <textarea
+              ref={textInput}
               aria-label={uiText("长卷内容")}
               rows={8}
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => changeText(e.target.value)}
             />
           </label>
           <button
             className="load-more"
-            onClick={() => setText(useEditorStore.getState().project.text || '')}
+            onClick={() => changeText(useEditorStore.getState().project.text || '')}
           >
             {uiText("从工作台读取文字")}
           </button>
@@ -378,15 +418,16 @@ export function LongRoll({ active }: { active: boolean }) {
             />
             {uiText("竖排，从右向左分栏")}
           </label>
-          <label className="check-field">
+          {!typography && <label className="check-field">
             <input
               type="checkbox"
               checked={punctuation}
               onChange={(e) => setPunctuation(e.target.checked)}
             />
             {uiText("保留标点")}
-          </label>
-          <label className="slider-field">
+          </label>}
+          <TypographyControls value={typography} onChange={setTypography} input={textInput} vertical={vertical} />
+          {!typography && <><label className="slider-field">
             {uiText("重复字变化")} {variation.toFixed(2)}
             <input
               aria-label={uiText("重复字变化")}
@@ -412,7 +453,7 @@ export function LongRoll({ active }: { active: boolean }) {
             <p className="field-hint">
               {uiText("每个不同字最多分析 8 个候选。综合整段参照、相邻字形差异和最近 32 字的重复情况；只有一个候选时保持原样。")}
             </p>
-          </details>
+          </details></>}
           <button
             className="roll-primary"
             disabled={busy || !count || count > 20000}
