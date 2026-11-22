@@ -1,12 +1,27 @@
-# Calligra
+<h1 align="center">
+  <img src="apps/web/public/icons/calligra-192.png" alt="" width="40" height="40"><br>
+  Calligra
+</h1>
 
-![Calligra 鸟爪印](docs/assets/brand/logo.svg)
+<p align="center">开源东亚书法工作台，用于集字、补字和发布作品。</p>
 
-开源东亚书法工作台，用于集字、补字和发布作品。
+<p align="center">
+  <a href="https://styayur.github.io/calligra/"><img src="https://img.shields.io/badge/Web-Open-345747" alt="打开工作台"></a>
+  <a href="https://github.com/styayur/calligra/releases/latest"><img src="https://img.shields.io/github/v/release/styayur/calligra?label=Release" alt="最新发行版"></a>
+  <a href="https://github.com/styayur/calligra/actions/workflows/ci.yml?query=branch%3Amain"><img src="https://github.com/styayur/calligra/actions/workflows/ci.yml/badge.svg?branch=main" alt="自动化验收"></a>
+</p>
 
-[English](README.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [打开工作台](https://styayur.github.io/calligra/) · [下载](https://github.com/styayur/calligra/releases/latest)
+<p align="center">
+  <a href="README.md">English</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a>
+</p>
 
-![日文竖排作品的工作台](docs/japanese-workbench.png)
+## 作品示例
+
+[![中文草书长卷](docs/assets/screenshots/chinese-long-scroll.png)](docs/assets/screenshots/chinese-long-scroll.png)
+
+| 韩文竖排 | 日文假名竖排 |
+| :---: | :---: |
+| [![韩文竖排](docs/assets/screenshots/korean-vertical.png)](docs/assets/screenshots/korean-vertical.png) | [![日文假名竖排](docs/assets/screenshots/japanese-kana.png)](docs/assets/screenshots/japanese-kana.png) |
 
 - 选择智能混排、中国书法、日本書道或 한국 서예，输入原文生成作品。日文竖排、纵中横、连字和异体字序列可在高级排版中使用。
 - 查看补字的来源和许可。同字原帖、数字字体和 IDS 部件合成各有标记，变更原文身份的候选由你确认。历史 OCR 仍为实验功能。
