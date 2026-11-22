@@ -100,7 +100,7 @@ export async function importLibraryBackup(file: File): Promise<number> {
     if (png.byteLength < 24 || png.getUint32(0) !== 0x89504e47 || png.getUint32(4) !== 0x0d0a1a0a ||
         png.getUint32(16) !== record.asset.width || png.getUint32(20) !== record.asset.height) invalid()
     const project = validateProject({ version: 2, canvas: { width: 100, height: 100, background: '#ffffff' },
-      glyphs: [{ ...record, glyph_id: record.id } satisfies GlyphInstance] })
+      glyphs: [{ ...record, glyph_id: record.id, textRange: undefined } satisfies GlyphInstance] })
     ids.add(record.id)
     const { glyph_id: _instance, ...glyph } = project.glyphs[0]
     return glyph as T

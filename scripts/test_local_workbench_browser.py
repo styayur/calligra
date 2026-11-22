@@ -3,7 +3,7 @@ import argparse
 from io import BytesIO
 import json
 from queue import Empty, Queue
-from subprocess import PIPE, Popen
+from subprocess import DEVNULL, PIPE, Popen, run
 from threading import Thread
 from urllib.parse import urlsplit
 from pathlib import Path
@@ -43,11 +43,22 @@ def exercise_workbench(page, *, verify_gdi=False):
     page.get_by_label("已核实允许改作与再分发").check()
     page.get_by_role("button", name="保存确认字形").click()
     expect(page.locator("form > [role=status]")).to_contain_text("已保存 1 个确认字形")
-    page.get_by_role("button", name="字体", exact=True).click()
-    page.get_by_label("目标文字").fill("日月")
+    page.get_by_role("button", name="集字工作台", exact=True).click()
+    page.get_by_label("项目名称").fill("Collection")
+    composer = page.locator(".composer")
+    composer.get_by_label("字形来源").select_option("private")
+    composer.get_by_label("集字内容").fill("日月")
+    composer.get_by_role("button", name="生成作品", exact=True).click()
+    expect(composer.locator(".feedback")).to_contain_text("已排入")
+    page.get_by_label("项目菜单").click()
+    page.get_by_role("button", name="从作品制作字体", exact=True).click()
+    expect(page.get_by_label("目标文字")).to_have_value("日月")
     expect(page.get_by_text("目标覆盖 1/2")).to_be_visible()
     expect(page.get_by_text("缺字 月")).to_be_visible()
     page.get_by_label("确认私人来源允许生成和分发字体").check()
+    page.get_by_text("筛选字形与高级格式", exact=True).click()
+    page.get_by_label("OTF", exact=True).check()
+    page.get_by_label("WOFF2", exact=True).check()
     with page.expect_download() as event:
         page.get_by_role("button", name="生成并下载字体").click()
     with ZipFile(event.value.path()) as font_package:
@@ -58,10 +69,10 @@ def exercise_workbench(page, *, verify_gdi=False):
         assert {"CalligraCollection-Regular.otf", "CalligraCollection-Regular.woff2"}.issubset(font_package.namelist())
     if verify_gdi:
         verify_windows_font(data)
-    page.get_by_role("button", name="文档", exact=True).click()
-    page.get_by_label("字体文件", exact=True).set_input_files({
-        "name": "CalligraCollection-Regular.ttf", "mimeType": "font/ttf", "buffer": data,
-    })
+    expect(page.get_by_label("已生成字体预览")).to_be_visible()
+    page.get_by_role("button", name="在文档中使用此字体").click()
+    page.get_by_text("文档替换范围与高级选项", exact=True).click()
+    page.get_by_label("仅汉字").check()
     for extension, create in (("docx", docx), ("odt", odt)):
         page.get_by_label("文档", exact=True).set_input_files({
             "name": f"report.{extension}", "mimeType": "application/octet-stream", "buffer": create(),
@@ -92,20 +103,36 @@ def exercise_workbench(page, *, verify_gdi=False):
         page.get_by_role("button", name="分析覆盖").click()
         expect(page.get_by_text("覆盖 1/2 字", exact=False)).to_be_visible()
 
+    page.get_by_label("书法字体").select_option("ma-shan-zheng")
+    page.get_by_label("替换范围").select_option("body")
+    page.get_by_label("文档", exact=True).set_input_files({
+        "name": "bundled.docx", "mimeType": "application/octet-stream", "buffer": docx(),
+    })
+    page.get_by_role("button", name="分析覆盖").click()
+    expect(page.get_by_role("button", name="转换并下载")).to_be_enabled()
+    with page.expect_download() as event:
+        page.get_by_role("button", name="转换并下载").click()
+    with ZipFile(event.value.path()) as result:
+        analysis = json.loads(result.read("analysis.json"))
+        assert analysis["font_family"] == "Ma Shan Zheng" and analysis["selected_paragraphs"]
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", required=True)
+    parser.add_argument("--windows-launcher", action="store_true")
     args = parser.parse_args()
     url = urlsplit(args.url)
     origin = f"{url.scheme}://{url.netloc}"
-    with Popen([sys.executable, "-I", str(ROOT / "apps/api/launch_companion.py"),
-                "--origin", origin, "--port", "0"], stdout=PIPE, text=True) as server:
+    command = (["pwsh", "-NoProfile", "-File", str(ROOT / "scripts/start_companion.ps1")]
+               if args.windows_launcher else [sys.executable, "-I", str(ROOT / "apps/api/launch_companion.py")])
+    with Popen([*command, "--origin", origin, "--port", "0"], stdout=PIPE, text=True) as server:
         try:
             lines = Queue()
             Thread(target=lambda: [lines.put(line) for line in server.stdout], daemon=True).start()
             try:
-                assert lines.get(timeout=15).startswith("CALLIGRA_READY ")
+                while not lines.get(timeout=90 if args.windows_launcher else 15).startswith("CALLIGRA_READY "):
+                    assert server.poll() is None, "The local Companion launcher exited during setup"
                 code = lines.get(timeout=15).strip().removeprefix("Calligra connection code: ")
                 assert len(code.split(":")[1]) == 64
             except Empty:
@@ -115,7 +142,7 @@ def main():
                 page = browser.new_page(locale="zh-CN", viewport={"width": 1120, "height": 960}, accept_downloads=True)
                 page.goto(args.url)
                 page.get_by_role("button", name="文档", exact=True).click()
-                expect(page.get_by_label("文档", exact=True)).to_be_disabled()
+                expect(page.get_by_role("button", name="分析覆盖")).to_be_disabled()
                 password = page.get_by_label("连接码")
                 button = page.get_by_role("button", name="连接 Companion", exact=True)
                 password.fill(code[:-1] + ("1" if code[-1] == "0" else "0"))
@@ -127,7 +154,10 @@ def main():
                 exercise_workbench(page, verify_gdi=sys.platform == "win32")
                 browser.close()
         finally:
-            server.terminate()
+            if args.windows_launcher and server.poll() is None:
+                run(["taskkill", "/PID", str(server.pid), "/T", "/F"], stdout=DEVNULL, check=True)
+            elif server.poll() is None:
+                server.terminate()
             server.wait(timeout=8)
     print("PASS: local scan, installed glyph, TTF/OTF/WOFF2 packaging, and DOCX and ODT conversion")
 

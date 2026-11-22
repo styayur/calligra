@@ -24,9 +24,17 @@ When a new version is ready, save your work and close all Calligra windows. The 
 
 ## Optional local Companion
 
-The Companion is a separate Python process for TTF/OTF/WOFF2 compilation, DOCX/ODT conversion, optional PDF export, and experimental OCR. Basic composition, image exports and private-library editing run in the browser. Android can use the basic workbench without a desktop connection.
+The Companion is a separate Python process for TTF/OTF/WOFF2 compilation, DOCX/ODT conversion, optional office-document PDF export, and experimental OCR. Composition, artwork PDF and PNG export, and private-library editing run in the browser and Android app.
 
 Use Python 3.12 or 3.13 with the pinned requirements from the same source release.
+
+On Windows, open PowerShell in the extracted source and run the launcher. It creates a dedicated virtual environment, installs dependencies for that version and starts the service in the same window. Subsequent launches reuse the environment.
+
+```powershell
+.\scripts\start_companion.ps1
+```
+
+The equivalent manual Windows setup is:
 
 ```powershell
 py -3.12 -m venv .companion-venv
@@ -42,4 +50,10 @@ python3 -m venv .companion-venv
 
 Paste the terminal's connection code into the Font, Document, or Materials workspace. Allow the local network prompt if your browser requests access to the local Companion. The code is scoped to the browser session. Stop the Companion with Ctrl+C, or use **Disconnect** to clear the code from the tab. A new process prints a new code. Keep the code private. For locally hosted Web ZIPs set an exact web origin such as `--origin http://127.0.0.1:8008`. The default authorized origin is the official Pages origin.
 
-Use `--port 8766` if the default port is occupied. PDF needs a local LibreOffice executable (supply it with `--libreoffice`). Experimental OCR needs its separately installed dependencies and explicitly selected model folder (`--ocr-model-dir`). Its suggestions require manual verification. If the browser blocks access to localhost from the public site, serve the Web ZIP on localhost and authorize its exact loopback origin when starting the Companion.
+Use `--port 8766` if the default port is occupied. Office-document PDF needs the selected font installed and a local LibreOffice executable (supply it with `--libreoffice`). Experimental OCR needs its separately installed dependencies and explicitly selected model folder (`--ocr-model-dir`). Its suggestions require manual verification. If the browser blocks access to localhost from the public site, serve the Web ZIP on localhost and authorize its exact loopback origin when starting the Companion.
+
+## Local document processing
+
+The browser reads the selected files and previews the selected font with FontFace. Both formats package their content as ZIP/XML, so a small browser-only converter could handle a constrained subset. A safe implementation would need the same archive expansion and XML limits, style inheritance, font coverage and unchanged-part checks as the Companion. v0.11.0 keeps DOCX/ODT rewriting and validation in the local service.
+
+The output refers to the chosen family by name. Install that font where you open the file. Bundled families can be downloaded with their licences from the analysis panel. Complex paragraphs are reported and preserved. Pagination is recalculated by the office application. Body-only filtering requires the v0.11.0 service. The PWA shows the connection controls and cannot start system processes.

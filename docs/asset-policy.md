@@ -12,9 +12,16 @@ Calligraphy Studio keeps source assets for reproducibility while excluding runti
 
 Importer reads archives in place, validates paths (including Windows paths), symlinks, types, checksums, image dimensions, expansion limits and manifests; streams coordinate CSVs and persists one crop at a time. Checkpoint commits every 100 records make repeated/cancelled imports idempotent. Files use content checksums; glyph identity remains separate so different variants sharing a bitmap coexist. Optional corpus queries are indexed and paginated; browser loads selected pages and images lazily.
 
-Bundling requires explicit `redistribution_allowed=true`. Commercial-only selection/export requires explicit `commercial_use=true`. ND image masks/adaptations are rejected. Share-alike flags, source licences, attribution and checksums survive composition and export. Unknown values remain null. Licence obligations apply to third-party assets independently of the MIT code licence.
 
 Japanese runtime font files use `.ttf.gzip`, not `.gz`: Android AAPT strips/decompresses the latter suffix, breaking a canonical cross-platform path and checksum. Lossless bytes and manifest paths are verified inside the actual APK, web ZIP and Windows ASAR by `validate_package.py` / `validate_desktop_package.cjs`.
+
+## Glyph restoration and PDF output
+
+The release adds no third-party fonts or historical images. The bird-track mark is original to this release. The IDS catalogue contains six authored structural descriptions using Unicode ideographic description operators. It draws component bitmaps from existing OFL fonts and records each component's source, SHA-256 and destination. Resolved historical images retain their own checksum, dimensions and licence. Unrelated source matches require manual review.
+
+The Japanese orthographic pairs reuse the documented v0.10.0 catalogue. The single contextual Shiji relation links to its source facsimile. The scan is neither fetched by the restoration engine nor bundled. Changing a text identity requires a confirmation record. The engine retains the original transcription.
+
+Hybrid PDF uses the existing HarfBuzz outlines and browser compression, with the existing fflate dependency on older browsers. It uses the original resolution for permitted raster crops. Imported images must be embedded, or use an allowlisted bundled asset path. Image structure, pixel dimensions and available SHA-256 are checked before rendering. Only bundled SVG assets can enter the PDF raster path. Each file includes source records and the relevant licences, including component source licences. For newly composed artwork, review attribution and originals before redistribution.
 
 ## Tracked source assets
 

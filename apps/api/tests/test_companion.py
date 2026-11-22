@@ -26,7 +26,7 @@ def test_authentication_origin_and_content_limits():
     assert local.get(status, headers={**AUTH, "Host": "untrusted.example"}).status_code == 403
     assert local.get(status, headers={**AUTH, "Origin": "https://untrusted.example"}).status_code == 403
     good = local.get(status, headers={**AUTH, "Origin": ORIGIN})
-    assert good.json() == {"ready": True, "protocol": 1, "fonts": True,
+    assert good.json() == {"ready": True, "protocol": 1, "fonts": True, "document_body_scope": True,
                            "documents": True, "pdf": False, "ocr": False}
     assert good.headers["access-control-allow-origin"] == ORIGIN
     assert good.headers["cache-control"] == "no-store"

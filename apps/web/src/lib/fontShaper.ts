@@ -1,22 +1,27 @@
 import type { Font, Blob as HBBlob, Face } from 'harfbuzzjs'
 import { unicodeScript, variationPairs } from './identity'
 import type { GlyphSequence, InlineDirection } from '../types/typesetting'
+import type { Glyph } from '../types'
 
 const fonts = new Map<string, Promise<{ font: Font; blob: HBBlob; face: Face }>>()
 export async function sha256(bytes: ArrayBuffer): Promise<string> {
   return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map((v) => v.toString(16).padStart(2, '0')).join('')
 }
 export interface ShaperFont { id: string; path: string; sha256: string; runtime_sha256: string }
+export async function bundledFontBytes(entry: ShaperFont) {
+  const response = await fetch(`${import.meta.env.BASE_URL}fonts/${entry.path}`)
+  if (!response.ok) throw new Error('Bundled font could not be loaded')
+  const compressed = await response.arrayBuffer()
+  if (await sha256(compressed) !== entry.runtime_sha256) throw new Error('Bundled runtime font checksum mismatch')
+  const raw = await new Response(new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
+  if (raw.byteLength > 40 * 1024 * 1024 || await sha256(raw) !== entry.sha256) throw new Error('Bundled source font checksum mismatch')
+  return raw
+}
 async function loadShapingFont(entry: ShaperFont) {
   const hb = await import('harfbuzzjs')
   const key = [entry.id, entry.sha256, entry.runtime_sha256].join(':')
   if (!fonts.has(key)) fonts.set(key, (async () => {
-    const response = await fetch(`${import.meta.env.BASE_URL}fonts/${entry.path}`)
-    if (!response.ok) throw new Error('Bundled font could not be loaded')
-    const compressed = await response.arrayBuffer()
-    if (await sha256(compressed) !== entry.runtime_sha256) throw new Error('Bundled runtime font checksum mismatch')
-    const raw = await new Response(new Blob([compressed]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
-    if (raw.byteLength > 40 * 1024 * 1024 || await sha256(raw) !== entry.sha256) throw new Error('Bundled source font checksum mismatch')
+    const raw = await bundledFontBytes(entry)
     const blob = new hb.Blob(raw), face = new hb.Face(blob), font = new hb.Font(face)
     font.setScale(face.upem, face.upem)
     return { font, blob, face }
@@ -205,4 +210,43 @@ export async function shapeFontGlyph(entry: ShaperFont, text: string, locale: st
     source_sequence: text, font_glyph_ids: infos.map((g) => g.codepoint), glyph_names: infos.map((g) => font.glyphName(g.codepoint)),
     features: sequence.features, positions: sequence.positions, locale, script, direction, font_sha256: entry.sha256,
     rasterizer: 'canvas-outline', normalization: 'em-scale-v1' } }
+}
+
+/** Recover the same outline-to-bitmap coordinates used by the composition renderer. */
+export async function artworkOutlines(entry: ShaperFont, glyph: Glyph) {
+  const receipt = glyph.metadata?.shaping as Partial<OpenTypeCluster['shaping']> & { rasterizer?: string }
+  if (!receipt || receipt.font_sha256 !== entry.sha256 || receipt.source_sequence !== glyph.character) return null
+  if (receipt.engine !== 'harfbuzz-wasm' && glyph.asset.width !== 512) return null
+  const { font, face } = await loadShapingFont(entry)
+  const shaped = receipt.engine === 'harfbuzz-wasm' ? receipt.positions
+    : (await shapeOpenTypeRun(entry, glyph.character, { direction: 'ltr', locale: glyph.source.locale || 'zh' }))?.sequence.positions
+  if (!Array.isArray(shaped) || !shaped.length || shaped.length > 128 || shaped.some((item) =>
+    !Number.isInteger(item.id) || item.id < 1 || item.id > 65535 ||
+    !Number.isFinite(item.x) || !Number.isFinite(item.y) || Math.abs(item.x) > 100 || Math.abs(item.y) > 100)) return null
+  const bounds = shaped.flatMap((item) => {
+    const e = font.glyphExtents(item.id)
+    if (!e || e.width <= 0 || e.height >= 0) return []
+    const left = item.x + e.xBearing / face.upem
+    const top = item.y - e.yBearing / face.upem
+    return [{ left, top, right: left + e.width / face.upem, bottom: top - e.height / face.upem }]
+  })
+  if (!bounds.length) return null
+  const left = Math.min(...bounds.map((b) => b.left))
+  const top = Math.min(...bounds.map((b) => b.top))
+  const width = Math.max(...bounds.map((b) => b.right)) - left
+  const height = Math.max(...bounds.map((b) => b.bottom)) - top
+  let pixelsPerEm = Math.min(400, 2000 / Math.max(.01, width, height))
+  let x = 4 - left * pixelsPerEm
+  let y = 4 - top * pixelsPerEm
+  if (receipt.rasterizer === 'canvas-outline' || receipt.engine !== 'harfbuzz-wasm') {
+    pixelsPerEm = Math.min(receipt.engine === 'harfbuzz-wasm' ? 420 : Infinity, 448 / width, 448 / height)
+    const corner = receipt.locale === 'ja-JP' && '、。'.includes(glyph.character)
+    x = (corner ? receipt.direction === 'ttb' ? 400 : 112 : 256) - (left + width / 2) * pixelsPerEm
+    y = (corner ? receipt.direction === 'ttb' ? 112 : 400 : 256) - (top + height / 2) * pixelsPerEm
+  } else if (glyph.asset.width !== Math.ceil(width * pixelsPerEm) + 8 ||
+             glyph.asset.height !== Math.ceil(height * pixelsPerEm) + 8) return null
+  return shaped.map((item) => ({
+    path: font.glyphToPath(item.id), scale: pixelsPerEm / face.upem,
+    x: x + item.x * pixelsPerEm, y: y + item.y * pixelsPerEm,
+  }))
 }

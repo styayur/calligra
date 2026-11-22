@@ -40,7 +40,7 @@ def exercise(context, url):
         app.wait_for_function("matchMedia('(display-mode: standalone)').matches")
         assert not app.evaluate("async () => await fetch('uncached-offline-probe').then(() => true, () => false)")
         composer = app.locator(".composer")
-        composer.get_by_label("Tradition", exact=True).select_option("Korean")
+        composer.get_by_label("集字模式", exact=True).select_option("Korean")
         composer.get_by_label("集字内容").fill("한漢A")
         composer.get_by_role("button", name="生成作品", exact=True).click()
         expect(composer.locator(".feedback")).to_contain_text("已排入 3 字")

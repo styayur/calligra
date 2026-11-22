@@ -85,6 +85,18 @@ def run(output):
     assert all(glyph["metadata"]["font_id"] == "yuji-boku" for glyph in by_text.values())
     assert by_text["12"]["transform"]["rotation"] == 0 and by_text["fi"]["transform"]["rotation"] == 90
     (output / "typesetting-native-project.json").write_bytes(rendered)
+    adb("shell", "input", "keyevent", "4")
+    tap(wait_for({"Export artwork", "导出作品"}, 35, button=True)[1])
+    tap(wait_for({"Download PDF", "下载 PDF"}, 35, button=True)[1])
+    destination = destination.removesuffix(".json") + ".pdf"
+    deadline = time.monotonic() + 45
+    while time.monotonic() < deadline:
+        if b"ready" in adb("shell", f"test -s {destination} && echo ready || true", output=True):
+            break
+        time.sleep(1)
+    pdf = adb("exec-out", "cat", destination, output=True)
+    assert pdf.startswith(b"%PDF-") and pdf.rstrip().endswith(b"%%EOF")
+    (output / "typesetting-native.pdf").write_bytes(pdf)
 
 
 def main():

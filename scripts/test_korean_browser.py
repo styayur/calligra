@@ -10,7 +10,7 @@ from playwright.sync_api import expect, sync_playwright
 
 def exercise(page):
     composer = page.locator(".composer")
-    tradition = composer.get_by_label("Tradition", exact=True)
+    tradition = composer.get_by_label("集字模式", exact=True)
     tradition.select_option("Korean")
     composer.get_by_role("button", name="横排", exact=True).click()
     font = composer.get_by_label("字体", exact=True)

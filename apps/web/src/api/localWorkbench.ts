@@ -13,6 +13,7 @@ export interface CompanionStatus {
   protocol?: number
   fonts?: boolean
   documents?: boolean
+  document_body_scope?: boolean
   pdf?: boolean
   ocr?: boolean
   ocr_models?: string[]

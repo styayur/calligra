@@ -18,6 +18,7 @@ export interface CandidatePolicy {
   vertical?: boolean
   font_id?: string
   allow_font_fallback?: boolean
+  smart_mix?: boolean
 }
 export const DEFAULT_POLICY: CandidatePolicy = { writing_tradition: 'Chinese', mode: 'strict' }
 export function usesRegionalFonts(tradition?: string): boolean {

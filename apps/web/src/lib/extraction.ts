@@ -156,7 +156,7 @@ export function gridCrops(region: Crop, rows: number, columns: number, vertical:
   return boxes
 }
 
-function imageDimensions(bytes: Uint8Array): [number, number] | undefined {
+export function imageDimensions(bytes: Uint8Array): [number, number] | undefined {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
   const match = (offset: number, value: string) => [...value].every((c, i) => bytes[offset + i] === c.charCodeAt(0))
   if (bytes.length >= 24 && bytes[0] === 137 && match(1, 'PNG\r\n\x1a\n') && match(12, 'IHDR'))

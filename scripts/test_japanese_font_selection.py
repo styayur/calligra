@@ -20,7 +20,7 @@ FALLBACK = "缺字时允许其他日文字体补字"
 def exercise_font_selection(page):
     page.get_by_role("button", name="集字工作台", exact=True).click()
     composer = page.locator(".composer")
-    tradition = composer.get_by_label("Tradition", exact=True)
+    tradition = composer.get_by_label("集字模式", exact=True)
     tradition.select_option("Chinese")
     tradition.select_option("Japanese")
     composer.get_by_role("button", name="竖排", exact=True).click()
@@ -135,10 +135,10 @@ def exercise_font_selection(page):
     search.get_by_label("字体", exact=True).select_option("yuji-mai")
     expect(search.locator(".glyph-card")).to_have_count(1)
     expect(search.locator(".glyph-card")).to_contain_text("Yuji Mai")
-    search.get_by_label("Tradition", exact=True).select_option("Chinese")
+    search.get_by_label("集字模式", exact=True).select_option("Chinese")
     search.get_by_label("书体", exact=True).select_option("草书")
     search.get_by_label("字库来源").select_option("OFL Calligraphy Fonts")
-    search.get_by_label("Tradition", exact=True).select_option("Japanese")
+    search.get_by_label("集字模式", exact=True).select_option("Japanese")
     expect(search.get_by_label("字库来源")).to_have_value("")
     expect(search.locator(".glyph-card").first).to_be_visible()
 

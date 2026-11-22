@@ -57,6 +57,34 @@ export function validateProject(value: unknown): ProjectDocument {
     throw new Error(uiText("项目纸面尺寸或颜色无效"))
   if (p.glyphs.length > 1000) throw new Error(uiText("项目字形过多，最多载入 1000 字"))
   if (p.text !== undefined && typeof p.text !== 'string') throw new Error(uiText("项目文字无效"))
+  const decided = new Map<string, NonNullable<ProjectDocument['restorations']>[number]['decisions'][number]>()
+  if (p.restorations !== undefined) {
+    const slots = new Set<string>()
+    if (!Array.isArray(p.restorations) || p.restorations.length > 1000 ||
+      !p.restorations.every((entry) => {
+        if (!entry || !Number.isInteger(entry.start) || !Number.isInteger(entry.end) || entry.start < 0 ||
+          entry.end <= entry.start || typeof entry.text !== 'string' || entry.text.length > 64 ||
+          entry.text !== p.text?.slice(entry.start, entry.end) ||
+          !['Chinese','Japanese','Korean'].includes(entry.tradition) ||
+          ![entry.x, entry.y, entry.size].every((n) => Number.isFinite(n) && Math.abs(n) <= 16000) || entry.size <= 0 ||
+          !Array.isArray(entry.decisions) || entry.decisions.length > 1000) return false
+        const key = `${entry.start}:${entry.end}`
+        if (slots.has(key)) return false
+        slots.add(key)
+        if (!entry.decisions.every((decision) => decision &&
+            ['same-work','same-author','exact-original','coverage','components','variant','loan','editorial'].includes(decision.kind) &&
+            typeof decision.glyphId === 'string' && decision.glyphId.length <= 256 &&
+            typeof decision.character === 'string' && decision.character.length > 0 && decision.character.length <= 64 &&
+            typeof decision.confirmed === 'boolean' &&
+            (decision.confirmed || entry.text === decision.character && !['variant','loan','editorial'].includes(decision.kind)) &&
+            (decision.evidence === undefined || typeof decision.evidence === 'string' && decision.evidence.length <= 2048) &&
+            (decision.checksum === null || decision.checksum === undefined ||
+              typeof decision.checksum === 'string' && /^[a-f0-9]{64}$/i.test(decision.checksum)))) return false
+        const last = entry.decisions.at(-1)
+        if (last) decided.set(key, last)
+        return true
+      })) throw new Error(uiText('项目补字记录无效'))
+  }
   if (p.composition) {
     const c = p.composition
     if (
@@ -78,6 +106,7 @@ export function validateProject(value: unknown): ProjectDocument {
         (policy.font_id !== undefined && (typeof policy.font_id !== 'string' ||
           !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(policy.font_id) || policy.font_id.length > 80)) ||
         (policy.allow_font_fallback !== undefined && typeof policy.allow_font_fallback !== 'boolean') ||
+        (policy.smart_mix !== undefined && typeof policy.smart_mix !== 'boolean') ||
         (policy.vertical != null && typeof policy.vertical !== 'boolean')) throw new Error(uiText("项目选择规则无效"))
     }
   }
@@ -99,10 +128,13 @@ export function validateProject(value: unknown): ProjectDocument {
     )
       throw new Error(uiText("项目包含无效字形"))
     ids.add(g.id)
+    const restored = g.textRange && decided.get(`${g.textRange.start}:${g.textRange.end}`)
     if (g.textRange !== undefined &&
       (!g.textRange || !Number.isInteger(g.textRange.start) || !Number.isInteger(g.textRange.end) ||
         g.textRange.start < 0 || g.textRange.end <= g.textRange.start ||
-        p.text?.slice(g.textRange.start, g.textRange.end) !== g.character))
+        (p.text?.slice(g.textRange.start, g.textRange.end) !== g.character &&
+          !(restored?.confirmed && restored.glyphId === g.glyph_id && restored.character === g.character &&
+            restored.checksum === g.asset.checksum))))
       throw new Error(uiText("项目 Unicode 身份无效"))
     if (
       typeof g.source.dataset !== 'string' ||

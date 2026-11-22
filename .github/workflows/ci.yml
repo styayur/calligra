@@ -86,7 +86,7 @@ jobs:
         run: |
           python scripts/audit_dependencies.py
           npm --prefix apps/web run build:offline
-          python -m pip install playwright pillow
+          python -m pip install playwright pillow pypdf==6.14.0 pypdfium2==5.15.2
           python -m playwright install --with-deps chromium
           python -m http.server 5178 --directory apps/web/dist > /tmp/calligraphy-http.log 2>&1 &
           python scripts/test_studio_browser.py --url http://127.0.0.1:5178
@@ -99,6 +99,8 @@ jobs:
           python scripts/test_typesetting_browser.py --url http://127.0.0.1:5178/ --output work/typesetting-web.json --gallery work/typesetting-gallery
           python scripts/test_pwa_browser.py --url http://127.0.0.1:5178/ --output work/pwa-linux.json
           python scripts/test_i18n_browser.py --url http://127.0.0.1:5178/ --output work/i18n-web.json
+          python scripts/test_restoration_browser.py --url http://127.0.0.1:5178/ --output work/restoration-web.json
+          python scripts/test_hybrid_pdf_browser.py --url http://127.0.0.1:5178/ --output work/hybrid-pdf-web
       - uses: actions/upload-artifact@v7
         with:
           name: web-japanese-font-evidence
@@ -111,6 +113,8 @@ jobs:
             work/japanese-font-selection.png
             work/pwa-linux.json
             work/i18n-web.json
+            work/restoration-web.json
+            work/hybrid-pdf-web/*
           if-no-files-found: error
 
   windows:
@@ -175,13 +179,14 @@ jobs:
           python-version: '3.12'
       - name: Test font selection from the packaged Android web assets
         run: |
-          python -m pip install playwright pillow
+          python -m pip install playwright pillow pypdf==6.14.0 pypdfium2==5.15.2
           python -m playwright install --with-deps chromium
           python -m zipfile -e apps/web/android/app/build/outputs/apk/release/app-release.apk work/android-bundle
           python -m http.server 5180 --bind 127.0.0.1 --directory work/android-bundle/assets/public > /tmp/calligraphy-apk-http.log 2>&1 &
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5180 --output work/japanese-fonts-android.json
           python scripts/test_korean_browser.py --url http://127.0.0.1:5180 --output work/korean-fonts-android.json
           python scripts/test_typesetting_browser.py --url http://127.0.0.1:5180/ --output work/typesetting-android.json
+          python scripts/test_hybrid_pdf_browser.py --url http://127.0.0.1:5180/ --output work/hybrid-pdf-android
       - uses: actions/upload-artifact@v7
         with:
           name: android-japanese-font-evidence
@@ -189,4 +194,5 @@ jobs:
             work/japanese-fonts-android.json
             work/korean-fonts-android.json
             work/typesetting-android.json
+            work/hybrid-pdf-android/*
           if-no-files-found: error

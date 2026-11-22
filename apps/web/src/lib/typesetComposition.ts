@@ -7,6 +7,7 @@ import { placeGlyph } from './composition'
 import { rasterizeOpenTypeRun, shapeOpenTypeRun, type ShaperFont } from './fontShaper'
 import { analyzeText, runsForLine, segmentText } from './textLayout'
 import type { RollOptions, RollPage } from './longRoll'
+import { isLacuna, restorationCandidates, restorationDecision, type RestorationCandidate, type RestorationRecord, type RestorationSlot } from './glyphRestoration'
 import { selectSequence, type ProfileCandidate } from './beam'
 import { getVisualProfile } from './featureCache'
 import type { VisualProfile } from './visual'
@@ -99,7 +100,7 @@ function choicesFor(unit: LayoutUnit, options: SourceOptions, cache: SourceCache
   const key = JSON.stringify([unit.text, unit.tradition, unit.direction, unit.kind])
   let choices = cache.get(key)
   if (!choices) {
-    choices = ['glyph', 'tcy', 'original-group'].includes(unit.kind) ? chooseSources(unit, options) : Promise.resolve([])
+    choices = ['glyph', 'tcy', 'original-group'].includes(unit.kind) && !isLacuna(unit.text) ? chooseSources(unit, options) : Promise.resolve([])
     cache.set(key, choices)
   }
   return choices
@@ -212,6 +213,7 @@ async function placeLine(
   let cursor = 0
   const results: Placement[] = []
   const missing: LayoutUnit[] = []
+  const missingPositions: RestorationSlot[] = []
   const runs = runsForLine(line)
   const optimized = await optimizeLine(line, options, cache, vertical)
   const byStart = new Map(line.units.map((unit, index) => [unit.start, index]))
@@ -234,7 +236,16 @@ async function placeLine(
             y: vertical ? cursor + approximate / 2 : cross + .5,
             scale: .86 * (grouped ? Math.min(1 / across, approximate / along) : 1 / Math.max(across, along)),
             rotation: vertical && unit.orientation === 'R' ? 90 : 0, start: unit.start, end: unit.end, optical })
-        } else if (unit.kind !== 'space') missing.push(...piece.units)
+        } else if (unit.kind !== 'space') {
+          let offset = cursor
+          for (const lost of piece.units) {
+            missing.push(lost)
+            const center = offset + lost.advanceEm / 2
+            missingPositions.push({ start: lost.start, end: lost.end, text: lost.text, tradition: lost.tradition,
+              x: vertical ? cross + .5 : center, y: vertical ? center : cross + .5, size: .86 })
+            offset += lost.advanceEm
+          }
+        }
         cursor += approximate + (unit.kind === 'space' ? 0 : gapEm)
         continue
       }
@@ -259,7 +270,7 @@ async function placeLine(
     }
   }
   if (options.flow?.intensity) cursor += adjustRhythm(results, vertical, options.flow.intensity, gapEm)
-  return { results, missing, runs, advance: cursor, flowCost: optimized.score }
+  return { results, missing, missingPositions, runs, advance: cursor, flowCost: optimized.score }
 }
 
 function materialize(record: Placement, marginX: number, marginY: number, em: number): GlyphInstance {
@@ -315,6 +326,9 @@ export async function composeTypeset(
   const fit = Math.min(1, 8000 / width, 8000 / height, Math.sqrt(20_000_000 / (width * height)))
   const glyphs = records.map((record) => materialize(record, margin * fit, margin * fit, options.size * fit))
   return { glyphs, missing: lines.flatMap((line) => line.missing), runs: lines.flatMap((line) => line.runs),
+    missingPositions: lines.flatMap((line) => line.missingPositions).map((slot) => ({ ...slot,
+      x: (margin + slot.x * options.size) * fit, y: (margin + slot.y * options.size) * fit, size: slot.size * options.size * fit,
+    })),
     flowCosts: lines.flatMap(({ flowCost }) => flowCost === null ? [] : [flowCost]),
     clusters: layout.clusters, width: Math.max(100, width * fit), height: Math.max(100, height * fit) }
 }
@@ -332,6 +346,7 @@ export async function typesetScroll(text: string, options: TypesettingOptions & 
   const clusterIndices = new Map(layout.clusters.map((item, index) => [item.start, index]))
   const pages: RollPage[] = []
   const unresolved: LayoutUnit[] = []
+  const recovery = new Map<string, RestorationCandidate | undefined>()
   const gapEm = .08
   for (let start = 0; start < layout.lines.length; start += capacity) {
     options.signal?.throwIfAborted()
@@ -349,8 +364,28 @@ export async function typesetScroll(text: string, options: TypesettingOptions & 
       row: vertical ? Math.floor(record.y) : track, column: vertical ? capacity - track - 1 : Math.floor(record.x),
       glyph: materialize(record, marginX, 50, em), cost: null, start: record.start, end: record.end,
     })))
-    unresolved.push(...lines.flatMap((line) => line.missing))
-    pages.push({ slots, runs: lines.flatMap((line) => line.runs), measured: true,
+    const restorations: RestorationRecord[] = []
+    const pending = new Set<number>()
+    const anchor = slots.find((slot) => slot.glyph.provenance.type === 'original')?.glyph.source
+    for (const lost of lines.flatMap((line) => line.missingPositions)) {
+      options.signal?.throwIfAborted()
+      const slot = { ...lost, x: marginX + lost.x * em, y: 50 + lost.y * em, size: lost.size * em }
+      const key = JSON.stringify([lost.text, lost.tradition, anchor?.work, anchor?.calligrapher, anchor?.style])
+      if (!recovery.has(key) && !isLacuna(lost.text)) {
+        const ranked = await restorationCandidates(text, slot, { ...options.policy, vertical }, anchor)
+        recovery.set(key, ranked.find((candidate) => candidate.automatic))
+      }
+      const match = recovery.get(key)
+      restorations.push({ ...slot, decisions: match ? [restorationDecision(match, false)] : [] })
+      if (!match) { pending.add(slot.start); continue }
+      const glyph = placeGlyph(match.glyph, slot.x, slot.y, slot.size)
+      glyph.textRange = { start: slot.start, end: slot.end }
+      slots.push({ index: clusterIndices.get(slot.start)!, character: slot.text, glyph, cost: null,
+        row: Math.floor(lost.y), column: Math.floor(lost.x), start: slot.start, end: slot.end })
+    }
+    slots.sort((a,b) => a.start - b.start)
+    unresolved.push(...lines.flatMap((line) => line.missing).filter((item) => pending.has(item.start)))
+    pages.push({ slots, restorations, runs: lines.flatMap((line) => line.runs), measured: true,
       flowCosts: lines.flatMap(({ flowCost }) => flowCost === null ? [] : [flowCost]) })
     await new Promise((resolve) => setTimeout(resolve, 0))
   }
