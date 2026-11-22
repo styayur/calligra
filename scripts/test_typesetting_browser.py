@@ -163,8 +163,14 @@ def exercise_flow(page, composer, compose, gallery):
                 ]
                 assert pinned["glyphs"][0]["glyph_id"] == glyphs[0]["glyph_id"]
             ids = [glyph["metadata"]["font_id"] for glyph in glyphs]
+            # The workbench publishes its project before every preview bitmap is decoded.
+            # Wait for the same bitmap readiness the export action checks in the real stage.
+            page.wait_for_function(
+                "(count) => window.Konva?.stages?.[0]?.find('Image').length === count",
+                arg=len(glyphs), timeout=60_000,
+            )
             page.get_by_role("button", name="导出作品", exact=True).click()
-            with page.expect_download() as event:
+            with page.expect_download(lambda download: not download.suggested_filename.endswith("-attribution.zip")) as event:
                 page.get_by_role("button", name="下载 PNG", exact=True).click()
             data = Path(event.value.path()).read_bytes()
             png = ZipFile(BytesIO(data)) if data.startswith(b"PK") else None
