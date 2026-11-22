@@ -123,7 +123,7 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $true
           npm --prefix apps/web ci
           npm --prefix apps/web run build:offline
-          python -m pip install playwright httpx==0.28.1 -r apps/api/requirements-companion.txt -r apps/api/requirements-dev.txt
+          python -m pip install playwright -r apps/api/requirements-companion.txt
           python -m playwright install chromium
       - name: Verify Windows PWA, migration, and standalone Companion
         env:

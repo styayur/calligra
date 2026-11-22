@@ -13,6 +13,7 @@ function persistedLocale() {
 }
 
 function initialLocale(): UiLocale {
+  if (typeof document === 'undefined') return 'zh-CN'
   const preference = persistedLocale()
   if (UI_LOCALES.includes(preference as UiLocale)) return preference as UiLocale
   for (const language of navigator.languages || [navigator.language]) {
@@ -31,11 +32,11 @@ void i18n.use(initReactI18next).init({
   load: 'currentOnly', initAsync: false, keySeparator: false, nsSeparator: false,
   interpolation: { escapeValue: false },
 })
-document.documentElement.lang = locale
+if (typeof document !== 'undefined') document.documentElement.lang = locale
 export const uiText = (key: string, values: Record<string, unknown> = {}): string =>
   i18n.t(key, { ...values, defaultValue: key })
 
-document.title = 'Calligra · ' + uiText('集字工作台')
+if (typeof document !== 'undefined') document.title = 'Calligra · ' + uiText('集字工作台')
 
 export async function setUiLocale(value: UiLocale) {
   await i18n.changeLanguage(value)

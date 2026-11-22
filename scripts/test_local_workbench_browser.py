@@ -16,7 +16,7 @@ from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "apps/api"), str(ROOT / "apps/api/tests")]
-from test_document_typesetting import docx, odt, OFFICE, STYLE, WORD
+from document_fixtures import docx, odt, OFFICE, STYLE, WORD
 from test_extraction_browser import fixture
 
 
