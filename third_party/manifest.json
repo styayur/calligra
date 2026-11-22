@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "version": "0.8.1",
+  "version": "0.9.0",
   "components": [
     {
       "id": "application",
       "name": "Calligra",
       "category": "application",
-      "version": "0.8.1",
+      "version": "0.9.0",
       "source_uri": "https://github.com/styayur/calligra",
       "license": "GPL-3.0-or-later",
       "license_text": {
@@ -510,6 +510,34 @@
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
+      "id": "npm:html-parse-stringify@4.0.1",
+      "name": "html-parse-stringify",
+      "category": "locked-production-dependency",
+      "version": "4.0.1",
+      "source_uri": "https://www.npmjs.com/package/html-parse-stringify",
+      "license": "MIT",
+      "license_text": {
+        "path": "licenses/npm/html-parse-stringify/4.0.1/LICENSE",
+        "sha256": "3eb2802a4d0ea79f80977817451b056571dccd8373c9bf4e9be4b05f86afbf90"
+      },
+      "additional_notices": [],
+      "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
+    },
+    {
+      "id": "npm:i18next@27.2.3",
+      "name": "i18next",
+      "category": "locked-production-dependency",
+      "version": "27.2.3",
+      "source_uri": "https://www.npmjs.com/package/i18next",
+      "license": "MIT",
+      "license_text": {
+        "path": "licenses/npm/i18next/27.2.3/LICENSE",
+        "sha256": "1cd0a2b02a6cc40ef8ee16310d13eeffdd7b5de4a562fd3ee7c921d8eb54f60a"
+      },
+      "additional_notices": [],
+      "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
+    },
+    {
       "id": "npm:its-fine@2.1.1",
       "name": "its-fine",
       "category": "locked-production-dependency",
@@ -589,6 +617,20 @@
       "license_text": {
         "path": "licenses/npm/react-dom/19.3.1/LICENSE",
         "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+      },
+      "additional_notices": [],
+      "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
+    },
+    {
+      "id": "npm:react-i18next@18.0.3",
+      "name": "react-i18next",
+      "category": "locked-production-dependency",
+      "version": "18.0.3",
+      "source_uri": "https://www.npmjs.com/package/react-i18next",
+      "license": "MIT",
+      "license_text": {
+        "path": "licenses/npm/react-i18next/18.0.3/LICENSE",
+        "sha256": "29b8ae456ef442e53a98df183ad088cf98c2ece73aa84c462330c43e665b8ab2"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."

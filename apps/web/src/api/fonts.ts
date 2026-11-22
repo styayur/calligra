@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import type { Glyph } from '../types'
 import type { GlyphSource, VariantType } from '../types/glyph'
 import { codepoints, unicodeScript } from '../lib/identity'
@@ -32,7 +33,7 @@ export function fontCatalog(): Promise<FontEntry[]> {
   if (!catalog)
     catalog = fetch(`${import.meta.env.BASE_URL}fonts/catalog.json`)
       .then(async (response) => {
-        if (!response.ok) throw new Error('内置字库加载失败，请刷新重试')
+        if (!response.ok) throw new Error(uiText("内置字库加载失败，请刷新重试"))
         return response.json()
       })
       .catch((error) => {

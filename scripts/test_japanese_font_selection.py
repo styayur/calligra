@@ -178,7 +178,7 @@ def main():
     args = parser.parse_args()
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
-        page = browser.new_page(viewport={"width": 1440, "height": 960}, accept_downloads=True)
+        page = browser.new_page(locale='zh-CN', viewport={"width": 1440, "height": 960}, accept_downloads=True)
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.on("dialog", lambda dialog: dialog.accept())

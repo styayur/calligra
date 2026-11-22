@@ -1,3 +1,4 @@
+import { uiText } from "../../i18n"
 import { useEffect, useState } from 'react'
 import { fontCatalog, type FontEntry } from '../../api/fonts'
 import { selectRegionalFont, type CandidatePolicy } from '../../lib/candidatePolicy'
@@ -19,21 +20,21 @@ export function RegionalFontSelect({ policy, onChange }: {
   const historical = regionalFonts.filter((font) => font.variant_type === 'hentaigana')
   const coverage = regionalFonts.filter((font) => font.source_role === 'coverage-fallback')
   const ordinary = regionalFonts.filter((font) => !historical.includes(font) && !coverage.includes(font))
-  return <label>字体
-    <select aria-label="字体" value={policy.font_id || ''} disabled={!regionalFonts.length}
+  return <label>{uiText("字体")}
+    <select aria-label={uiText("字体")} value={policy.font_id || ''} disabled={!regionalFonts.length}
       onChange={(e) => onChange(selectRegionalFont(policy, e.target.value))}>
-      <option value="">自动选择</option>
+      <option value="">{uiText("自动选择")}</option>
       {policy.font_id && !regionalFonts.some((font) => font.id === policy.font_id) &&
-        <option value={policy.font_id} disabled>{policy.font_id}（字库不可用）</option>}
+        <option value={policy.font_id} disabled>{policy.font_id}{uiText("（字库不可用）")}</option>}
       {ordinary.map((font) => <option key={font.id} value={font.id}>{font.family}</option>)}
-      {historical.length > 0 && <optgroup label="历史假名">
-        {historical.map((font) => <option key={font.id} value={font.id}>{font.family}（历史假名）</option>)}
+      {historical.length > 0 && <optgroup label={uiText("历史假名")}>
+        {historical.map((font) => <option key={font.id} value={font.id}>{font.family}{uiText("（历史假名）")}</option>)}
       </optgroup>}
-      {coverage.length > 0 && <optgroup label="覆盖补字">
-        {coverage.map((font) => <option key={font.id} value={font.id}>{font.family}（覆盖补字）</option>)}
+      {coverage.length > 0 && <optgroup label={uiText("覆盖补字")}>
+        {coverage.map((font) => <option key={font.id} value={font.id}>{font.family}{uiText("（覆盖补字）")}</option>)}
       </optgroup>}
     </select>
-    {failed && <span className="field-hint">内置字体清单加载失败，请重新打开工作台。</span>}
+    {failed && <span className="field-hint">{uiText("内置字体清单加载失败，请重新打开工作台。")}</span>}
   </label>
 }
 
@@ -44,6 +45,6 @@ export function RegionalFontFallback({ policy, onChange }: {
   return <label className="check-field">
     <input type="checkbox" checked={policy.allow_font_fallback === true}
       onChange={(e) => onChange({ ...policy, allow_font_fallback: e.target.checked })} />
-    {policy.writing_tradition === 'Korean' ? '缺字时允许其他韩文字体补字' : '缺字时允许其他日文字体补字'}
+    {policy.writing_tradition === 'Korean' ? uiText("缺字时允许其他韩文字体补字") : uiText("缺字时允许其他日文字体补字")}
   </label>
 }

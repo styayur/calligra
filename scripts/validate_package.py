@@ -18,6 +18,16 @@ def validate(path: Path, prefix: str):
         notice_count=validate_reader(read)
         metadata=json.loads(read('build-meta.json'))
         assert metadata['version']==json.loads((ROOT/'release/version.json').read_text(encoding='utf-8'))['version'] and len(metadata['commit'])==40
+        names = set(archive.namelist())
+        if not prefix:
+            assert 'service-worker.js' in names and 'manifest.webmanifest' in names, 'Web ZIP must include the PWA'
+            manifest = json.loads(read('manifest.webmanifest'))
+            assert manifest['display'] == 'standalone' and manifest['scope'] == './' and manifest['start_url'] == './'
+            assert {icon['sizes'] for icon in manifest['icons']} == {'192x192', '512x512'}
+            for icon in manifest['icons']:
+                read(icon['src'])
+        else:
+            assert prefix + 'service-worker.js' not in names, 'Native Android already bundles the renderer'
         modules=json.loads(read('build-modules.json'))['packages']
         assert not set(modules)&{'braces','chokidar','fast-glob','micromatch','tailwindcss'}
         if json.loads(read('fonts/asset-manifest.json')) != canonical:

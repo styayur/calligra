@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import type { ProjectDocument } from '../types'
 import { validLayoutDimensions } from './composition'
 import { codepoints, migrateGlyph } from './identity'
@@ -5,16 +6,16 @@ import { codepoints, migrateGlyph } from './identity'
 export function validateProject(value: unknown): ProjectDocument {
   const p = value as ProjectDocument
   if (!p || ![1,2].includes(p.version) || !p.canvas || !Array.isArray(p.glyphs))
-    throw new Error('请选择有效的集字项目文件')
+    throw new Error(uiText("请选择有效的集字项目文件"))
   const { width, height, background } = p.canvas
   if (
     ![width, height].every((n) => Number.isFinite(n) && n >= 100 && n <= 8000) ||
     width * height > 20_000_000 ||
     !/^#[\da-f]{6}$/i.test(background)
   )
-    throw new Error('项目纸面尺寸或颜色无效')
-  if (p.glyphs.length > 1000) throw new Error('项目字形过多，最多载入 1000 字')
-  if (p.text !== undefined && typeof p.text !== 'string') throw new Error('项目文字无效')
+    throw new Error(uiText("项目纸面尺寸或颜色无效"))
+  if (p.glyphs.length > 1000) throw new Error(uiText("项目字形过多，最多载入 1000 字"))
+  if (p.text !== undefined && typeof p.text !== 'string') throw new Error(uiText("项目文字无效"))
   if (p.composition) {
     const c = p.composition
     if (
@@ -22,9 +23,10 @@ export function validateProject(value: unknown): ProjectDocument {
       !['fonts', 'original', 'all', 'fallback', 'private'].includes(c.source) ||
       typeof c.style !== 'string' ||
       typeof c.punctuation !== 'boolean' ||
+      (c.textLanguage !== undefined && !['und', 'zh', 'ja', 'ko', 'en'].includes(c.textLanguage)) ||
       !validLayoutDimensions(c)
     )
-      throw new Error('项目排版参数无效')
+      throw new Error(uiText("项目排版参数无效"))
     if (c.policy) {
       const policy=c.policy
       if (typeof policy !== 'object' || Array.isArray(policy) ||
@@ -34,12 +36,12 @@ export function validateProject(value: unknown): ProjectDocument {
         (policy.font_id !== undefined && (typeof policy.font_id !== 'string' ||
           !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(policy.font_id) || policy.font_id.length > 80)) ||
         (policy.allow_font_fallback !== undefined && typeof policy.allow_font_fallback !== 'boolean') ||
-        (policy.vertical != null && typeof policy.vertical !== 'boolean')) throw new Error('项目选择规则无效')
+        (policy.vertical != null && typeof policy.vertical !== 'boolean')) throw new Error(uiText("项目选择规则无效"))
     }
   }
   const ids = new Set<string>()
   for (const g of p.glyphs) {
-    if (g?.identity && (g.identity.text !== g.character || JSON.stringify(g.identity.codepoints) !== JSON.stringify(codepoints(g.character)))) throw new Error('项目 Unicode 身份无效')
+    if (g?.identity && (g.identity.text !== g.character || JSON.stringify(g.identity.codepoints) !== JSON.stringify(codepoints(g.character)))) throw new Error(uiText("项目 Unicode 身份无效"))
     if (
       !g ||
       typeof g.id !== 'string' ||
@@ -53,7 +55,7 @@ export function validateProject(value: unknown): ProjectDocument {
       !g.provenance ||
       typeof g.glyph_id !== 'string'
     )
-      throw new Error('项目包含无效字形')
+      throw new Error(uiText("项目包含无效字形"))
     ids.add(g.id)
     if (
       typeof g.source.dataset !== 'string' ||
@@ -64,25 +66,25 @@ export function validateProject(value: unknown): ProjectDocument {
       (g.source.source_role !== undefined && g.source.source_role !== null && !['calligraphy','handwriting','historical-original','coverage-fallback'].includes(g.source.source_role)) ||
       !['font', 'original', 'fallback', 'generated'].includes(g.provenance.type)
     )
-      throw new Error('项目字形来源无效')
+      throw new Error(uiText("项目字形来源无效"))
     if (g.variant && (
       (g.variant.type != null && !['modern','traditional','simplified','shinjitai','kyujitai','hentaigana','historical','regional','font-alternate'].includes(g.variant.type)) ||
       !['id','glyph_name'].every((key) => { const v=g.variant![key as 'id' | 'glyph_name']; return v == null || (typeof v === 'string' && v.length <= 256) }) ||
       (g.variant.font_glyph_id != null && (!Number.isInteger(g.variant.font_glyph_id) || g.variant.font_glyph_id < 0))
-    )) throw new Error('项目字形变体无效')
+    )) throw new Error(uiText("项目字形变体无效"))
     if (
       !['source-over', 'multiply', 'screen', 'overlay', 'darken', 'lighten'].includes(
         g.appearance.blendMode,
       )
     )
-      throw new Error('项目混合模式无效')
+      throw new Error(uiText("项目混合模式无效"))
     if (
       typeof g.asset.url !== 'string' ||
       !/^(data:image\/(png|jpeg|webp);base64,|https?:\/\/|(?:\.\/|\/)?(?:[\w.-]+\/)*(?:demo|assets)\/)/i.test(
         g.asset.url,
       )
     )
-      throw new Error('项目包含不支持的图片地址')
+      throw new Error(uiText("项目包含不支持的图片地址"))
     if (
       ![g.asset.width, g.asset.height].every((n) => Number.isFinite(n) && n > 0 && n <= 16000) ||
       !['x', 'y', 'scaleX', 'scaleY', 'rotation', 'skewX', 'skewY'].every((key) =>
@@ -92,7 +94,7 @@ export function validateProject(value: unknown): ProjectDocument {
       g.appearance.opacity < 0 ||
       g.appearance.opacity > 1
     )
-      throw new Error('项目字形参数无效')
+      throw new Error(uiText("项目字形参数无效"))
   }
   return { ...p, version: 2, glyphs: p.glyphs.map(migrateGlyph) }
 }

@@ -1,3 +1,5 @@
+import { uiText } from "../../i18n"
+import { guideUrl } from '../../i18n'
 import { useEffect, useState } from 'react'
 import { CompanionControls } from '../editor/CompanionControls'
 import { localWorkbench, type CompanionStatus } from '../../api/localWorkbench'
@@ -6,7 +8,7 @@ import { textCharacters } from '../../lib/identity'
 import { packedGlyphs, privateGlyphs } from '../../lib/privateLibrary'
 import type { Glyph } from '../../types'
 
-const userPermission = '用户确认可改作及再分发'
+const userPermission = uiText("用户确认可改作及再分发")
 const accepted = new Set(['CC0-1.0', 'CC-BY-4.0', 'CC-BY-SA-4.0', userPermission])
 
 function eligible(glyph: Glyph) {
@@ -30,7 +32,7 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
   useEffect(() => {
-    void Promise.all([privateGlyphs(), packedGlyphs()]).then((groups) => setLibrary(groups.flat())).catch(() => setStatus('无法读取个人字库'))
+    void Promise.all([privateGlyphs(), packedGlyphs()]).then((groups) => setLibrary(groups.flat())).catch(() => setStatus(uiText("无法读取个人字库")))
   }, [])
 
   const matches = (actual: string | null | undefined, filter: string) => !filter.trim() || actual?.includes(filter.trim())
@@ -60,14 +62,14 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
       const payload = new Blob([JSON.stringify({
         family, text, formats, glyphs: selected, confirm_private_rights: approved,
       })], { type: 'application/json' })
-      if (payload.size > 32 * 1024 * 1024) throw new Error('字体制作文件上限为 32 MiB，请缩小字集')
+      if (payload.size > 32 * 1024 * 1024) throw new Error(uiText("字体制作文件上限为 32 MiB，请缩小字集"))
       if (compile) {
         const result = await localWorkbench('fonts', payload)
         await saveFile(family + '.zip', await result.blob())
-        setStatus('已生成字体和授权清单')
+        setStatus(uiText("已生成字体和授权清单"))
       } else {
         await saveFile('calligra-font-request.json', payload)
-        setStatus('已保存字体制作文件')
+        setStatus(uiText("已保存字体制作文件"))
       }
     } catch (error) {
       setStatus(error instanceof Error ? error.message : String(error))
@@ -77,17 +79,17 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
   }
   return <main className="materials-workspace studio-tool panel-scroll">
     <section>
-      <h1>字体制作</h1>
+      <h1>{uiText("字体制作")}</h1>
       <CompanionControls onStatus={setCompanion} />
       <fieldset disabled={busy}>
-        <label>字形来源<select value={source} onChange={(event) => setSource(event.target.value as typeof source)}>
-          <option value="library">本机字库</option><option value="project">当前作品</option>
+        <label>{uiText("字形来源")}<select value={source} onChange={(event) => setSource(event.target.value as typeof source)}>
+          <option value="library">{uiText("本机字库")}</option><option value="project">{uiText("当前作品")}</option>
         </select></label>
-        <label>字体名称<input value={family} maxLength={48} onChange={(event) => setFamily(event.target.value)} /></label>
-        <label>目标文字<textarea value={text} maxLength={4096} onChange={(event) => setText(event.target.value)} placeholder="留空使用筛选出的全部字形" /></label>
+        <label>{uiText("字体名称")}<input value={family} maxLength={48} onChange={(event) => setFamily(event.target.value)} /></label>
+        <label>{uiText("目标文字")}<textarea value={text} maxLength={4096} onChange={(event) => setText(event.target.value)} placeholder={uiText("留空使用筛选出的全部字形")} /></label>
         <details className="advanced">
-          <summary>筛选字形</summary>
-          {([['work', '作品'], ['author', '书家'], ['style', '书体']] as const).map(([key, label]) =>
+          <summary>{uiText("筛选字形")}</summary>
+          {([['work', uiText("作品")], ['author', uiText("书家")], ['style', uiText("书体")]] as const).map(([key, label]) =>
             <label key={key}>{label}<input value={filters[key]} onChange={(event) => setFilters({ ...filters, [key]: event.target.value })} /></label>)}
         </details>
         <div className="scan-actions">
@@ -96,24 +98,24 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
               setFormats(event.target.checked ? [...formats, format] : formats.filter((current) => current !== format))} />{format.toUpperCase()}
           </label>)}
         </div>
-        {usePrivate && <label className="check-field"><input type="checkbox" checked={approved} onChange={(event) => setApproved(event.target.checked)} />确认私人来源允许生成和分发字体</label>}
+        {usePrivate && <label className="check-field"><input type="checkbox" checked={approved} onChange={(event) => setApproved(event.target.checked)} />{uiText("确认私人来源允许生成和分发字体")}</label>}
         <div className="scan-actions">
-          <button type="button" disabled={!ready || !companion.ready} onClick={() => void exportFont(true)}>生成并下载字体</button>
-          <button type="button" disabled={!ready} onClick={() => void exportFont(false)}>保存字体制作文件</button>
+          <button type="button" disabled={!ready || !companion.ready} onClick={() => void exportFont(true)}>{uiText("生成并下载字体")}</button>
+          <button type="button" disabled={!ready} onClick={() => void exportFont(false)}>{uiText("保存字体制作文件")}</button>
         </div>
       </fieldset>
-      <a href={import.meta.env.BASE_URL + 'guide/index.html#fonts'}>字体制作教程</a>
+      <a href={guideUrl('#fonts')}>{uiText("字体制作教程")}</a>
       <p role="status">{status}</p>
     </section>
-    <section aria-label="字体覆盖">
-      <h1>覆盖与预览</h1>
-      <p>{selected.length} 个原始来源字形 · 0 个补字</p>
-      <p>{target.length ? '目标覆盖 ' + (target.length - missing.length) + '/' + target.length : selected.length + ' 个可用字形'}</p>
-      {missing.length > 0 && <p>缺字 {missing.join('、')}</p>}
+    <section aria-label={uiText("字体覆盖")}>
+      <h1>{uiText("覆盖与预览")}</h1>
+      <p>{selected.length} {uiText("个原始来源字形 · 0 个补字")}</p>
+      <p>{target.length ? uiText("目标覆盖 ") + (target.length - missing.length) + '/' + target.length : selected.length + uiText(" 个可用字形")}</p>
+      {missing.length > 0 && <p>{uiText("缺字")} {missing.join('、')}</p>}
       {glyphs.some((glyph) => !eligible(glyph)) && <details className="advanced">
-        <summary>未通过授权或格式检查的字形</summary>
+        <summary>{uiText("未通过授权或格式检查的字形")}</summary>
         <ul>{glyphs.filter((glyph) => !eligible(glyph)).slice(0, 100).map((glyph) =>
-          <li key={glyph.id}>{glyph.character} · {glyph.source.license || '授权未标注'} · {glyph.source.work || glyph.source.dataset}</li>)}</ul>
+          <li key={glyph.id}>{glyph.character} · {glyph.source.license || uiText("授权未标注")} · {glyph.source.work || glyph.source.dataset}</li>)}</ul>
       </details>}
       <div className="font-glyphs">
         {selected.slice(0, 512).map((glyph) => <div key={glyph.character}>
@@ -123,7 +125,7 @@ export function FontStudio({ projectGlyphs }: { projectGlyphs: Glyph[] }) {
               {byCharacter.get(glyph.character)?.map((variant, index) => <option key={variant.id} value={variant.id}>{index + 1} · {variant.source.work || variant.source.dataset}</option>)}
             </select>
           </label>
-          {Math.max(glyph.asset.width, glyph.asset.height) < 56 && <small>低分辨率</small>}
+          {Math.max(glyph.asset.width, glyph.asset.height) < 56 && <small>{uiText("低分辨率")}</small>}
         </div>)}
       </div>
     </section>

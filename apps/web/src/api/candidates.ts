@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import { searchGlyphs } from './client'
 import { fontGlyphs } from './fonts'
 import type { Glyph } from '../types'
@@ -29,7 +30,7 @@ export async function candidatePage(
     const pack = (await installedPacks().catch(() => [])).find((pack) => pack.name === policy.dataset)
     if (pack) {
       const items = await packedGlyphs(character, policy)
-      return { items: items.slice(offset, offset + limit), hasMore: offset + limit < items.length, warning: pack.enabled ? '' : '可选字库已禁用' }
+      return { items: items.slice(offset, offset + limit), hasMore: offset + limit < items.length, warning: pack.enabled ? '' : uiText("可选字库已禁用") }
     }
   }
   const page = await catalogPage(character, source, style, offset, limit, policy)
@@ -76,8 +77,8 @@ function catalogPage(
       ...(historical.status === 'fulfilled' ? historical.value : []),
     ]
     const warning = [
-      fonts.status === 'rejected' ? '内置字体加载失败' : '',
-      library.status === 'rejected' ? '原帖字库未连接' : '',
+      fonts.status === 'rejected' ? uiText("内置字体加载失败") : '',
+      library.status === 'rejected' ? uiText("原帖字库未连接") : '',
     ]
       .filter(Boolean)
       .join('；')

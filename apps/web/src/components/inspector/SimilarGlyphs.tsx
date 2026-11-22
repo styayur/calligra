@@ -1,3 +1,4 @@
+import { uiText } from "../../i18n"
 import { useEffect, useMemo, useState } from 'react'
 import { candidatePage } from '../../api/candidates'
 import { useEditorStore } from '../../stores/editor'
@@ -49,7 +50,7 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
             : page.items,
         )
         setMore(page.hasMore)
-        setStatus(page.warning || (!page.items.length ? (policy.font_id ? '所选字体缺少此字。可更换字体或允许补字。' : '暂无其他字形') : ''))
+        setStatus(page.warning || (!page.items.length ? (policy.font_id ? uiText("所选字体缺少此字。可更换字体或允许补字。") : uiText("暂无其他字形")) : ''))
       })
       .catch((e) => {
         if (active) setStatus(String(e))
@@ -94,7 +95,7 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
   return (
     <section className="variants-section">
       <div className="section-title">
-        <h3>换个字形</h3>
+        <h3>{uiText("换个字形")}</h3>
               </div>
       <SourcePolicyControls policy={policy} onChange={setPolicy} />
       {usesRegionalFonts(policy.writing_tradition) && <>
@@ -103,13 +104,13 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
       </>}
       <label className="check-field">
         <input type="checkbox" checked={sort} onChange={(e) => setSort(e.target.checked)} />
-        按协调度排序
+        {uiText("按协调度排序")}
       </label>
       {(status || loading || pending || failed > 0) && (
         <p className="field-hint" role="status">
-          {loading ? '正在查找同字字形…' : status}
-          {pending ? ' · 计算特征中…' : ''}
-          {failed ? ` · ${failed} 字特征不可用` : ''}
+          {loading ? uiText("正在查找同字字形…") : status}
+          {pending ? uiText(" · 计算特征中…") : ''}
+          {failed ? uiText(" · {{v0}} 字特征不可用", { v0: failed }) : ''}
         </p>
       )}
       <div className="variant-grid">
@@ -119,13 +120,13 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
             onMouseEnter={() => setPreview(item)}
             onFocus={() => setPreview(item)}
             onClick={() => replace(glyph.id, item)}
-            aria-label={`替换为${item.source.work || item.source.style || item.character}`}
+            aria-label={uiText("替换为{{v0}}", { v0: item.source.work || item.source.style || item.character })}
             aria-pressed={item.id === glyph.glyph_id}
-            title={`${item.source.work || item.source.dataset} · ${item.source.license || '授权未标注'}`}
+            title={`${item.source.work || item.source.dataset} · ${item.source.license || uiText("授权未标注")}`}
           >
             <img loading="lazy" src={item.asset.url} alt={item.character} />
             <span>
-              {item.source.work || (item.provenance.type === 'original' ? (item.metadata?.history_unverified ? '本机导入' : '原帖') : item.source.style || '结构替补')}
+              {item.source.work || (item.provenance.type === 'original' ? (item.metadata?.history_unverified ? uiText("本机导入") : uiText("原帖")) : item.source.style || uiText("结构替补"))}
             </span>
             <small>{item.source.writing_tradition || 'Unknown'} · {item.source.source_role === 'coverage-fallback' ? 'Coverage fallback' : item.source.source_role === 'handwriting' ? 'Handwriting' : item.source.source_role === 'calligraphy' ? 'Calligraphy' : item.provenance.type} · {item.source.license || 'Unknown licence'}</small>
             {sort && context.length > 0 && profiles.has(item.id) && (
@@ -140,18 +141,18 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
           disabled={loading}
           onClick={() => setOffset((v) => v + 12)}
         >
-          加载下一组候选
+          {uiText("加载下一组候选")}
         </button>
       )}
       <div className="context-preview">
-        <h4>置入作品预览</h4>
+        <h4>{uiText("置入作品预览")}</h4>
         <p className="field-hint">
-          悬停或聚焦候选预览，点击替换。当前预览：
+          {uiText("悬停或聚焦候选预览，点击替换。当前预览：")}
           {shown.source.work || shown.character}
         </p>
         <svg
           viewBox={`${left - 12} ${top - 12} ${Math.max(1, right - left) + 24} ${Math.max(1, bottom - top) + 24}`}
-          aria-label="上下文预览"
+          aria-label={uiText("上下文预览")}
         >
           {scene.map((g) => {
             const image = g.id === glyph.id ? shown : g,
@@ -192,11 +193,11 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
             )
           })}
         </svg>
-        <button onClick={() => setPreview(null)}>查看当前字</button>
+        <button onClick={() => setPreview(null)}>{uiText("查看当前字")}</button>
       </div>
       <details className="advanced" onToggle={(event) => setAnalysisOpen(event.currentTarget.open)}>
-        <summary>字形分析</summary>
-              <p className="field-hint">64 × 64 原始字形，坐标与长度归一化；不含手动变形。</p>
+        <summary>{uiText("字形分析")}</summary>
+              <p className="field-hint">{uiText("64 × 64 原始字形，坐标与长度归一化；不含手动变形。")}</p>
         {profile ? (
           <>
             <ProfileReadout glyph={shown} profile={profile} />
@@ -208,7 +209,7 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
           </>
         ) : (
           <p className="field-hint">
-            {pending ? '正在计算字形特征…' : '特征读取失败，请重新选字。'}
+            {pending ? uiText("正在计算字形特征…") : uiText("特征读取失败，请重新选字。")}
           </p>
         )}
       </details>

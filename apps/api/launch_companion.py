@@ -1,6 +1,5 @@
 """Run Calligra's optional, authenticated loopback Companion."""
 import argparse
-import os
 import socket
 import sys
 from pathlib import Path
@@ -32,17 +31,16 @@ def exact_origin(value: str) -> str:
     return value
 
 
-def create_companion(token: str, origins: list[str], *, managed: bool = False, **paths):
+def create_companion(token: str, origins: list[str], **paths):
     if len(token) != 64 or any(c not in "0123456789abcdef" for c in token):
         raise ValueError("Companion requires a 256-bit bearer token")
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     app.state.settings = Settings(_env_file=None, cors_origins=",".join(origins),
-                                  enable_local_workbench=managed, **paths)
+                                  enable_local_workbench=False, **paths)
     app.state.workbench_token = token
-    if not managed:
-        app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["GET", "POST"],
-                           allow_headers=["Authorization", "Content-Type"],
-                           allow_private_network=True, max_age=180)
+    app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["GET", "POST"],
+                       allow_headers=["Authorization", "Content-Type"],
+                       allow_private_network=True, max_age=180)
     app.include_router(router, prefix="/api")
     return app
 
@@ -61,10 +59,8 @@ def main():
     for name, value in (("libreoffice_path", args.libreoffice), ("ocr_model_dir", args.ocr_model_dir)):
         if value is not None:
             paths[name] = value.expanduser().resolve()
-    managed_token = os.environ.pop("CALLIGRA_MANAGED_TOKEN", "")
-    token = managed_token or token_hex(32)
-    origins = [] if managed_token else args.origin or [OFFICIAL_ORIGIN]
-    app = create_companion(token, origins, managed=bool(managed_token), **paths)
+    token = token_hex(32)
+    app = create_companion(token, args.origin or [OFFICIAL_ORIGIN], **paths)
 
     class Server(uvicorn.Server):
         async def startup(self, sockets=None):
@@ -72,11 +68,10 @@ def main():
             if self.started:
                 port = sockets[0].getsockname()[1]
                 print(f"CALLIGRA_READY {port}", flush=True)
-                if not managed_token:
-                    print(f"Calligra connection code: {port}:{token}", flush=True)
+                print(f"Calligra connection code: {port}:{token}", flush=True)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
-        listener.bind(("127.0.0.1", 0 if managed_token else args.port))
+        listener.bind(("127.0.0.1", args.port))
         Server(uvicorn.Config(app, proxy_headers=False, access_log=False, log_level="warning")).run(
             sockets=[listener]
         )

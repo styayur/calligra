@@ -1,4 +1,4 @@
-name: Release Windows, Android and Web
+name: Release Android and Web
 
 on:
   push:
@@ -52,7 +52,6 @@ jobs:
           fi
           test -s "release/RELEASE_NOTES_${VERSION}.md"
           test "$(node -p "require('./apps/web/package.json').version")" = "$VERSION"
-          test "$(node -p "require('./apps/desktop/package.json').version")" = "$VERSION"
           grep -F "versionName \"$VERSION\"" apps/web/android/app/build.gradle
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
@@ -105,6 +104,7 @@ jobs:
   windows:
     needs: prepare
     runs-on: windows-latest
+    timeout-minutes: 22
     steps:
       - uses: actions/checkout@v7
         with:
@@ -114,63 +114,27 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: |
-            apps/web/package-lock.json
-            apps/desktop/package-lock.json
-      - name: Build offline web bundle
-        working-directory: apps/web
-        run: |
-          $PSNativeCommandUseErrorActionPreference = $true
-          npm ci
-          npm run build:desktop
+          cache-dependency-path: apps/web/package-lock.json
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Generate desktop brand resources
+      - name: Install dependencies and build the offline Web app
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
-          python -m pip install pillow
-          python scripts/build_desktop_icon.py
-      - name: Build installer and portable executable
-        working-directory: apps/desktop
+          npm --prefix apps/web ci
+          npm --prefix apps/web run build:offline
+          python -m pip install playwright httpx==0.28.1 -r apps/api/requirements-companion.txt -r apps/api/requirements-dev.txt
+          python -m playwright install chromium
+      - name: Verify Windows PWA, migration, and standalone Companion
         env:
-          CSC_LINK: ${{ secrets.WINDOWS_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CSC_KEY_PASSWORD }}
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: |
-          $PSNativeCommandUseErrorActionPreference = $true
-          npm ci
-          node ../../scripts/test_desktop_proxy.cjs
-          npm run dist:win
-          node ../../scripts/validate_desktop_package.cjs
-      - name: Verify final Windows payloads and native renderer
-        env:
-          VERSION: ${{ needs.prepare.outputs.version }}
-        run: |
-          $PSNativeCommandUseErrorActionPreference = $true
-          $taskVersion = $env:VERSION
-          $taskSetup = "apps/desktop/release/CalligraphyStudio-Setup-$taskVersion-x64.exe"
-          $taskPortable = "apps/desktop/release/CalligraphyStudio-Portable-$taskVersion-x64.exe"
-          python scripts/validate_windows_distributables.py $taskSetup $taskPortable
-          python -m pip install playwright -r apps/api/requirements.txt -r apps/api/requirements-dev.txt
-          python scripts/test_windows_native.py --exe "apps/desktop/release/win-unpacked/Calligraphy Studio.exe" --output work/windows-native-unpacked.json
-          python scripts/test_windows_native.py --exe $taskPortable --output work/windows-native-portable.json
-          python scripts/test_windows_native.py --installer $taskSetup --companion --output work/windows-native-installed.json
-          Copy-Item apps/web/dist/build-meta.json apps/desktop/release/windows-build-provenance.json
-          $taskSignatures = Get-ChildItem apps/desktop/release/*.exe | ForEach-Object { $taskSignature = Get-AuthenticodeSignature -LiteralPath $_.FullName; @{ name = $_.Name; status = [string]$taskSignature.Status; certificate_thumbprint = $taskSignature.SignerCertificate.Thumbprint } }
-          $taskSignatures | ConvertTo-Json | Set-Content -Encoding utf8 apps/desktop/release/windows-signing.json
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/test_windows_platform.py
       - uses: actions/upload-artifact@v7
         with:
-          name: windows-native-evidence
-          path: work/windows-native-*.json
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v7
-        with:
-          name: windows-release
+          name: windows-browser-evidence
           path: |
-            apps/desktop/release/*.exe
-            apps/desktop/release/windows-build-provenance.json
-            apps/desktop/release/windows-signing.json
+            work/pwa-windows.json
+            work/windows-migration.json
           if-no-files-found: error
 
   android:
@@ -224,7 +188,8 @@ jobs:
           CALLIGRAPHY_ANDROID_CERT_SHA256: ${{ vars.ANDROID_CERT_SHA256 }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew testDebugUnitTest assembleRelease
+          ./gradlew --stop
           python ../../../scripts/validate_package.py --apk app/build/outputs/apk/release/app-release.apk
           if [ "$CALLIGRAPHY_REQUIRE_PRODUCTION_SIGNING" = "1" ]; then
             python ../../../scripts/validate_android_release.py --apk app/build/outputs/apk/release/app-release.apk --output ../../../android-signing.json
@@ -246,9 +211,9 @@ jobs:
           CALLIGRAPHY_ANDROID_CERT_SHA256: ${{ vars.ANDROID_CERT_SHA256 }}
         run: |
           mkdir -p work/android-baseline
-          gh release download v0.8.0 --dir work/android-baseline --pattern 'CalligraphyStudio-Android-0.8.0.apk' --pattern 'SHA256SUMS.txt'
-          (cd work/android-baseline && grep '  CalligraphyStudio-Android-0.8.0.apk$' SHA256SUMS.txt | sha256sum --strict --check -)
-          cert="$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs work/android-baseline/CalligraphyStudio-Android-0.8.0.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')"
+          gh release download v0.8.1 --dir work/android-baseline --pattern 'CalligraphyStudio-Android-0.8.1.apk' --pattern 'SHA256SUMS.txt'
+          (cd work/android-baseline && grep '  CalligraphyStudio-Android-0.8.1.apk$' SHA256SUMS.txt | sha256sum --strict --check -)
+          cert="$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs work/android-baseline/CalligraphyStudio-Android-0.8.1.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')"
           [[ "$cert" == "$(printf '%s' "$CALLIGRAPHY_ANDROID_CERT_SHA256" | tr -d ':' | tr '[:upper:]' '[:lower:]')" ]]
       - name: Enable KVM on the hosted Android runner
         if: needs.prepare.outputs.signed == 'true'
@@ -280,10 +245,13 @@ jobs:
           python -m zipfile -e apps/web/android/app/build/outputs/apk/release/app-release.apk work/android-bundle
           python -m http.server 5180 --bind 127.0.0.1 --directory work/android-bundle/assets/public > /tmp/calligraphy-apk-http.log 2>&1 &
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5180 --output work/japanese-fonts-android.json
+          python scripts/test_korean_browser.py --url http://127.0.0.1:5180 --output work/korean-fonts-android.json
       - uses: actions/upload-artifact@v7
         with:
           name: android-japanese-font-evidence
-          path: work/japanese-fonts-android.json
+          path: |
+            work/japanese-fonts-android.json
+            work/korean-fonts-android.json
           if-no-files-found: error
       - name: Prepare APK
         env:
@@ -319,7 +287,7 @@ jobs:
         working-directory: apps/web
         run: |
           npm ci
-          npm run build:desktop
+          npm run build:offline
       - name: Visual feature and search regression tests
         working-directory: apps/web
         run: |
@@ -360,12 +328,18 @@ jobs:
           python scripts/test_studio_browser.py --url http://127.0.0.1:5179
           python scripts/test_extraction_browser.py --url http://127.0.0.1:5179
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5179 --output work/japanese-fonts-web.json --screenshot work/japanese-font-selection.png
+          python scripts/test_korean_browser.py --url http://127.0.0.1:5179 --output work/korean-fonts-web.json
+          python scripts/test_pwa_browser.py --url http://127.0.0.1:5179/ --output work/pwa-linux.json
+          python scripts/test_i18n_browser.py --url http://127.0.0.1:5179/ --output work/i18n-web.json
       - uses: actions/upload-artifact@v7
         with:
           name: web-japanese-font-evidence
           path: |
             work/japanese-fonts-web.json
             work/japanese-font-selection.png
+            work/korean-fonts-web.json
+            work/pwa-linux.json
+            work/i18n-web.json
           if-no-files-found: error
       - uses: actions/upload-artifact@v7
         with:

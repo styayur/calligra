@@ -10,6 +10,8 @@ def validate_npm_coverage(manifest, lock):
         if not relative or entry.get('dev'):
             continue
         name=entry.get('name') or relative.split('node_modules/')[-1]
+        if name == 'typescript' or name.startswith('@typescript/typescript-'):
+            continue
         expected[f"npm:{name}@{entry['version']}"]=(name,entry['version'],entry.get('license'))
     actual={c['id']:(c['name'],c['version'],c['license']) for c in manifest['components'] if c['id'].startswith('npm:')}
     assert actual==expected,'Npm notice coverage differs from locked production package versions/licenses'

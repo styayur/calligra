@@ -1,3 +1,4 @@
+import { uiText } from "../../i18n"
 import { useEditorStore } from '../../stores/editor'
 import { useEffect, useRef, useState } from 'react'
 
@@ -28,14 +29,14 @@ export function LayersPanel() {
   if (!project.glyphs.length)
     return (
       <div className="canvas-footer">
-        <span>纸面随文字自动适配</span>
-        <span>支持横排、竖排与方格</span>
+        <span>{uiText("纸面随文字自动适配")}</span>
+        <span>{uiText("支持横排、竖排与方格")}</span>
       </div>
     )
   return (
-    <section className="character-strip" aria-label="作品中的字">
+    <section className="character-strip" aria-label={uiText("作品中的字")}>
       <span className="strip-label">
-        选字 <small>{project.glyphs.length}</small>
+        {uiText("选字")} <small>{project.glyphs.length}</small>
       </span>
       <div
         className="panel-scroll"
@@ -60,7 +61,7 @@ export function LayersPanel() {
               <button
                 key={glyph.id}
                 style={virtual ? { position: 'absolute', left: index * 52 } : undefined}
-                aria-label={`选择第${index + 1}字${glyph.character}`}
+                aria-label={uiText("选择第{{v0}}字{{v1}}", { v0: index + 1, v1: glyph.character })}
                 aria-pressed={selectedId === glyph.id}
                 onClick={() => selectGlyph(glyph.id)}
                 title={`${glyph.character} · ${glyph.source.work || glyph.source.dataset}`}

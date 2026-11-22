@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import type { Glyph } from '../types'
 import { FEATURE_VERSION, RESOLUTION, type VisualProfile } from './visual'
 
@@ -39,7 +40,7 @@ function compute(ink: Float32Array): Promise<VisualProfile> {
     worker.onerror = () => {
       for (const task of pending.values()) {
         clearTimeout(task.timer)
-        task.reject(new Error('特征线程失败，请重试'))
+        task.reject(new Error(uiText("特征线程失败，请重试")))
       }
       pending.clear()
       worker?.terminate()
@@ -50,7 +51,7 @@ function compute(ink: Float32Array): Promise<VisualProfile> {
     const id = ++sequence
     const timer = setTimeout(() => {
       pending.delete(id)
-      reject(new Error('特征计算超时，请重试'))
+      reject(new Error(uiText("特征计算超时，请重试")))
     }, 30000)
     pending.set(id, { resolve, reject, timer })
     worker!.postMessage({ id, ink }, [ink.buffer])
@@ -86,14 +87,14 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image()
     image.crossOrigin = 'anonymous'
-    const timer = setTimeout(() => reject(new Error('字形图片加载超时')), 15000)
+    const timer = setTimeout(() => reject(new Error(uiText("字形图片加载超时"))), 15000)
     image.onload = () => {
       clearTimeout(timer)
       resolve(image)
     }
     image.onerror = () => {
       clearTimeout(timer)
-      reject(new Error('无法读取字形图片'))
+      reject(new Error(uiText("无法读取字形图片")))
     }
     image.src = url
   })

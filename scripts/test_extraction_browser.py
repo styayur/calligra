@@ -27,7 +27,7 @@ def main():
     scan = fixture()
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
-        page = browser.new_page(viewport={"width": 400, "height": 860}, accept_downloads=True)
+        page = browser.new_page(locale='zh-CN', viewport={"width": 400, "height": 860}, accept_downloads=True)
         page.route("**/*", lambda route: route.continue_() if
                    route.request.url.startswith((args.url, "data:")) else route.abort())
         page.goto(args.url)

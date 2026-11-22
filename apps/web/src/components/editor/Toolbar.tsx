@@ -1,3 +1,5 @@
+import { uiText } from "../../i18n"
+import { guideUrl } from '../../i18n'
 import { Download, FolderOpen, MoreHorizontal, Redo2, Undo2 } from 'lucide-react'
 import { ChangeEvent, useRef, useState } from 'react'
 import { exportStagePng } from '../../canvas/stageExport'
@@ -34,12 +36,12 @@ export function Toolbar() {
       type: 'application/json',
     })
     try {
-      const result = await saveFile(`${projectName || '集字作品'}.json`, blob)
+      const result = await saveFile(`${projectName || uiText("集字作品")}.json`, blob)
       setStatus(
-        result === 'shared' ? '项目已交给系统保存或分享' : '项目已下载，可用于备份或继续编辑',
+        result === 'shared' ? uiText("项目已交给系统保存或分享") : uiText("项目已下载，可用于备份或继续编辑"),
       )
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : '导出未完成，请重试')
+      setStatus(error instanceof Error ? error.message : uiText("导出未完成，请重试"))
     }
   }
   const exportPng = async () => {
@@ -51,34 +53,34 @@ export function Toolbar() {
       // Share-alike material travels as one package so obligations cannot be lost.
       const packaged = hasShareAlike(project.glyphs)
       const result = packaged
-        ? await saveFile(`${projectName || '集字作品'}.zip`, zipFiles([{ name:'artwork.png', data:new Uint8Array(await artwork.arrayBuffer()) }, ...files]))
-        : await saveFile(`${projectName || '集字作品'}.png`, artwork)
-      if (!packaged) await saveFile(`${projectName || '集字作品'}-attribution.zip`, zipFiles(files))
-      setStatus(result === 'shared' ? '作品已交给系统保存或分享' : '作品已导出')
+        ? await saveFile(`${projectName || uiText("集字作品")}.zip`, zipFiles([{ name:'artwork.png', data:new Uint8Array(await artwork.arrayBuffer()) }, ...files]))
+        : await saveFile(`${projectName || uiText("集字作品")}.png`, artwork)
+      if (!packaged) await saveFile(`${projectName || uiText("集字作品")}-attribution.zip`, zipFiles(files))
+      setStatus(result === 'shared' ? uiText("作品已交给系统保存或分享") : uiText("作品已导出"))
       setExportOpen(false)
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : '导出失败，请重试')
+      setStatus(error instanceof Error ? error.message : uiText("导出失败，请重试"))
     }
   }
   const loadFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
     try {
-      if (file.size > 40 * 1024 * 1024) throw new Error('项目文件超过 40 MB，请选择较小的项目')
+      if (file.size > 40 * 1024 * 1024) throw new Error(uiText("项目文件超过 40 MB，请选择较小的项目"))
       const value = JSON.parse(await file.text())
       const parsed = validateProject(value)
       if (
         project.glyphs.length &&
-        !window.confirm('载入将替换当前作品。建议先下载项目备份，是否继续？')
+        !window.confirm(uiText("载入将替换当前作品。建议先下载项目备份，是否继续？"))
       )
         return
       loadProject(
         typeof value.name === 'string' ? value.name : file.name.replace(/\.json$/i, ''),
         parsed,
       )
-      setStatus('项目已载入')
+      setStatus(uiText("项目已载入"))
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : '项目载入失败')
+      setStatus(error instanceof Error ? error.message : uiText("项目载入失败"))
     } finally {
       event.target.value = ''
     }
@@ -104,16 +106,16 @@ export function Toolbar() {
         <input
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
-          aria-label="项目名称"
+          aria-label={uiText("项目名称")}
         />
-        <span role="status">{localStatus}</span>
+        <span role="status">{uiText(localStatus)}</span>
       </div>
       <div className="history-actions">
         <Button
           variant="ghost"
           size="icon"
-          title="撤销 Ctrl+Z"
-          aria-label="撤销"
+          title={uiText("撤销 Ctrl+Z")}
+          aria-label={uiText("撤销")}
           disabled={!past.length}
           onClick={undo}
         >
@@ -122,8 +124,8 @@ export function Toolbar() {
         <Button
           variant="ghost"
           size="icon"
-          title="重做 Ctrl+Shift+Z"
-          aria-label="重做"
+          title={uiText("重做 Ctrl+Shift+Z")}
+          aria-label={uiText("重做")}
           disabled={!future.length}
           onClick={redo}
         >
@@ -142,44 +144,44 @@ export function Toolbar() {
         onChange={loadFile}
       />
       <details className="project-menu">
-        <summary aria-label="项目菜单">
+        <summary aria-label={uiText("项目菜单")}>
           <MoreHorizontal size={19} />
-          <span>项目</span>
+          <span>{uiText("项目")}</span>
         </summary>
         <div className="menu-popover">
-          <button onClick={exportJson}>下载项目文件</button>
-          <button onClick={() => fileRef.current?.click()}>载入项目文件</button>
+          <button onClick={exportJson}>{uiText("下载项目文件")}</button>
+          <button onClick={() => fileRef.current?.click()}>{uiText("载入项目文件")}</button>
           <button disabled={!past.length} onClick={undo}>
-            撤销上一步
+            {uiText("撤销上一步")}
           </button>
           <button disabled={!future.length} onClick={redo}>
-            重做上一步
+            {uiText("重做上一步")}
           </button>
           <button
             onClick={() => {
               if (
                 !project.glyphs.length ||
-                window.confirm('新建会清空当前草稿，请先下载需要保留的作品。是否继续？')
+                window.confirm(uiText("新建会清空当前草稿，请先下载需要保留的作品。是否继续？"))
               ) {
                 newProject()
-                setStatus('已新建作品')
+                setStatus(uiText("已新建作品"))
               }
             }}
           >
-            新建空白作品
+            {uiText("新建空白作品")}
           </button>
-          <a href={`${import.meta.env.BASE_URL}guide/index.html`}>教程</a>
+          <a href={guideUrl()}>{uiText("教程")}</a>
           <p>Calligra · <span data-testid="app-version">{APP_VERSION}</span></p>
-          <button onClick={() => setLicensesOpen(true)}>第三方许可 / Third-party licences</button>
+          <button onClick={() => setLicensesOpen(true)}>{uiText("第三方许可 / Third-party licences")}</button>
         </div>
       </details>
       {licensesOpen && <div role="dialog" aria-label="Third-party licences" style={{position:'fixed',inset:'5vh 5vw',zIndex:100,background:'#fff',border:'1px solid #cad4cc',boxShadow:'0 8px 40px #0003',display:'flex',flexDirection:'column'}}>
-        <button onClick={() => setLicensesOpen(false)} aria-label="关闭第三方许可" style={{padding:12,alignSelf:'flex-end'}}>关闭 / Close</button>
-        <iframe title="Bundled third-party licence texts" src={`${import.meta.env.BASE_URL}third-party-licenses.html`} style={{border:0,flex:1,width:'100%'}} />
+        <button onClick={() => setLicensesOpen(false)} aria-label={uiText("关闭第三方许可")} style={{padding:12,alignSelf:'flex-end'}}>{uiText("关闭 / Close")}</button>
+        <iframe title={uiText("Bundled third-party licence texts")} src={`${import.meta.env.BASE_URL}third-party-licenses.html`} style={{border:0,flex:1,width:'100%'}} />
       </div>}
       <Button variant="secondary" className="save-project-button" onClick={exportJson}>
         <FolderOpen size={15} />
-        保存项目
+        {uiText("保存项目")}
       </Button>
       <div className="export-wrapper">
         <Button
@@ -188,28 +190,28 @@ export function Toolbar() {
           aria-expanded={exportOpen}
         >
           <Download size={15} />
-          导出作品
+          {uiText("导出作品")}
         </Button>
         {exportOpen && (
-          <div className="export-popover" role="dialog" aria-label="导出作品设置">
+          <div className="export-popover" role="dialog" aria-label={uiText("导出作品设置")}>
             <div className="section-title">
-              <h3>导出 PNG</h3>
-              <button aria-label="关闭导出设置" onClick={() => setExportOpen(false)}>
+              <h3>{uiText("导出 PNG")}</h3>
+              <button aria-label={uiText("关闭导出设置")} onClick={() => setExportOpen(false)}>
                 ×
               </button>
             </div>
             <label>
-              导出尺寸
+              {uiText("导出尺寸")}
               <select
-                aria-label="导出尺寸"
+                aria-label={uiText("导出尺寸")}
                 value={scale}
                 onChange={(e) => setScale(Number(e.target.value))}
               >
                 <option value={1}>
-                  原尺寸 · {project.canvas.width} × {project.canvas.height}
+                  {uiText("原尺寸 ·")} {project.canvas.width} × {project.canvas.height}
                 </option>
                 <option value={2}>
-                  2 倍 · {project.canvas.width * 2} × {project.canvas.height * 2}
+                  {uiText("2 倍 ·")} {project.canvas.width * 2} × {project.canvas.height * 2}
                 </option>
               </select>
             </label>
@@ -219,13 +221,13 @@ export function Toolbar() {
                 checked={transparent}
                 onChange={(e) => setTransparent(e.target.checked)}
               />
-              透明背景
+              {uiText("透明背景")}
             </label>
-            <p className="field-hint">导出不包含选框。图片字形的清晰度受原图分辨率限制。</p>
-            <label className="check-field"><input type="checkbox" checked={commercialOnly} onChange={(e) => setCommercialOnly(e.target.checked)} />商用导出 / Commercial-only export</label>
-            <p className="field-hint">附机器可读与文字来源清单；含 CC BY-SA 字形时，PNG 与授权清单一起打包为 ZIP。</p>
+            <p className="field-hint">{uiText("导出不包含选框。图片字形的清晰度受原图分辨率限制。")}</p>
+            <label className="check-field"><input type="checkbox" checked={commercialOnly} onChange={(e) => setCommercialOnly(e.target.checked)} />{uiText("商用导出 / Commercial-only export")}</label>
+            <p className="field-hint">{uiText("附机器可读与文字来源清单；含 CC BY-SA 字形时，PNG 与授权清单一起打包为 ZIP。")}</p>
             <Button className="w-full" onClick={exportPng}>
-              下载 PNG
+              {uiText("下载 PNG")}
             </Button>
           </div>
         )}

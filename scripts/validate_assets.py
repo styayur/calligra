@@ -52,7 +52,7 @@ def main():
         if not (runtime/source['license_text']).is_file(): raise ValueError('Missing historical licence text')
         if hashlib.sha256((runtime/g['asset']['url']).read_bytes()).hexdigest()!=g['asset']['checksum']: raise ValueError('Historical derivative checksum mismatch')
         if g['metadata']['derivative_license']!=source['license']: raise ValueError('Derived crop relabelled')
-    for directory in ['apps/web','apps/desktop']:
+    for directory in ['apps/web']:
         if json.loads((ROOT/directory/'package.json').read_text(encoding='utf-8'))['version']!=manifest['release']: raise ValueError('Platform release mismatch')
     if tomllib.loads((ROOT/'apps/api/pyproject.toml').read_text(encoding='utf-8'))['project']['version'] != manifest['release']: raise ValueError('API release mismatch')
     android=(ROOT/'apps/web/android/app/build.gradle').read_text(encoding='utf-8')

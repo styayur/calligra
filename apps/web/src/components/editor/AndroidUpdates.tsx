@@ -1,3 +1,4 @@
+import { uiText } from "../../i18n"
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import { useEffect, useState } from 'react'
 
@@ -43,9 +44,9 @@ function UpdateControls() {
       if (result.available) {
         setOffer(result)
         setVisible(true)
-      } else if (!automatic) setStatus('当前已是最新正式版本。')
+      } else if (!automatic) setStatus(uiText("当前已是最新正式版本。"))
     } catch {
-      if (!automatic) setStatus('无法检查正式更新，请稍后重试。')
+      if (!automatic) setStatus(uiText("无法检查正式更新，请稍后重试。"))
     } finally { setBusy(false) }
   }
   useEffect(() => {
@@ -56,12 +57,12 @@ function UpdateControls() {
 
   async function download() {
     setBusy(true)
-    setStatus('正在下载并校验官方 APK…')
+    setStatus(uiText("正在下载并校验官方 APK…"))
     try {
       if (!(await updates.downloadUpdate()).verified) throw new Error('APK verification failed')
       setVerified(true)
-      setStatus('下载已校验。请继续通过 Android 确认安装。')
-    } catch { setStatus('下载或 APK 校验失败，请重试。') }
+      setStatus(uiText("下载已校验。请继续通过 Android 确认安装。"))
+    } catch { setStatus(uiText("下载或 APK 校验失败，请重试。")) }
     finally { setBusy(false) }
   }
 
@@ -70,29 +71,29 @@ function UpdateControls() {
     try {
       const result = await updates.openInstaller()
       setStatus(result.permissions
-        ? '请在 Android 设置中允许此来源安装，返回后再次点击安装。'
-        : '请在 Android 安装界面确认升级。')
-    } catch { setStatus('无法启动 Android 安装程序，请重试。') }
+        ? uiText("请在 Android 设置中允许此来源安装，返回后再次点击安装。")
+        : uiText("请在 Android 安装界面确认升级。"))
+    } catch { setStatus(uiText("无法启动 Android 安装程序，请重试。")) }
     finally { setBusy(false) }
   }
 
   return <div className="mode-secondary">
-    <button type="button" aria-expanded={visible} onClick={() => setVisible((shown) => !shown)}>应用更新</button>
-    {visible && <section className="android-updates" aria-label="应用更新">
-      <button type="button" disabled={busy} onClick={() => void check(false)}>检查正式更新</button>
+    <button type="button" aria-expanded={visible} onClick={() => setVisible((shown) => !shown)}>{uiText("应用更新")}</button>
+    {visible && <section className="android-updates" aria-label={uiText("应用更新")}>
+      <button type="button" disabled={busy} onClick={() => void check(false)}>{uiText("检查正式更新")}</button>
       <label className="check-field"><input type="checkbox" checked={reminders} disabled={busy}
         onChange={(event) => {
           const enabled = event.target.checked
           localStorage.setItem(AUTO_KEY, enabled ? 'yes' : 'no')
           setReminders(enabled)
-        }} />启动时自动提醒</label>
+        }} />{uiText("启动时自动提醒")}</label>
       {offer && <>
         <p><strong>Calligra {offer.version}</strong> · {(offer.size / 1024 / 1024).toFixed(1)} MiB</p>
-        <p className="field-hint">来源 · <a href={offer.source} target="_blank" rel="noreferrer">GitHub Releases</a></p>
-        {offer.notes && <details><summary>发行说明</summary><p className="release-notes">{offer.notes}</p></details>}
+        <p className="field-hint">{uiText("来源 ·")} <a href={offer.source} target="_blank" rel="noreferrer">GitHub Releases</a></p>
+        {offer.notes && <details><summary>{uiText("发行说明")}</summary><p className="release-notes">{offer.notes}</p></details>}
         {verified
-          ? <button type="button" disabled={busy} onClick={() => void install()}>通过 Android 安装</button>
-          : <button type="button" disabled={busy} onClick={() => void download()}>下载并校验 APK</button>}
+          ? <button type="button" disabled={busy} onClick={() => void install()}>{uiText("通过 Android 安装")}</button>
+          : <button type="button" disabled={busy} onClick={() => void download()}>{uiText("下载并校验 APK")}</button>}
       </>}
       {status && <p role="status">{status}</p>}
     </section>}

@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import { create } from 'zustand'
 import type {
   Glyph,
@@ -76,13 +77,13 @@ function pushHistory(state: EditorState, project: ProjectDocument) {
 
 export const useEditorStore = create<EditorState>((set, get) => ({
   projectId: null,
-  projectName: '未命名集字',
+  projectName: uiText("未命名集字"),
   project: emptyProject(),
   selectedId: null,
   past: [],
   future: [],
   dirty: false,
-  localStatus: '正在恢复草稿…',
+  localStatus: "正在恢复草稿…",
   setLocalStatus: (localStatus) => set({ localStatus }),
   compose: (glyphs, canvas, text, composition) =>
     set((state) => ({
@@ -124,7 +125,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   duplicateGlyph: (id) =>
     set((state) => {
       if (state.project.glyphs.length >= 1000)
-        return { localStatus: '工作台已达 1000 字，请使用长卷模式' }
+        return { localStatus: "工作台已达 1000 字，请使用长卷模式" }
       const original = state.project.glyphs.find((glyph) => glyph.id === id)
       if (!original) return state
       const copy = structuredClone(original)
@@ -145,7 +146,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   addGlyph: (glyph, x, y) => {
     if (get().project.glyphs.length >= 1000) {
-      set({ localStatus: '工作台已达 1000 字，请使用长卷模式' })
+      set({ localStatus: "工作台已达 1000 字，请使用长卷模式" })
       return ''
     }
     const instanceId = crypto.randomUUID()
@@ -173,7 +174,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   addGlyphs: (glyphs) =>
     set((state) => {
       if (state.project.glyphs.length + glyphs.length > 1000)
-        return { localStatus: '工作台最多 1000 字，请使用长卷模式' }
+        return { localStatus: "工作台最多 1000 字，请使用长卷模式" }
       if (glyphs.length === 0) return state
       const next = {
         ...state.project,
@@ -272,7 +273,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   newProject: () =>
     set({
       projectId: null,
-      projectName: '未命名集字',
+      projectName: uiText("未命名集字"),
       project: emptyProject(),
       selectedId: null,
       past: [],

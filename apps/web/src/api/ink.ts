@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import type { Glyph } from '../types'
 import { sha256 } from '../lib/fontShaper'
 
@@ -18,7 +19,7 @@ export async function prepareInk(glyph: Glyph): Promise<Glyph> {
       new Promise<Glyph>((resolve, reject) => {
         const image = new Image()
         image.crossOrigin = 'anonymous'
-        image.onerror = () => reject(new Error(`「${glyph.character}」原帖图片加载失败，请重试`))
+        image.onerror = () => reject(new Error(uiText("「{{v0}}」原帖图片加载失败，请重试", { v0: glyph.character })))
         image.onload = async () => {
           try {
             if (Math.max(image.naturalWidth,image.naturalHeight) > 16000 || image.naturalWidth*image.naturalHeight > 32_000_000) throw new Error('Excessive image dimensions')
@@ -54,7 +55,7 @@ export async function prepareInk(glyph: Glyph): Promise<Glyph> {
               metadata: { ...glyph.metadata, original_asset_checksum:glyph.asset.checksum, processing:'transparent ink-mask from source crop', derivative_license:glyph.source.license },
             })
           } catch {
-            reject(new Error(`「${glyph.character}」无法净底，请检查图片来源`))
+            reject(new Error(uiText("「{{v0}}」无法净底，请检查图片来源", { v0: glyph.character })))
           }
         }
         image.src = glyph.asset.url

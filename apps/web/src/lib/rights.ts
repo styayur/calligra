@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import type { Glyph } from '../types'
 import { migrateGlyph, semanticIdentity } from './identity'
 
@@ -6,10 +7,10 @@ export interface ExportPolicy { commercialOnly?: boolean; derivative?: boolean }
 export function assertExportRights(glyphs: Glyph[], policy: ExportPolicy = {}) {
   for (const g of glyphs) {
     const rights = g.source.rights
-    if (policy.commercialOnly && rights?.commercial_use !== true) throw new Error(`「${g.character}」未明确允许商用 / Commercial rights are not confirmed`)
-    if (rights?.redistribution_allowed === false) throw new Error(`「${g.character}」不允许再分发 / Redistribution prohibited`)
+    if (policy.commercialOnly && rights?.commercial_use !== true) throw new Error(uiText("「{{v0}}」未明确允许商用 / Commercial rights are not confirmed", { v0: g.character }))
+    if (rights?.redistribution_allowed === false) throw new Error(uiText("「{{v0}}」不允许再分发 / Redistribution prohibited", { v0: g.character }))
     if (policy.derivative !== false && rights?.derivatives_allowed === false && !rights.font_license)
-      throw new Error(`「${g.character}」不允许改作 / Derivatives prohibited`)
+      throw new Error(uiText("「{{v0}}」不允许改作 / Derivatives prohibited", { v0: g.character }))
   }
 }
 export const hasShareAlike = (glyphs: Glyph[]) => glyphs.some((g) => g.source.rights?.share_alike_required === true)
@@ -28,7 +29,7 @@ export function attributionManifest(glyphs: Glyph[], policy: ExportPolicy = {}) 
 }
 export async function attributionFiles(glyphs: Glyph[], policy: ExportPolicy = {}) {
   const manifest = attributionManifest(glyphs,policy), encoder = new TextEncoder()
-  const human = ['Glyph attribution / 字形来源与授权', manifest.licence_boundary,
+  const human = [uiText("Glyph attribution / 字形来源与授权"), manifest.licence_boundary,
     manifest.artwork_license ? 'Artwork contains adapted CC-BY-SA-4.0 material. Distribute adapted artwork under CC-BY-SA-4.0; retain attribution and identify changes.' : 'Review each source before publishing; unknown rights remain unknown.',
     ...manifest.glyphs.map((g) => `\n${g.character} (${g.identity.codepoints.join(' ')}) — ${g.source.work || g.source.dataset}\n${g.source.attribution || g.source.designer || g.source.calligrapher || 'Attribution unknown'}\n${g.source.license || 'Licence unknown'} ${g.source.license_url || ''}\n${g.source.source_uri || ''}\nChanges: ${g.changes}\nSource SHA256: ${g.source.source_checksum || 'unknown'}\nAsset SHA256: ${g.asset_checksum || 'unknown'}`)]
   const files = [{ name:'attribution.json', data:encoder.encode(JSON.stringify(manifest,null,2)) }, { name:'ATTRIBUTION.txt', data:encoder.encode(human.join('\n')) }]

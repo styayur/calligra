@@ -1,3 +1,4 @@
+import { uiText } from "../../i18n"
 import { useEffect, useState } from 'react'
 import { Capacitor } from '@capacitor/core'
 
@@ -6,7 +7,7 @@ interface InstallPrompt extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
-const supported = import.meta.env.PROD && import.meta.env.MODE !== 'android' && !import.meta.env.DEV && !Capacitor.isNativePlatform() &&
+const supported = import.meta.env.PROD && import.meta.env.MODE !== 'android' && import.meta.env.VITE_STATIC_MODE === 'true' && !Capacitor.isNativePlatform() &&
   ['http:', 'https:'].includes(location.protocol) && window.isSecureContext && 'serviceWorker' in navigator
 
 function askOffline(worker: ServiceWorker, type: 'offline-status' | 'offline-prepare'): Promise<boolean> {
@@ -83,15 +84,15 @@ export function OfflineControls() {
     setState(await askOffline(worker, 'offline-prepare') ? 'ready' : 'failed')
   }
 
-  return <div className="mode-secondary" role="group" aria-label="离线工作台">
+  return <div className="mode-secondary" role="group" aria-label={uiText("离线工作台")}>
     {prompt && <button onClick={() => {
       setPrompt(null)
       void prompt.prompt().catch(() => undefined)
-    }}>安装 Calligra</button>}
+    }}>{uiText("安装 Calligra")}</button>}
     <button disabled={!worker || state === 'preparing' || state === 'ready'} onClick={() => void prepare()}>
-      {state === 'preparing' ? '正在下载离线字体…' : state === 'ready' ? '离线字体已就绪' : '下载离线字体'}
+      {state === 'preparing' ? uiText("正在下载离线字体…") : state === 'ready' ? uiText("离线字体已就绪") : uiText("下载离线字体")}
     </button>
-    {state === 'failed' && <span role="status">离线准备失败，请检查网络或本机存储后重试。</span>}
-    {updateWaiting && <span role="status">更新已下载。请保存作品并关闭所有 Calligra 窗口后重新打开。</span>}
+    {state === 'failed' && <span role="status">{uiText("离线准备失败，请检查网络或本机存储后重试。")}</span>}
+    {updateWaiting && <span role="status">{uiText("更新已下载。请保存作品并关闭所有 Calligra 窗口后重新打开。")}</span>}
   </div>
 }

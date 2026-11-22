@@ -56,7 +56,7 @@ export function candidateCompatible(glyph: Glyph, policy: CandidatePolicy): bool
   return compatibleSource(glyph.source, glyph.variant, glyph.provenance.type, policy, typeof glyph.metadata?.font_id === 'string' ? glyph.metadata.font_id : undefined)
 }
 export function fontFallbackPolicy(policy: CandidatePolicy): CandidatePolicy {
-  return { ...policy, font_id: undefined, mode: 'strict' }
+  return { ...policy, font_id: undefined, writing_tradition: policy.writing_tradition || 'Japanese', mode: 'strict' }
 }
 
 /** A computational cost, not authenticity or aesthetic merit. Unknown fields add no evidence. */

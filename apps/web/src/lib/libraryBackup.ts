@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import { sha256 } from './fontShaper'
 import type { Glyph, GlyphInstance } from '../types'
 import type { GlyphPack, PackedGlyph } from './glyphPacks'
@@ -23,7 +24,7 @@ interface LibraryBackup extends Omit<LibraryContents, 'scans'> {
 }
 
 function invalid(): never {
-  throw new Error('个人字库备份结构、校验值或引用无效。')
+  throw new Error(uiText("个人字库备份结构、校验值或引用无效。"))
 }
 function toBase64(file: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -45,7 +46,7 @@ export async function exportLibraryBackup(): Promise<Blob> {
   const snapshot = await snapshotLibrary()
   const scans: ScanReceipt[] = []
   const storedSize = snapshot.scans.reduce((total, { file }) => total + Math.ceil(file.size / 3) * 4, 0)
-  if (storedSize > LIMIT) throw new Error('个人字库备份超过 192 MiB。')
+  if (storedSize > LIMIT) throw new Error(uiText("个人字库备份超过 192 MiB。"))
   for (const { checksum, file } of snapshot.scans) {
     scans.push({ checksum, name: file instanceof File ? file.name : checksum,
       type: file.type, lastModified: file instanceof File ? file.lastModified : 0,
@@ -53,12 +54,12 @@ export async function exportLibraryBackup(): Promise<Blob> {
   }
   const backup: LibraryBackup = { kind: 'calligra-private-library', schema_version: 1, ...snapshot, scans }
   const result = new Blob([JSON.stringify(backup)], { type: 'application/json' })
-  if (result.size > LIMIT) throw new Error('个人字库备份超过 192 MiB。')
+  if (result.size > LIMIT) throw new Error(uiText("个人字库备份超过 192 MiB。"))
   return result
 }
 
 export async function importLibraryBackup(file: File): Promise<number> {
-  if (!file.size || file.size > LIMIT) throw new Error('个人字库备份上限为 192 MiB。')
+  if (!file.size || file.size > LIMIT) throw new Error(uiText("个人字库备份上限为 192 MiB。"))
   const value = JSON.parse(await file.text()) as LibraryBackup
   if (!value || value.kind !== 'calligra-private-library' || value.schema_version !== 1 ||
       ![value.glyphs, value.scans, value.packs, value.packedGlyphs].every((rows) => Array.isArray(rows) && rows.length <= MAX_ROWS))

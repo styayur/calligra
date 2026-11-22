@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import type { Glyph } from '../types'
 import { textLines } from './composition'
 import { loadImage } from './featureCache'
@@ -22,10 +23,10 @@ export interface RollPage {
 export function paginateRoll(text: string, options: RollOptions): RollPage[] {
   const { rows, columns, vertical } = options
   if (![rows, columns].every((v) => Number.isInteger(v) && v >= 2 && v <= 24))
-    throw new Error('每页行列数须为 2–24')
+    throw new Error(uiText("每页行列数须为 2–24"))
   const lines = textLines(text, options.punctuation),
     count = lines.reduce((s, l) => s + l.length, 0)
-  if (!count || count > 20000) throw new Error('长卷支持 1–20000 字')
+  if (!count || count > 20000) throw new Error(uiText("长卷支持 1–20000 字"))
   const along = vertical ? rows : columns,
     across = vertical ? columns : rows
   const pages: RollPage[] = []

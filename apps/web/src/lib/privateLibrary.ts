@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import { candidateCompatible, type CandidatePolicy } from './candidatePolicy'
 import type { Glyph } from '../types'
 import type { GlyphPack, PackedGlyph } from './glyphPacks'
@@ -55,7 +56,7 @@ export async function savePrivateGlyphs(scan: File, checksum: string, glyphs: Gl
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(['glyphs', 'scans'], 'readwrite')
       transaction.oncomplete = () => resolve()
-      transaction.onabort = () => reject(transaction.error ?? new Error('个人字库写入失败'))
+      transaction.onabort = () => reject(transaction.error ?? new Error(uiText("个人字库写入失败")))
       transaction.objectStore('scans').put(scan, checksum)
       const library = transaction.objectStore('glyphs')
       for (const glyph of glyphs) library.put(glyph)
@@ -105,7 +106,7 @@ async function packTransaction<T>(mode: IDBTransactionMode, run: (
       let result: T
       let failure: Error | undefined
       tx.oncomplete = () => resolve(result)
-      tx.onabort = () => reject(failure ?? tx.error ?? new Error('字库事务失败'))
+      tx.onabort = () => reject(failure ?? tx.error ?? new Error(uiText("字库事务失败")))
       run(tx.objectStore('packs'), tx.objectStore('packedGlyphs'), (value) => { result = value }, (error) => {
         failure = error
         tx.abort()
@@ -135,13 +136,13 @@ export function installGlyphPack(pack: GlyphPack, records: PackedGlyph[]) {
     request.onsuccess = () => {
       const previous = request.result as GlyphPack | undefined
       if (previous && (previous.version !== pack.version || previous.name !== pack.name || previous.source !== pack.source)) {
-        fail(new Error('此字库已安装不同版本或来源，请先卸载'))
+        fail(new Error(uiText("此字库已安装不同版本或来源，请先卸载")))
         return
       }
       const names = packs.getAll()
       names.onsuccess = () => {
         if (pack.name === PRIVATE_DATASET || (names.result as GlyphPack[]).some((item) => item.id !== pack.id && item.name === pack.name)) {
-          fail(new Error('字库名称已使用'))
+          fail(new Error(uiText("字库名称已使用")))
           return
         }
         for (const glyph of records) glyphs.put(glyph)
@@ -159,7 +160,7 @@ export function enableGlyphPack(id: string, enabled: boolean) {
   return packTransaction<void>('readwrite', (packs, _, finish, fail) => {
     const request = packs.get(id)
     request.onsuccess = () => {
-      if (!request.result) { fail(new Error('字库已卸载')); return }
+      if (!request.result) { fail(new Error(uiText("字库已卸载"))); return }
       packs.put({ ...request.result, enabled })
       finish(undefined)
     }
@@ -221,8 +222,8 @@ export async function restoreLibrary(contents: LibraryContents): Promise<void> {
       let conflict = false
       tx.oncomplete = () => resolve()
       tx.onabort = () => reject(conflict
-        ? new Error('备份与现有字库存在冲突，未写入任何记录。')
-        : tx.error ?? new Error('个人字库恢复失败'))
+        ? new Error(uiText("备份与现有字库存在冲突，未写入任何记录。"))
+        : tx.error ?? new Error(uiText("个人字库恢复失败")))
       const merge = (store: IDBObjectStore, id: string, value: Glyph | GlyphPack | Blob) => {
         const existing = store.get(id)
         existing.onsuccess = () => {

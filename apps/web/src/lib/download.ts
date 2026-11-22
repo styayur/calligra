@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import { Capacitor } from '@capacitor/core'
 
 /** Android WebView does not implement anchor downloads; use the system share sheet. */
@@ -11,7 +12,7 @@ export async function saveFile(name: string, blob: Blob): Promise<'shared' | 'do
     const data = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader()
       reader.onload = () => resolve(String(reader.result).split(',')[1])
-      reader.onerror = () => reject(new Error('无法读取导出文件，请重试'))
+      reader.onerror = () => reject(new Error(uiText("无法读取导出文件，请重试")))
       reader.readAsDataURL(blob)
     })
     const file = await Filesystem.writeFile({
@@ -20,7 +21,7 @@ export async function saveFile(name: string, blob: Blob): Promise<'shared' | 'do
       directory: Directory.Cache,
       recursive: true,
     })
-    await Share.share({ title: filename, files: [file.uri], dialogTitle: '保存或分享作品' })
+    await Share.share({ title: filename, files: [file.uri], dialogTitle: uiText("保存或分享作品") })
     return 'shared'
   }
   const url = URL.createObjectURL(blob)

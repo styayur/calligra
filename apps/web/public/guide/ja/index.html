@@ -1,5 +1,27 @@
 <!doctype html>
-<html lang="ja">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Calligra ガイド</title><link rel="stylesheet" href="../guide.css"></head>
-<body><header><a href="../../">Calligra</a><a href="../index.html" lang="zh-CN">简体中文</a></header><main><h1>Calligra ガイド</h1><p>文字を入力して、伝統・字形の出典・組み方を選び、作品を生成します。紙面の字を選ぶと、字形の置換や位置の調整ができます。編集を再開するにはプロジェクトを保存します。</p></main></body>
+<html lang="ja-JP">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calligra ガイド</title>
+  <link rel="stylesheet" href="../guide.css">
+</head>
+<body>
+  <header><a href="../../">Calligra</a><a href="../index.html" lang="zh-CN">简体中文</a><a href="../en/index.html" lang="en">English</a><a href="../ko/index.html" lang="ko-KR">한국어</a></header>
+  <main>
+    <h1>Calligra ガイド</h1>
+    <nav aria-label="章"><a href="#start">はじめに</a><a href="#layout">組版と長巻</a><a href="#search">検索と置き換え</a><a href="#library">個人ライブラリと追加パック</a><a href="#extraction">画像から字形を切り出す</a><a href="#fonts">フォント制作</a><a href="#documents">DOCX と ODT</a><a href="#local">独立 Companion</a><a href="#files">保存・インストール・更新</a><a href="#rights">出典とライセンス</a><a href="#help">困ったとき</a></nav>
+    <section id="start"><h2>はじめに</h2><p>集字ワークスペースで文字を入力します。書の伝統と横書き・縦書き・格子組みのいずれかを選び、作品を生成します。不足字形の位置は空白になります。表示言語、本文の言語、字形の伝統はそれぞれ指定できます。</p></section>
+    <section id="layout"><h2>組版と長巻</h2><p>改行で文を区切り、組版設定で字間と余白を調整します。長い作品には長巻を使い、全ページを ZIP に書き出してください。プレビューは現在のセッションで保持されます。</p></section>
+    <section id="search"><h2>検索と置き換え</h2><p>字形検索で文字、書家、作品を探し、候補を用紙に追加します。配置済みの字形を選ぶと、置き換えや大きさ、回転、位置、墨の調整ができます。矢印キーで移動し、Shift で移動量を増やします。</p></section>
+    <section id="library"><h2>個人ライブラリと追加パック</h2><p>素材で確認済みの字形と原画像を保存します。出典と利用条件を確認したパックだけを取り込んでください。個人ライブラリとプロジェクトは別々にバックアップします。旧 Windows 版 v0.8.1 のデータは移行ツールで書き出せます。</p></section>
+    <section id="extraction"><h2>画像から字形を切り出す</h2><p>PNG、JPEG、静止 WebP を選びます。枠を手動で作るか、自動検出した枠を確認します。各字の文字を確認して保存してください。OCR の候補は実験機能で、ローカルモデルを使います。歴史資料は手動で切り出して校正してください。</p></section>
+    <section id="fonts"><h2>フォント制作</h2><p>利用条件を確認した個人字形や現在の作品の字形を選びます。対象文字を入力すると収録範囲を確認できます。Companion は TTF、OTF、WOFF2 とライセンス一覧を作成します。コマンドライン用の制作ファイルも保存できます。</p></section>
+    <section id="documents"><h2>DOCX と ODT</h2><p>DOCX または ODT とローカルの TTF または OTF を選びます。字形の収録範囲と対象段落を確認し、Companion で変換します。文書編集ソフトで改ページを確認し、閲覧端末にフォントを入れてください。PDF には LibreOffice が必要です。</p></section>
+    <section id="local"><h2>独立 Companion</h2><p>デスクトップで同じ版のソースにある apps/api/requirements-companion.txt をインストールし、python -I apps/api/launch_companion.py を実行します。表示された接続コードをフォント、文書、素材のいずれかの画面に入力します。必要に応じてローカルネットワークへのアクセスを許可してください。</p><p><a href="https://github.com/styayur/calligra/blob/main/docs/PWA_COMPANION.md">デスクトップ、Windows 移行と Companion の設定</a></p></section>
+    <section id="files"><h2>保存・インストール・更新</h2><p>プロジェクト JSON を保存するか、作品を PNG に書き出します。ブラウザーから Web アプリをインストールできます。オフラインで使うフォントはオンラインで先にダウンロードしてください。Android のアプリ更新では GitHub Releases を確認し、インストールは Android の画面で承認します。</p></section>
+    <section id="rights"><h2>出典とライセンス</h2><p>実際に使用する字形の出典を確認します。書き出した作品には出典一覧を添え、CC BY-SA 資料を改変した場合は継承条件に従ってください。</p></section>
+    <section id="help"><h2>困ったとき</h2><p>字形が不足するときはフォント、伝統、補完設定を確認してください。ブラウザーデータを消した場合はバックアップから復元します。Web ZIP はローカル HTTP サーバーで開きます。</p></section>
+  </main>
+</body>
 </html>

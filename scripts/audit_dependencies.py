@@ -1,4 +1,4 @@
-"""Fail every npm advisory in both full trees and the production web tree."""
+"""Fail every npm advisory in the full and production web trees."""
 import json,subprocess
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
@@ -12,12 +12,12 @@ def main():
     policy=json.loads((ROOT/'release/dependency-policy.json').read_text(encoding='utf-8'))
     assert policy['schema_version']==2 and policy['maximum_vulnerabilities']==0 and policy['exceptions']==[], 'No advisory exceptions are permitted'
     report={}
-    for folder,production in [('apps/web',True),('apps/web',False),('apps/desktop',False)]:
+    for folder,production in [('apps/web',True),('apps/web',False)]:
         data=audit(folder,production);key=folder+(':production' if production else ':full')
         report[key]=data
         assert data['metadata']['vulnerabilities']['total']==0,f'Dependency vulnerabilities in {key}'
         print(key, json.dumps(data['metadata']['vulnerabilities']))
     target=ROOT/'work/dependency-audit-rc.json';target.parent.mkdir(exist_ok=True)
     target.write_text(json.dumps({'review_policy':policy,'audits':report},indent=2)+'\n',encoding='utf-8')
-    print('PASS: zero advisories in web production, full web and full desktop dependency trees; no exceptions')
+    print('PASS: zero advisories in web production and full web dependency trees; no exceptions')
 if __name__=='__main__':main()

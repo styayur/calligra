@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import { staticAssetUrl } from '../config/runtime'
 import type {
   BatchComposeRequest,
@@ -29,7 +30,7 @@ export async function loadStaticGlyphs(): Promise<Glyph[]> {
   if (!glyphPromise) {
     glyphPromise = fetch(`${import.meta.env.BASE_URL}demo/glyphs.json`)
       .then((response) => {
-        if (!response.ok) throw new Error('无法加载静态 Glyph 数据')
+        if (!response.ok) throw new Error(uiText("无法加载静态 Glyph 数据"))
         return response.json() as Promise<Glyph[]>
       })
       .then(async (glyphs) =>
@@ -46,7 +47,7 @@ export async function loadStaticSimilarity(): Promise<StaticSimilarity> {
   if (!similarityPromise) {
     similarityPromise = fetch(`${import.meta.env.BASE_URL}demo/similarity.json`)
       .then((response) => {
-        if (!response.ok) throw new Error('无法加载静态相似度数据')
+        if (!response.ok) throw new Error(uiText("无法加载静态相似度数据"))
         return response.json() as Promise<StaticSimilarity>
       })
   }
@@ -55,7 +56,7 @@ export async function loadStaticSimilarity(): Promise<StaticSimilarity> {
 
 export async function loadStaticMetadata(writingTradition = 'Chinese'): Promise<MetadataResponse> {
   const response = await fetch(`${import.meta.env.BASE_URL}demo/meta.json`)
-  if (!response.ok) throw new Error('无法加载静态元数据')
+  if (!response.ok) throw new Error(uiText("无法加载静态元数据"))
   const legacy = await response.json() as MetadataResponse
   if (writingTradition === 'Chinese') return legacy
   const fonts = (await fontCatalog()).filter((f) => writingTradition === '*' || f.writing_tradition === writingTradition)

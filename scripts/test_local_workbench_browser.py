@@ -2,7 +2,6 @@
 import argparse
 from io import BytesIO
 import json
-import os
 from queue import Empty, Queue
 from subprocess import PIPE, Popen
 from threading import Thread
@@ -34,17 +33,7 @@ def verify_windows_font(data):
     assert gdi.RemoveFontMemResourceEx(handle)
 
 
-def exercise_workbench(page, *, installed_windows=False, verify_gdi=False):
-    if installed_windows:
-        page.get_by_role("button", name="文档", exact=True).click()
-        expect(page.get_by_label("文档", exact=True)).to_be_disabled()
-        expect(page.get_by_text("首次启动会联网安装依赖。", exact=False)).to_be_visible()
-        page.get_by_role("button", name="启动 Companion", exact=True).click()
-        result = page.locator(".companion-controls").get_by_text("Companion 已就绪", exact=False).or_(
-            page.locator(".companion-controls").get_by_role("alert")
-        )
-        expect(result).to_be_visible(timeout=380000)
-        assert "Companion 已就绪" in result.inner_text(), result.inner_text()
+def exercise_workbench(page, *, verify_gdi=False):
     page.get_by_role("button", name="素材", exact=True).click()
     page.get_by_label("原图", exact=True).set_input_files({
         "name": "fixture.png", "mimeType": "image/png", "buffer": fixture(),
@@ -67,7 +56,7 @@ def exercise_workbench(page, *, installed_windows=False, verify_gdi=False):
             assert set(font.getBestCmap()) == {32, ord("日")}
         assert json.loads(font_package.read("attribution.json"))["missing"] == ["月"]
         assert {"CalligraCollection-Regular.otf", "CalligraCollection-Regular.woff2"}.issubset(font_package.namelist())
-    if installed_windows or verify_gdi:
+    if verify_gdi:
         verify_windows_font(data)
     page.get_by_role("button", name="文档", exact=True).click()
     page.get_by_label("字体文件", exact=True).set_input_files({
@@ -110,9 +99,8 @@ def main():
     args = parser.parse_args()
     url = urlsplit(args.url)
     origin = f"{url.scheme}://{url.netloc}"
-    env = {key: value for key, value in os.environ.items() if key != "CALLIGRA_MANAGED_TOKEN"}
     with Popen([sys.executable, "-I", str(ROOT / "apps/api/launch_companion.py"),
-                "--origin", origin, "--port", "0"], stdout=PIPE, text=True, env=env) as server:
+                "--origin", origin, "--port", "0"], stdout=PIPE, text=True) as server:
         try:
             lines = Queue()
             Thread(target=lambda: [lines.put(line) for line in server.stdout], daemon=True).start()
