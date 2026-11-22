@@ -4,11 +4,16 @@ import { initialCandidates, resolveCharacters, type CandidateSource } from '../.
 import { JapaneseFontFallback, JapaneseFontSelect } from './JapaneseFontSelect'
 import { SourcePolicyControls } from './SourcePolicyControls'
 import { DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
-import { layoutText, placeGlyph, textLines } from '../../lib/composition'
+import { layoutText, placeGlyph, textLines, validLayoutDimensions } from '../../lib/composition'
 import { useEditorStore } from '../../stores/editor'
-import type { BatchLayout, Glyph } from '../../types'
+import type { BatchLayout, CompositionSettings, Glyph } from '../../types'
 import { Button } from '../ui'
 import { installedPacks } from '../../lib/privateLibrary'
+
+const DEFAULT_SETTINGS: CompositionSettings = {
+  layout: 'vertical-rtl', columns: 5, size: 160, gap: 12, margin: 64,
+  punctuation: false, style: '行书', source: 'fonts', policy: DEFAULT_POLICY,
+}
 
 export function BatchComposer({ active }: { active: boolean }) {
   const projectText = useEditorStore((s) => s.project.text)
@@ -56,14 +61,14 @@ export function BatchComposer({ active }: { active: boolean }) {
     }
   }, [text, projectText])
   useEffect(() => {
-    setLayout(settings?.layout ?? 'vertical-rtl')
-    setColumns(settings?.columns ?? 5)
-    setSize(settings?.size ?? 160)
-    setGap(settings?.gap ?? 12)
-    setMargin(settings?.margin ?? 64)
-    setPunctuation(settings?.punctuation ?? false)
-    setStyle(settings?.style ?? '行书')
-    setSource(settings?.source ?? 'fonts')
+    setLayout(settings?.layout ?? DEFAULT_SETTINGS.layout)
+    setColumns(settings?.columns ?? DEFAULT_SETTINGS.columns)
+    setSize(settings?.size ?? DEFAULT_SETTINGS.size)
+    setGap(settings?.gap ?? DEFAULT_SETTINGS.gap)
+    setMargin(settings?.margin ?? DEFAULT_SETTINGS.margin)
+    setPunctuation(settings?.punctuation ?? DEFAULT_SETTINGS.punctuation)
+    setStyle(settings?.style ?? DEFAULT_SETTINGS.style)
+    setSource(settings?.source ?? DEFAULT_SETTINGS.source)
     setPolicy(settings?.policy || DEFAULT_POLICY)
   }, [settings])
   const count = textLines(text, punctuation).flat().length
@@ -74,7 +79,12 @@ export function BatchComposer({ active }: { active: boolean }) {
   function saveFontPreference(nextPolicy: CandidatePolicy, nextSource = source) {
     setPolicy(nextPolicy)
     setSource(nextSource)
-    setComposition(settingsFor(nextPolicy, nextSource))
+    const next = settingsFor(nextPolicy, nextSource)
+    if (validLayoutDimensions(next)) setComposition(next)
+    else {
+      setComposition({ ...(settings ?? DEFAULT_SETTINGS), policy: nextPolicy, source: nextSource })
+      setStatus('字体偏好已保存，排版数值已恢复为上次的有效设置。')
+    }
   }
   function updatePolicy(next: CandidatePolicy) {
     if (next.writing_tradition !== policy.writing_tradition) saveFontPreference(next, 'fonts')

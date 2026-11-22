@@ -23,6 +23,7 @@ def exercise_font_selection(page):
     tradition = composer.get_by_label("Tradition", exact=True)
     tradition.select_option("Chinese")
     tradition.select_option("Japanese")
+    composer.get_by_role("button", name="竖排", exact=True).click()
     font = composer.get_by_label("字体", exact=True)
     expect(font).to_be_enabled()
     expect(font).to_have_value("")
@@ -67,13 +68,19 @@ def exercise_font_selection(page):
         project = compose("骨あカ", "已排入 3 字")
         assert project["composition"]["policy"]["font_id"] == font_id
         evidence[font_id] = validate_fonts(project, "骨あカ", [font_id] * 3)
-    assert len({tuple(glyphs) for glyphs in evidence.values()}) == len(MODERN)
+    assert len({glyphs[1] for glyphs in evidence.values()}) == len(MODERN)
 
     # Restore an actual selected family before composing again. A v0.8.0 project
     # had the same schema, but carried no font preference.
     reopen(project)
     expect(font).to_have_value("klee-one")
     assert save()["glyphs"] == project["glyphs"]
+    composer.get_by_label("每行或列字数").fill("")
+    font.select_option("yuji-boku")
+    preference_only = save()
+    assert preference_only["composition"]["policy"]["font_id"] == "yuji-boku"
+    assert preference_only["composition"]["columns"] == project["composition"]["columns"]
+    assert preference_only["glyphs"] == project["glyphs"]
     legacy = {**project, "composition": {**project["composition"],
               "policy": {"writing_tradition": "Japanese", "locale": "ja-JP", "mode": "strict"}}}
     reopen(legacy)

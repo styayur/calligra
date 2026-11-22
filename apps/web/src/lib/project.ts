@@ -1,4 +1,5 @@
 import type { ProjectDocument } from '../types'
+import { validLayoutDimensions } from './composition'
 import { codepoints, migrateGlyph } from './identity'
 
 export function validateProject(value: unknown): ProjectDocument {
@@ -21,16 +22,7 @@ export function validateProject(value: unknown): ProjectDocument {
       !['fonts', 'original', 'all', 'fallback', 'private'].includes(c.source) ||
       typeof c.style !== 'string' ||
       typeof c.punctuation !== 'boolean' ||
-      ![c.columns, c.size, c.gap, c.margin].every(Number.isFinite) ||
-      !Number.isInteger(c.columns) ||
-      c.columns < 1 ||
-      c.columns > 30 ||
-      c.size < 40 ||
-      c.size > 400 ||
-      c.gap < 0 ||
-      c.gap > 160 ||
-      c.margin < 0 ||
-      c.margin > 300
+      !validLayoutDimensions(c)
     )
       throw new Error('项目排版参数无效')
     if (c.policy) {
