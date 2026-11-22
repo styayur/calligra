@@ -1,12 +1,27 @@
-# Calligra
+<h1 align="center">
+  <img src="apps/web/public/icons/calligra-192.png" alt="" width="40" height="40"><br>
+  Calligra
+</h1>
 
-![Calligra bird track](docs/assets/brand/logo.svg)
+<p align="center">An open-source East Asian calligraphy workbench for composing, restoring and publishing calligraphic works.</p>
 
-An open-source East Asian calligraphy workbench for composing, restoring and publishing calligraphic works.
+<p align="center">
+  <a href="https://styayur.github.io/calligra/"><img src="https://img.shields.io/badge/Web-Open-345747" alt="Open web app"></a>
+  <a href="https://github.com/styayur/calligra/releases/latest"><img src="https://img.shields.io/github/v/release/styayur/calligra?label=Release" alt="Latest release"></a>
+  <a href="https://github.com/styayur/calligra/actions/workflows/ci.yml?query=branch%3Amain"><img src="https://github.com/styayur/calligra/actions/workflows/ci.yml/badge.svg?branch=main" alt="Verify"></a>
+</p>
 
-[简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Open Calligra](https://styayur.github.io/calligra/) · [Downloads](https://github.com/styayur/calligra/releases/latest)
+<p align="center">
+  <a href="README.zh-CN.md">简体中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a>
+</p>
 
-![Calligra workbench with a vertical Japanese composition](docs/japanese-workbench.png)
+## Examples
+
+[![Vertical Hangul calligraphy](docs/assets/screenshots/korean-vertical.png)](docs/assets/screenshots/korean-vertical.png)
+
+| Chinese cursive long scroll | Vertical Japanese kana |
+| :---: | :---: |
+| [![Chinese cursive long scroll](docs/assets/screenshots/chinese-long-scroll.png)](docs/assets/screenshots/chinese-long-scroll.png) | [![Vertical Japanese kana](docs/assets/screenshots/japanese-kana.png)](docs/assets/screenshots/japanese-kana.png) |
 
 ## Make a work
 
