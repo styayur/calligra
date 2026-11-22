@@ -1,5 +1,8 @@
 """Export real artwork and inspect the hybrid PDF object, image and Unicode layers."""
 import argparse
+from base64 import b64decode
+from hashlib import sha256
+from io import BytesIO
 import json
 from pathlib import Path
 from time import monotonic
@@ -47,6 +50,19 @@ def save_project(page):
 
 def exercise(page, url, out):
     assert page.locator('.brand-mark img').get_attribute('src').endswith('/icons/calligra.svg')
+    icon_receipts = {}
+    with urlopen(url + "manifest.webmanifest", timeout=10) as manifest:
+        for icon in json.load(manifest)["icons"]:
+            with urlopen(url + icon["src"], timeout=10) as response:
+                raw = response.read()
+            bitmap = Image.open(BytesIO(raw)).convert("RGBA")
+            width, height = map(int, icon["sizes"].split("x"))
+            assert bitmap.size == (width, height)
+            mark = bitmap.crop((width // 4, height // 4, width * 3 // 4, height * 3 // 4))
+            assert any(pixel[1] > pixel[0] and pixel[1] > pixel[2] and pixel[3] > 240
+                       for pixel in mark.get_flattened_data())
+            icon_receipts[icon["sizes"]] = sha256(raw).hexdigest()
+    assert set(icon_receipts) == {"192x192", "512x512"}
     composer = page.locator(".composer")
     composer.get_by_label("集字模式", exact=True).select_option("Japanese")
     composer.get_by_label("字体", exact=True).select_option("yuji-boku")
@@ -130,8 +146,6 @@ def exercise(page, url, out):
     assert all(pdf_objects(item, "/Form") and not pdf_objects(item, "/Image") for item in scroll.pages)
     assert all("attribution.json" in item.attachments for item in (reader, scroll))
     png = roll.locator(".roll-page canvas").first.evaluate("(canvas) => canvas.toDataURL()")
-    from base64 import b64decode
-    from io import BytesIO
     preview = ink_bounds(Image.open(BytesIO(b64decode(png.split(",", 1)[1]))))
     exported = PdfDocument(roll_path)[0].render(scale=1 / .75).to_pil()
     pdf_bounds = ink_bounds(exported)
@@ -140,6 +154,9 @@ def exercise(page, url, out):
     roll.get_by_label("长卷内容", exact=True).fill("\n".join(["日かな12月"] * 60))
     roll.get_by_role("button", name="自动生成长卷", exact=True).click()
     expect(roll.get_by_role("status")).to_contain_text("30 页", timeout=60_000)
+    runtime = page.context.new_cdp_session(page)
+    runtime.send("HeapProfiler.collectGarbage")
+    heap_before = runtime.send("Runtime.getHeapUsage")["usedSize"]
     large_start = monotonic()
     roll.get_by_role("button", name="导出多页 PDF", exact=True).click()
     roll.get_by_role("button", name="取消当前任务", exact=True).click()
@@ -149,12 +166,17 @@ def exercise(page, url, out):
     large = out / "scroll-30.pdf"
     export.value.save_as(large)
     assert len(PdfReader(large).pages) == 30 and large.stat().st_size < 2_000_000
+    runtime.send("HeapProfiler.collectGarbage")
+    heap_delta = runtime.send("Runtime.getHeapUsage")["usedSize"] - heap_before
+    assert heap_delta < 32 * 1024 * 1024, heap_delta
+    runtime.detach()
     return {"artwork_vectors": len(vectors), "historical_pixels": [asset["width"], asset["height"]],
             "effective_dpi": layout["minimumDpi"], "scroll_pages": len(scroll.pages),
             "ivs_retained": True, "scroll_preview_bounds": preview, "scroll_pdf_bounds": pdf_bounds,
             "artwork_bytes": artwork.stat().st_size, "scroll_bytes": roll_path.stat().st_size,
             "large_scroll_pages": 30, "cancelled_and_retried": True,
-            "large_scroll_bytes": large.stat().st_size, "large_scroll_seconds": round(monotonic() - large_start, 2)}
+            "large_scroll_bytes": large.stat().st_size, "large_scroll_seconds": round(monotonic() - large_start, 2),
+            "retained_js_heap_delta": heap_delta, "pwa_icon_checksums": icon_receipts}
 
 
 def main():

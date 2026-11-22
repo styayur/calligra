@@ -32,7 +32,9 @@ export async function parseGlyphPack(file: File): Promise<{ pack: GlyphPack; gly
   const project = validateProject({
     version: 2,
     canvas: { width: 100, height: 100, background: '#ffffff' },
-    glyphs: value.glyphs.map((glyph: Glyph, index: number) => ({ ...glyph, id: String(index), glyph_id: String(index) })),
+    glyphs: value.glyphs.map((glyph: Glyph, index: number) => ({
+      ...glyph, id: String(index), glyph_id: String(index), textRange: undefined,
+    })),
   })
   const glyphs = new Map<string, PackedGlyph>()
   for (const glyph of project.glyphs) {

@@ -3,7 +3,7 @@ import argparse
 from io import BytesIO
 import json
 from queue import Empty, Queue
-from subprocess import PIPE, Popen
+from subprocess import DEVNULL, PIPE, Popen, run
 from threading import Thread
 from urllib.parse import urlsplit
 from pathlib import Path
@@ -120,16 +120,19 @@ def exercise_workbench(page, *, verify_gdi=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", required=True)
+    parser.add_argument("--windows-launcher", action="store_true")
     args = parser.parse_args()
     url = urlsplit(args.url)
     origin = f"{url.scheme}://{url.netloc}"
-    with Popen([sys.executable, "-I", str(ROOT / "apps/api/launch_companion.py"),
-                "--origin", origin, "--port", "0"], stdout=PIPE, text=True) as server:
+    command = (["pwsh", "-NoProfile", "-File", str(ROOT / "scripts/start_companion.ps1")]
+               if args.windows_launcher else [sys.executable, "-I", str(ROOT / "apps/api/launch_companion.py")])
+    with Popen([*command, "--origin", origin, "--port", "0"], stdout=PIPE, text=True) as server:
         try:
             lines = Queue()
             Thread(target=lambda: [lines.put(line) for line in server.stdout], daemon=True).start()
             try:
-                assert lines.get(timeout=15).startswith("CALLIGRA_READY ")
+                while not lines.get(timeout=90 if args.windows_launcher else 15).startswith("CALLIGRA_READY "):
+                    assert server.poll() is None, "The local Companion launcher exited during setup"
                 code = lines.get(timeout=15).strip().removeprefix("Calligra connection code: ")
                 assert len(code.split(":")[1]) == 64
             except Empty:
@@ -151,7 +154,10 @@ def main():
                 exercise_workbench(page, verify_gdi=sys.platform == "win32")
                 browser.close()
         finally:
-            server.terminate()
+            if args.windows_launcher and server.poll() is None:
+                run(["taskkill", "/PID", str(server.pid), "/T", "/F"], stdout=DEVNULL, check=True)
+            elif server.poll() is None:
+                server.terminate()
             server.wait(timeout=8)
     print("PASS: local scan, installed glyph, TTF/OTF/WOFF2 packaging, and DOCX and ODT conversion")
 

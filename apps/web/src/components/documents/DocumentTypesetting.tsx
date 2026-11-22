@@ -106,7 +106,8 @@ export function DocumentTypesetting({ createdFont }: { createdFont?: File }) {
     }
   }
 
-  const ready = companion.ready && input && (style !== 'uploaded' || uploaded)
+  const ready = companion.ready && companion.documents && (scope !== 'body' || companion.document_body_scope) &&
+    input && (style !== 'uploaded' || uploaded)
   return <main className="materials-workspace studio-tool panel-scroll">
     <section>
       <h1>{uiText("文档排版")}</h1>
@@ -127,8 +128,11 @@ export function DocumentTypesetting({ createdFont }: { createdFont?: File }) {
           <label>{uiText('替换范围')}<select value={scope} onChange={(event) => { setScope(event.target.value); setReport(undefined) }}>
             <option value="all">{uiText('标题与正文')}</option>
             <option value="headings">{uiText('仅标题')}</option>
-            <option value="body">{uiText('仅正文')}</option>
+            <option value="body" disabled={!companion.document_body_scope}>{uiText('仅正文')}</option>
           </select></label>
+          {companion.ready && !companion.document_body_scope && <p className="field-hint">
+            {uiText('仅正文替换需要 v0.11.0 的 Companion。')}
+          </p>}
           <label className="check-field"><input type="checkbox" checked={han} onChange={(event) => { setHan(event.target.checked); setReport(undefined) }} />{uiText("仅汉字")}</label>
           <label>{uiText("段落编号")}<input value={paragraphs} maxLength={1000} placeholder={uiText("留空处理所选范围内的所有段落")} onChange={(event) => { setParagraphs(event.target.value); setReport(undefined) }} /></label>
           {kind === 'docx' && <label>{uiText("原字体")}<input value={originalFont} maxLength={120} placeholder={uiText("仅匹配明确指定的字体")} onChange={(event) => { setOriginalFont(event.target.value); setReport(undefined) }} /></label>}

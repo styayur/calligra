@@ -40,7 +40,8 @@ def main():
                         sleep(0.15)
                 run([sys.executable, "scripts/test_pwa_browser.py", "--url", URL,
                      "--output", "work/pwa-windows.json"], check=True, timeout=240)
-                run([sys.executable, "scripts/test_local_workbench_browser.py", "--url", URL], check=True, timeout=240)
+                run([sys.executable, "scripts/test_local_workbench_browser.py", "--url", URL, "--windows-launcher"],
+                    check=True, timeout=240)
                 run([sys.executable, "scripts/test_windows_migration.py", "--exe", str(executable),
                      "--url", URL, "--output", "work/windows-migration.json"], check=True, timeout=240)
             finally:

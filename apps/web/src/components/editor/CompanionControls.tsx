@@ -45,7 +45,7 @@ export function CompanionControls({ onStatus }: { onStatus: (value: CompanionSta
       <button type="button" disabled={connecting || !code.trim()} onClick={() => void connect()}>
         {connecting ? uiText("正在连接 Companion…") : uiText("连接 Companion")}
       </button>
-      <a href={guideUrl('#companion')} target="_blank" rel="noreferrer">{uiText('安装和启动 Companion')}</a>
+      <a href={guideUrl('#local')} target="_blank" rel="noreferrer">{uiText('安装和启动 Companion')}</a>
     </div>}
     {status.ready && <>
       <p className="field-hint">{uiText("字体编译与文档转换可用。PDF")} {status.pdf ? uiText("可用") : uiText("未配置")}{uiText("，实验 OCR")} {status.ocr ? uiText("可用") : uiText("未配置")}。</p>

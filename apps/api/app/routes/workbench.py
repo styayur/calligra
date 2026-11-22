@@ -46,6 +46,7 @@ def status(request: Request):
     return JSONResponse({
         "ready": True,
         "protocol": 1,
+        "document_body_scope": True,
         "fonts": True,
         "documents": True,
         "pdf": bool(settings.libreoffice_path and settings.libreoffice_path.is_file()),

@@ -723,5 +723,6 @@
   "字体许可证无法读取": "Could not load the font licence",
   "使用 LibreOffice 导出前，请先在系统安装所选字体。": "Install the selected font on this computer before exporting with LibreOffice.",
   "在办公软件中查看替换效果前，请先安装所选字体。": "Install the selected font to see the changes in your office application.",
-  "下载字体与许可证": "Download font and licence"
+  "下载字体与许可证": "Download font and licence",
+  "仅正文替换需要 v0.11.0 的 Companion。": "Body-only replacement needs the v0.11.0 Companion."
 }
