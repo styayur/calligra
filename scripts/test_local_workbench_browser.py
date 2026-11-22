@@ -129,7 +129,7 @@ def main():
         finally:
             server.terminate()
             server.wait(timeout=8)
-    print("PASS: local scan → installed Glyph → TTF/OTF/WOFF2 packaging → DOCX and ODT from the workbench")
+    print("PASS: local scan, installed glyph, TTF/OTF/WOFF2 packaging, and DOCX and ODT conversion")
 
 
 if __name__ == "__main__":

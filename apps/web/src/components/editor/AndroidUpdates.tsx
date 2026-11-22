@@ -1,6 +1,6 @@
 import { uiText } from "../../i18n"
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type CheckedRelease = { available: false } | {
   available: true
@@ -30,6 +30,7 @@ function UpdateControls() {
   const [offer, setOffer] = useState<Extract<CheckedRelease, { available: true }> | null>(null)
   const [verified, setVerified] = useState(false)
   const [visible, setVisible] = useState(false)
+  const dialog = useRef<HTMLDialogElement>(null)
   const [busy, setBusy] = useState(false)
   const [status, setStatus] = useState('')
 
@@ -55,6 +56,12 @@ function UpdateControls() {
     }
   }, [reminders])
 
+  useEffect(() => {
+    const panel = dialog.current
+    if (visible && panel && !panel.open) panel.showModal()
+    else if (!visible && panel?.open) panel.close()
+  }, [visible])
+
   async function download() {
     setBusy(true)
     setStatus(uiText("正在下载并校验官方 APK…"))
@@ -78,8 +85,10 @@ function UpdateControls() {
   }
 
   return <div className="mode-secondary">
-    <button type="button" aria-expanded={visible} onClick={() => setVisible((shown) => !shown)}>{uiText("应用更新")}</button>
-    {visible && <section className="android-updates" aria-label={uiText("应用更新")}>
+    <button type="button" aria-expanded={visible} onClick={() => setVisible(true)}>{uiText("应用更新")}</button>
+    <dialog ref={dialog} onClose={() => setVisible(false)} className="android-updates"
+      aria-labelledby="android-update-title">
+      <h2 id="android-update-title">{uiText("应用更新")}</h2>
       <button type="button" disabled={busy} onClick={() => void check(false)}>{uiText("检查正式更新")}</button>
       <label className="check-field"><input type="checkbox" checked={reminders} disabled={busy}
         onChange={(event) => {
@@ -96,6 +105,7 @@ function UpdateControls() {
           : <button type="button" disabled={busy} onClick={() => void download()}>{uiText("下载并校验 APK")}</button>}
       </>}
       {status && <p role="status">{status}</p>}
-    </section>}
+      <button type="button" onClick={() => setVisible(false)}>{uiText("关闭 / Close")}</button>
+    </dialog>
   </div>
 }

@@ -1215,5 +1215,7 @@ input[type='checkbox'] {
 
 .mode-secondary { display: flex; gap: 4px; border-left: 1px solid #e0e5e0; padding-inline-start: 6px; }
 
-.android-updates { max-width: 32rem; padding: .75rem; }
+.android-updates { width: min(90vw, 32rem); max-height: 82dvh; padding: 1rem; border: 1px solid #d4ded6; border-radius: 8px; overflow: auto; }
+.android-updates::backdrop { background: #17211da6; }
+.android-updates h2 { font-size: 1.1rem; margin: 0 0 .5rem; }
 .release-notes { white-space: pre-wrap; max-height: 18rem; overflow: auto; overflow-wrap: anywhere; }
