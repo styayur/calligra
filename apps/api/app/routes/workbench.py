@@ -45,6 +45,9 @@ def status(request: Request):
     settings = request.app.state.settings
     return JSONResponse({
         "ready": True,
+        "protocol": 1,
+        "fonts": True,
+        "documents": True,
         "pdf": bool(settings.libreoffice_path and settings.libreoffice_path.is_file()),
         "ocr": bool(settings.ocr_model_dir and settings.ocr_model_dir.is_dir() and find_spec("tesserocr")),
     }, headers={"Cache-Control": "no-store"})
@@ -54,6 +57,12 @@ async def read_bounded(request: Request, limit: int, content_type: str):
     require_local(request)
     if request.headers.get("content-type", "").split(";")[0].lower() != content_type:
         raise HTTPException(415, "Unsupported request content type")
+    length = request.headers.get("content-length")
+    if length is not None:
+        if not length.isascii() or not length.isdecimal() or len(length) > 10:
+            raise HTTPException(400, "Invalid request content length")
+        if int(length) > limit:
+            raise HTTPException(413, "Request exceeds the local processing limit")
     data = bytearray()
     async for chunk in request.stream():
         if len(data) + len(chunk) > limit:

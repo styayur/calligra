@@ -1,48 +1,60 @@
 import { useEffect, useState } from 'react'
-import { companionStatus, localWorkbenchAvailable, managedCompanion, type CompanionStatus } from '../../api/localWorkbench'
+import { companionStatus, disconnectCompanion, localWorkbenchAvailable, managedCompanion, type CompanionStatus } from '../../api/localWorkbench'
 
 export function CompanionControls({ onStatus }: { onStatus: (value: CompanionStatus) => void }) {
-  const [ready, setReady] = useState(false)
-  const [starting, setStarting] = useState(false)
+  const [status, setStatus] = useState<CompanionStatus>({ ready: false })
+  const [code, setCode] = useState('')
+  const [connecting, setConnecting] = useState(false)
   const [failure, setFailure] = useState('')
   const available = localWorkbenchAvailable()
   const managed = managedCompanion()
 
   useEffect(() => {
     let active = true
-    if (available) void companionStatus().then((status) => {
-      if (active) { setReady(status.ready); onStatus(status) }
+    if (available) void companionStatus().then((result) => {
+      if (active) { setStatus(result); onStatus(result) }
     }).catch(() => undefined)
     return () => { active = false }
   }, [available, onStatus])
 
   const connect = async () => {
-    setStarting(true)
+    setConnecting(true)
     setFailure('')
     try {
-      const status = await companionStatus(managed)
-      setReady(status.ready)
-      onStatus(status)
+      const result = await companionStatus(managed, managed ? undefined : code)
+      setStatus(result)
+      onStatus(result)
+      if (result.ready) setCode('')
     } catch (error) {
-      setReady(false)
+      setStatus({ ready: false })
       onStatus({ ready: false })
-      setFailure(error instanceof Error ? error.message : '无法启动 Companion')
+      setFailure(error instanceof Error ? error.message : '无法连接 Companion')
     } finally {
-      setStarting(false)
+      setConnecting(false)
     }
   }
 
   return <div className="companion-controls">
     <p className="field-hint">
-      {ready ? 'Companion 已就绪，处理在本机进行。' : !available ? '此平台不运行 Companion。请在 Windows 或本机浏览器完成处理。' :
+      {status.ready ? 'Companion 已就绪，处理在本机进行。' : !available ? '请在桌面浏览器使用 Companion。' :
         managed ? '处理需要本机 Companion 和 64 位 Python 3.12 或 3.13。首次启动会联网安装依赖。' :
-          '处理需要先按教程启动本机 Companion。'}
+          '按教程启动 Companion，然后输入终端中显示的连接码。'}
     </p>
-    {available && !ready && <div className="scan-actions">
-      <button type="button" disabled={starting} onClick={() => void connect()}>
-        {starting ? '正在准备 Companion…' : managed ? '启动 Companion' : '检查 Companion 连接'}
+    {available && !status.ready && <div className="scan-actions">
+      {!managed && <label>连接码<input type="password" spellCheck={false} autoComplete="off"
+        value={code} onChange={(event) => setCode(event.target.value)} /></label>}
+      <button type="button" disabled={connecting || (!managed && !code.trim())} onClick={() => void connect()}>
+        {connecting ? '正在连接 Companion…' : managed ? '启动 Companion' : '连接 Companion'}
       </button>
     </div>}
+    {status.ready && !managed && <>
+      <p className="field-hint">字体编译与文档转换可用。PDF {status.pdf ? '可用' : '未配置'}，实验 OCR {status.ocr ? '可用' : '未配置'}。</p>
+      <button type="button" onClick={() => {
+        disconnectCompanion()
+        setStatus({ ready: false })
+        onStatus({ ready: false })
+      }}>断开连接</button>
+    </>}
     {failure && <p role="alert">{failure}</p>}
   </div>
 }

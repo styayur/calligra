@@ -1,0 +1,14 @@
+{
+  "id": "./",
+  "name": "Calligra",
+  "short_name": "Calligra",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#181512",
+  "theme_color": "#181512",
+  "icons": [
+    { "src": "icons/calligra-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/calligra-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

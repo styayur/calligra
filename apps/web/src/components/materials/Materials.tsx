@@ -1,3 +1,4 @@
+import { exportLibraryBackup, importLibraryBackup } from '../../lib/libraryBackup'
 import { useEffect, useState, type FormEvent } from 'react'
 import { cropGlyph, locateCrops, openScan, type Crop, type InkOptions } from '../../lib/extraction'
 import { sha256 } from '../../lib/fontShaper'
@@ -279,6 +280,23 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
           })
         }} /></label>
         <a href={import.meta.env.BASE_URL + 'guide/index.html#library'}>字库导入说明</a>
+      </details>
+      <details className="advanced">
+        <summary>备份与恢复个人字库</summary>
+        <p className="field-hint">备份包含个人字形、扫描原图和已安装分包，请保存在私密位置。</p>
+        <button disabled={busy} onClick={() => void run(async () => {
+          await saveFile('Calligra-private-library.json', await exportLibraryBackup())
+          setStatus('已导出个人字库备份。')
+        })}>导出个人字库备份</button>
+        <label>导入个人字库备份<input type="file" accept=".json" disabled={busy} onChange={(event) => {
+          const input = event.target.files?.[0]
+          event.target.value = ''
+          if (input) void run(async () => {
+            const count = await importLibraryBackup(input)
+            await refresh()
+            setStatus('已恢复字库备份，共 ' + count + ' 个字形。')
+          })
+        }} /></label>
       </details>
       <label>查找个人字形<input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="字、书家、书体、作品或年代" /></label>
       <p className="field-hint">{available.length} 个字形 · {new Set(available.map((glyph) => glyph.character)).size} 个不同字</p>

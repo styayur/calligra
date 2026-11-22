@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { GlyphCanvas } from './canvas/GlyphCanvas'
+import { AndroidUpdates } from './components/editor/AndroidUpdates'
+import { OfflineControls } from './components/editor/OfflineControls'
 import { Toolbar } from './components/editor/Toolbar'
 import { BatchComposer } from './components/glyph-browser/BatchComposer'
 import { GlyphBrowser } from './components/glyph-browser/GlyphBrowser'
@@ -152,6 +154,8 @@ export default function App() {
             素材
           </button>
         </div>
+        <OfflineControls />
+        <AndroidUpdates />
       </nav>
       <nav className={mode === 'studio' ? 'mobile-nav' : 'hidden'} aria-label="工作区">
         <button aria-pressed={mobilePanel === 'edit'} onClick={() => setMobilePanel('edit')}>

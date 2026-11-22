@@ -178,3 +178,81 @@ export function removeGlyphPack(id: string) {
     }
   })
 }
+
+
+export interface LibraryContents {
+  glyphs: Glyph[]
+  scans: { checksum: string; file: Blob }[]
+  packs: GlyphPack[]
+  packedGlyphs: PackedGlyph[]
+}
+const backupStores = ['glyphs', 'scans', 'packs', 'packedGlyphs']
+
+export async function snapshotLibrary(): Promise<LibraryContents> {
+  const db = await openLibrary()
+  try {
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(backupStores)
+      const glyphs = tx.objectStore('glyphs').getAll()
+      const scans = tx.objectStore('scans')
+      const files = scans.getAll()
+      const keys = scans.getAllKeys()
+      const packs = tx.objectStore('packs').getAll()
+      const packed = tx.objectStore('packedGlyphs').getAll()
+      tx.onabort = () => reject(tx.error)
+      tx.oncomplete = () => resolve({
+        glyphs: glyphs.result,
+        scans: files.result.map((file, index) => ({ checksum: String(keys.result[index]), file })),
+        packs: packs.result,
+        packedGlyphs: packed.result,
+      })
+    })
+  } finally {
+    db.close()
+  }
+}
+
+/** Merge a validated snapshot. Any conflicting ID aborts the entire write. */
+export async function restoreLibrary(contents: LibraryContents): Promise<void> {
+  const db = await openLibrary()
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(backupStores, 'readwrite')
+      let conflict = false
+      tx.oncomplete = () => resolve()
+      tx.onabort = () => reject(conflict
+        ? new Error('备份与现有字库存在冲突，未写入任何记录。')
+        : tx.error ?? new Error('个人字库恢复失败'))
+      const merge = (store: IDBObjectStore, id: string, value: Glyph | GlyphPack | Blob) => {
+        const existing = store.get(id)
+        existing.onsuccess = () => {
+          if (existing.result === undefined) {
+            if (store.keyPath) store.add(value)
+            else store.add(value, id)
+          } else if (!(value instanceof Blob) && JSON.stringify(existing.result) !== JSON.stringify(value)) {
+            conflict = true
+            tx.abort()
+          }
+          // Scan keys have already been validated against the original bytes.
+        }
+      }
+      for (const item of contents.glyphs) merge(tx.objectStore('glyphs'), item.id, item)
+      for (const scan of contents.scans) merge(tx.objectStore('scans'), scan.checksum, scan.file)
+      const installed = tx.objectStore('packs').getAll()
+      installed.onsuccess = () => {
+        const names = new Map<string, string>(installed.result.map((pack) => [pack.name, pack.id]))
+        for (const pack of contents.packs) {
+          if (names.has(pack.name) && names.get(pack.name) !== pack.id) {
+            conflict = true
+            tx.abort()
+            return
+          }
+          merge(tx.objectStore('packs'), pack.id, pack)
+        }
+      }
+      for (const item of contents.packedGlyphs) merge(tx.objectStore('packedGlyphs'), item.id, item)
+    })
+  } finally {
+    db.close()
+  }
+}

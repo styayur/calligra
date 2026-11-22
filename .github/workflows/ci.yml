@@ -97,6 +97,7 @@ jobs:
           python scripts/test_historical_page_browser.py --url http://127.0.0.1:5178 --output work/historical-page.json
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5178 --output work/japanese-fonts-web.json --screenshot work/japanese-font-selection.png
           python scripts/test_korean_browser.py --url http://127.0.0.1:5178 --output work/korean-fonts-web.json
+          python scripts/test_pwa_browser.py --url http://127.0.0.1:5178/ --output work/pwa-linux.json
       - uses: actions/upload-artifact@v7
         with:
           name: web-japanese-font-evidence
@@ -104,6 +105,7 @@ jobs:
             work/japanese-fonts-web.json
             work/korean-fonts-web.json
             work/japanese-font-selection.png
+            work/pwa-linux.json
           if-no-files-found: error
 
   windows:
@@ -177,7 +179,7 @@ jobs:
           npm --prefix apps/web run cap:sync
           cd apps/web/android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew testDebugUnitTest assembleRelease
           python ../../../scripts/validate_package.py --apk app/build/outputs/apk/release/app-release.apk
           python ../../../scripts/validate_android_release.py --apk app/build/outputs/apk/release/app-release.apk --allow-preview
       - uses: actions/setup-python@v7

@@ -1214,3 +1214,6 @@ input[type='checkbox'] {
 }
 
 .mode-secondary { display: flex; gap: 4px; border-left: 1px solid #e0e5e0; padding-inline-start: 6px; }
+
+.android-updates { max-width: 32rem; padding: .75rem; }
+.release-notes { white-space: pre-wrap; max-height: 18rem; overflow: auto; overflow-wrap: anywhere; }
