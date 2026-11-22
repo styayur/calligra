@@ -50,7 +50,7 @@ def status(request: Request):
         "documents": True,
         "pdf": bool(settings.libreoffice_path and settings.libreoffice_path.is_file()),
         "ocr": bool(models),
-        "ocr_models": models,
+        **({"ocr_models": models} if models else {}),
     }, headers={"Cache-Control": "no-store"})
 
 

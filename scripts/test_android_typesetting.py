@@ -50,6 +50,7 @@ def run(output):
         tap(downloads)
         fixture = wait_for({FIXTURE}, 30)[1]
     tap(fixture)
+    wait_for({"Project opened", "项目已载入"}, 40)
     tap(wait_for({"Generate", "生成作品"}, 50, button=True)[1])
     deadline = time.monotonic() + 70
     while time.monotonic() < deadline:
