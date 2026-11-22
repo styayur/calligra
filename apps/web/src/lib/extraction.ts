@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 export interface Crop {
   x: number
   y: number
@@ -46,7 +47,7 @@ function background(image: Pixels) {
 
 export function inkMask(image: Pixels, { polarity, threshold, mode }: InkOptions, paper = background(image)): Uint8Array {
   if (!Number.isFinite(threshold) || threshold < 0 || threshold > 100)
-    throw new Error('阈值必须在 0 至 100 之间')
+    throw new Error(uiText("阈值必须在 0 至 100 之间"))
   const lightInk = polarity === 'light' || (polarity === 'auto' && paper < 128)
   const contrast = Math.max(24, lightInk ? 255 - paper : paper)
   const floor = threshold / 100
@@ -163,16 +164,16 @@ function imageDimensions(bytes: Uint8Array): [number, number] | undefined {
 }
 
 export async function openScan(file: File) {
-  if (!file.size || file.size > 16 * 1024 * 1024) throw new Error('图像文件上限为 16 MiB')
+  if (!file.size || file.size > 16 * 1024 * 1024) throw new Error(uiText("图像文件上限为 16 MiB"))
   const bytes = new Uint8Array(await file.arrayBuffer())
   const dimensions = imageDimensions(bytes)
-  if (!dimensions) throw new Error('请选择有效的 PNG、JPEG 或静态 WebP')
+  if (!dimensions) throw new Error(uiText("请选择有效的 PNG、JPEG 或静态 WebP"))
   const valid = (width: number, height: number) =>
     width > 0 && height > 0 && width <= 8192 && height <= 8192 && width * height <= 16_000_000
-  if (!valid(...dimensions)) throw new Error('图像上限为 1600 万像素，单边不超过 8192 像素')
+  if (!valid(...dimensions)) throw new Error(uiText("图像上限为 1600 万像素，单边不超过 8192 像素"))
   const bitmap = await createImageBitmap(file)
   try {
-    if (!valid(bitmap.width, bitmap.height)) throw new Error('图像尺寸超出上限')
+    if (!valid(bitmap.width, bitmap.height)) throw new Error(uiText("图像尺寸超出上限"))
     const canvas = document.createElement('canvas')
     canvas.width = bitmap.width
     canvas.height = bitmap.height
@@ -188,9 +189,9 @@ export function cropGlyph(source: CanvasRenderingContext2D, box: Crop, options: 
   if (!Object.values(box).every(Number.isSafeInteger) || box.x < 0 || box.y < 0 ||
       box.width < 1 || box.height < 1 || box.x + box.width > source.canvas.width ||
       box.y + box.height > source.canvas.height || box.width * box.height > 4_000_000)
-    throw new Error('切框必须位于原图内，且单字不超过 400 万像素')
+    throw new Error(uiText("切框必须位于原图内，且单字不超过 400 万像素"))
   if (!Number.isInteger(options.padding) || options.padding < 0 || options.padding > 256)
-    throw new Error('留白必须在 0 至 256 像素之间')
+    throw new Error(uiText("留白必须在 0 至 256 像素之间"))
   const input = source.getImageData(box.x, box.y, box.width, box.height)
   const output = document.createElement('canvas')
   if (options.mode === 'original') {
@@ -206,7 +207,7 @@ export function cropGlyph(source: CanvasRenderingContext2D, box: Crop, options: 
   const paper = background(source.getImageData(left, top, right - left, bottom - top))
   const mask = inkMask(input, options, paper)
   const bounds = inkBounds(mask, input.width, { x: 0, y: 0, width: input.width, height: input.height })
-  if (!bounds) throw new Error('切框内没有可用墨迹，请调整阈值或墨迹极性')
+  if (!bounds) throw new Error(uiText("切框内没有可用墨迹，请调整阈值或墨迹极性"))
   const padding = options.padding
   output.width = bounds.width + padding * 2
   output.height = bounds.height + padding * 2

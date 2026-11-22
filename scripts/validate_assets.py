@@ -31,13 +31,13 @@ def main():
         for field in ('sha256','source_role','language','locale','writing_tradition','license','original_sha256'):
             if entry.get(field) != source.get(field): raise ValueError(f'Catalog source metadata differs: {entry["id"]}.{field}')
         if entry.get('source_role') == 'coverage-fallback':
-            if (entry.get('language'),entry.get('locale'),entry.get('writing_tradition'),entry.get('orthography')) != ('ja','ja-JP','Japanese','Japanese'):
-                raise ValueError('Coverage fallback must remain Japanese / ja-JP')
+            if (entry.get('language'),entry.get('locale'),entry.get('writing_tradition'),entry.get('orthography')) not in {('ja','ja-JP','Japanese','Japanese'), ('ko','ko-KR','Korean','Korean')}:
+                raise ValueError('Coverage fallback must retain an approved regional tradition and locale')
             if entry.get('license') != 'OFL-1.1' or not entry.get('original_sha256'):
                 raise ValueError('Coverage fallback lost upstream licence/provenance')
         data=(runtime/'fonts'/entry['path']).read_bytes()
         if hashlib.sha256(data).hexdigest()!=entry['runtime_sha256']: raise ValueError('Runtime font checksum mismatch')
-        if entry['renderer']=='harfbuzz' and hashlib.sha256(gzip.decompress(data)).hexdigest()!=entry['sha256']: raise ValueError('Source/runtime Japanese font differs')
+        if entry['renderer']=='harfbuzz' and hashlib.sha256(gzip.decompress(data)).hexdigest()!=entry['sha256']: raise ValueError('Source/runtime HarfBuzz font differs')
         if not (runtime/entry['license_text']).is_file(): raise ValueError('Missing independently bundled font licence')
     original_sample=json.loads((ROOT/'samples/japanese/historical/sample/manifest.json').read_text(encoding='utf-8'))
     for item in original_sample['assets']:
@@ -52,7 +52,7 @@ def main():
         if not (runtime/source['license_text']).is_file(): raise ValueError('Missing historical licence text')
         if hashlib.sha256((runtime/g['asset']['url']).read_bytes()).hexdigest()!=g['asset']['checksum']: raise ValueError('Historical derivative checksum mismatch')
         if g['metadata']['derivative_license']!=source['license']: raise ValueError('Derived crop relabelled')
-    for directory in ['apps/web','apps/desktop']:
+    for directory in ['apps/web']:
         if json.loads((ROOT/directory/'package.json').read_text(encoding='utf-8'))['version']!=manifest['release']: raise ValueError('Platform release mismatch')
     if tomllib.loads((ROOT/'apps/api/pyproject.toml').read_text(encoding='utf-8'))['project']['version'] != manifest['release']: raise ValueError('API release mismatch')
     android=(ROOT/'apps/web/android/app/build.gradle').read_text(encoding='utf-8')

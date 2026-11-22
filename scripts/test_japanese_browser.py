@@ -18,7 +18,7 @@ def main():
     out=Path(__file__).resolve().parents[1]/'work'; out.mkdir(exist_ok=True)
     with sync_playwright() as playwright:
         browser=playwright.chromium.launch(headless=True)
-        page=browser.new_page(viewport={'width':1440,'height':1000},accept_downloads=True)
+        page=browser.new_page(locale='zh-CN', viewport={'width':1440,'height':1000},accept_downloads=True)
         errors=[]; page.on('pageerror',lambda e:errors.append(str(e)))
         # Offline means only package-local requests. No CDN, fonts API or mandatory cloud.
         page.route('**/*',lambda route: route.continue_() if route.request.url.startswith(args.url) or route.request.url.startswith('data:') else route.abort())

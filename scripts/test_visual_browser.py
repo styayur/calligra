@@ -15,7 +15,7 @@ out=Path(__file__).resolve().parents[1]/'work'
 out.mkdir(exist_ok=True)
 with sync_playwright() as p:
     browser=p.chromium.launch(headless=True,channel=args.channel)
-    page=browser.new_page(viewport={'width':1440,'height':1000},accept_downloads=True)
+    page=browser.new_page(locale='zh-CN', viewport={'width':1440,'height':1000},accept_downloads=True)
     errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.goto(args.url);page.wait_for_load_state('networkidle')

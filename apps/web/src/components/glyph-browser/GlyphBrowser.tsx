@@ -1,12 +1,13 @@
+import { uiText } from "../../i18n"
 import { Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { getMetadata, searchGlyphs } from '../../api/client'
 import { fontGlyphs } from '../../api/fonts'
 import { useEditorStore } from '../../stores/editor'
 import type { Glyph, MetadataResponse } from '../../types'
-import { JapaneseFontFallback, JapaneseFontSelect } from './JapaneseFontSelect'
+import { RegionalFontFallback, RegionalFontSelect } from './RegionalFontSelect'
 import { SourcePolicyControls } from './SourcePolicyControls'
-import { DEFAULT_POLICY, candidateCompatible, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { usesRegionalFonts, DEFAULT_POLICY, candidateCompatible, type CandidatePolicy } from '../../lib/candidatePolicy'
 import { textCharacters } from '../../lib/identity'
 import { packedGlyphs, installedPacks, privateGlyphs, PRIVATE_DATASET } from '../../lib/privateLibrary'
 import { historicalSample } from '../../api/historical'
@@ -35,7 +36,7 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
   const [retry, setRetry] = useState(0)
   const [packNames, setPackNames] = useState<string[]>([])
   const addGlyph = useEditorStore((s) => s.addGlyph)
-  const japanese = policy.writing_tradition === 'Japanese'
+  const regional = usesRegionalFonts(policy.writing_tradition)
   function clearFilters() {
     setStyle('')
     setDataset('')
@@ -59,10 +60,10 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
     setLoading(true)
     const timer = setTimeout(async () => {
       const term = query.trim()
-      const effectiveStyle = japanese ? '' : style
+      const effectiveStyle = regional ? '' : style
       const fontOnly = Boolean(policy.font_id)
-      const fontPolicy = { ...policy, dataset: dataset || undefined, vertical: japanese && vertical }
-      if (dataset === 'Japanese Coverage Fonts') fontPolicy.allow_font_fallback = true
+      const fontPolicy = { ...policy, dataset: dataset || undefined, vertical: regional && vertical }
+      if (dataset === 'Japanese Coverage Fonts' || dataset === 'Korean Coverage Fonts') fontPolicy.allow_font_fallback = true
       const [library, fonts, historical, local] = await Promise.allSettled([
         fontOnly || dataset === PRIVATE_DATASET || packNames.includes(dataset)
           ? Promise.resolve({ items: [], total: 0 })
@@ -98,10 +99,10 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
       setMessage(
         library.status === 'rejected'
           ? (generated.length || privateItems.length)
-            ? '原帖服务未连接，当前显示本机字形。'
-            : '字库未连接，请检查服务，或输入单个汉字或假名查询内置字体。'
+            ? uiText("原帖服务未连接，当前显示本机字形。")
+            : uiText("字库未连接，请检查服务，或输入单个字查询内置字体。")
           : fonts.status === 'rejected'
-            ? '内置字体加载失败，请重试。'
+            ? uiText("内置字体加载失败，请重试。")
             : '',
       )
       setLoading(false)
@@ -110,26 +111,26 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
       active = false
       clearTimeout(timer)
     }
-  }, [query, style, dataset, calligrapher, limit, retry, policy, visible, packNames, japanese, vertical])
+  }, [query, style, dataset, calligrapher, limit, retry, policy, visible, packNames, regional, vertical])
   return (
     <div className="glyph-browser panel-scroll">
       <div className="section-title">
-        <span>{results.length} 个结果</span>
+        <span>{results.length} {uiText("个结果")}</span>
       </div>
       <div className="search-field">
         <Search size={16} />
         <input
-          aria-label="搜索字形"
+          aria-label={uiText("搜索字形")}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value)
             setLimit(40)
           }}
-          placeholder={japanese ? '汉字、假名、书家或作品' : '汉字、书家或作品'}
+          placeholder={policy.writing_tradition === 'Korean' ? uiText("韩文、汉字、书家或作品") : regional ? uiText("汉字、假名、书家或作品") : uiText("汉字、书家或作品")}
         />
       </div>
       <div className="field-grid">
-        <label>来源类型 / Source type<select aria-label="Source type" value={policy.provenance_type || ''} onChange={(e) => setPolicy({ ...policy, provenance_type: e.target.value || undefined, font_id: e.target.value === 'font' ? policy.font_id : undefined })}><option value="">全部 / All</option><option value="font">字体 / Font</option><option value="original">原帖 / Historical original</option><option value="fallback">结构 / Structural fallback</option></select></label>
+        <label>{uiText("来源类型 / Source type")}<select aria-label="Source type" value={policy.provenance_type || ''} onChange={(e) => setPolicy({ ...policy, provenance_type: e.target.value || undefined, font_id: e.target.value === 'font' ? policy.font_id : undefined })}><option value="">{uiText("全部 / All")}</option><option value="font">{uiText("字体 / Font")}</option><option value="original">{uiText("原帖 / Historical original")}</option><option value="fallback">{uiText("结构 / Structural fallback")}</option></select></label>
       </div>
       <SourcePolicyControls policy={policy} onChange={(value) => {
         if (value.writing_tradition !== policy.writing_tradition) clearFilters()
@@ -137,43 +138,43 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
         setLimit(40)
       }} />
       <div className="field-grid">
-        {japanese ? <JapaneseFontSelect policy={policy} onChange={(next) => {
+        {regional ? <RegionalFontSelect policy={policy} onChange={(next) => {
           setPolicy(next)
           clearFilters()
         }} /> : <label>
-          书体
-          <select aria-label="书体" value={style} onChange={(e) => setStyle(e.target.value)}>
-            <option value="">全部书体</option>
-            <option>楷书</option>
-            <option>行书</option>
-            <option>草书</option>
+          {uiText("书体")}
+          <select aria-label={uiText("书体")} value={style} onChange={(e) => setStyle(e.target.value)}>
+            <option value="">{uiText("全部书体")}</option>
+            <option value="楷书">{uiText("楷书")}</option>
+            <option value="行书">{uiText("行书")}</option>
+            <option value="草书">{uiText("草书")}</option>
           </select>
         </label>}
         <label>
-          来源
+          {uiText("来源")}
           <select
-            aria-label="字库来源"
+            aria-label={uiText("字库来源")}
             disabled={!!policy.font_id}
             value={dataset}
             onChange={(e) => setDataset(e.target.value)}
           >
-            <option value="">全部字库</option>
-            {[...new Set([...(meta?.datasets || ['OFL Calligraphy Fonts']), 'Yuji Japanese Fonts', 'Klee One', 'Japanese Coverage Fonts', 'CODH Kuzushiji', PRIVATE_DATASET, ...packNames])].map((item) => (
-              <option key={item}>{item}</option>
+            <option value="">{uiText("全部字库")}</option>
+            {[...new Set([...(meta?.datasets || ['OFL Calligraphy Fonts']), PRIVATE_DATASET, ...packNames])].map((item) => (
+              <option key={item}>{item === PRIVATE_DATASET ? uiText(item) : item}</option>
             ))}
           </select>
         </label>
       </div>
-      {japanese && !dataset && <JapaneseFontFallback policy={policy} onChange={setPolicy} />}
+      {regional && !dataset && <RegionalFontFallback policy={policy} onChange={setPolicy} />}
       <details className="advanced">
-        <summary>筛选书家</summary>
+        <summary>{uiText("筛选书家")}</summary>
         <select
-          aria-label="书家筛选"
+          aria-label={uiText("书家筛选")}
           disabled={!!policy.font_id}
           value={calligrapher}
           onChange={(e) => setCalligrapher(e.target.value)}
         >
-          <option value="">全部书家</option>
+          <option value="">{uiText("全部书家")}</option>
           {meta?.calligraphers.map((item) => (
             <option key={item.id}>{item.name}</option>
           ))}
@@ -181,20 +182,20 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
       </details>
       {loading ? (
         <p className="feedback" role="status">
-          正在查字…
+          {uiText("正在查字…")}
         </p>
       ) : (
         <>
           {message && (
             <div className="feedback" role="status">
               {message}
-              <button onClick={() => setRetry(retry + 1)}>重试</button>
+              <button onClick={() => setRetry(retry + 1)}>{uiText("重试")}</button>
             </div>
           )}
           {!results.length && !message && (
             <p className="feedback">{policy.font_id
-              ? '所选字体未找到匹配字形。可更换字体，或允许缺字补字。'
-              : '未找到字形。试试输入单个字，或修改筛选条件。'}</p>
+              ? uiText("所选字体未找到匹配字形。可更换字体，或允许缺字补字。")
+              : uiText("未找到字形。试试输入单个字，或修改筛选条件。")}</p>
           )}
           <div className="glyph-grid">
             {results.map((glyph) => (
@@ -217,18 +218,18 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
                 <small className="glyph-kind">
                   {glyph.source.writing_tradition || 'Unknown tradition'} ·{' '}
                   {glyph.source.source_role === 'coverage-fallback' ? 'Coverage fallback' : glyph.source.source_role === 'handwriting' ? 'Handwriting' : glyph.source.source_role === 'calligraphy' ? 'Calligraphy' : glyph.source.dataset === 'Demo'
-                    ? '演示字形'
-                    : { font: '字体', original: glyph.metadata?.history_unverified ? '本机导入' : '原帖', fallback: '结构替补', generated: '生成' }[
+                    ? uiText("演示字形")
+                    : { font: uiText("字体"), original: glyph.metadata?.history_unverified ? uiText("本机导入") : uiText("原帖"), fallback: uiText("结构替补"), generated: uiText("生成") }[
                         glyph.provenance.type
                       ]}{' '}
-                  · {glyph.source.license || '授权未标注'}
+                  · {glyph.source.license || uiText("授权未标注")}
                 </small>
               </button>
             ))}
           </div>
           {total > limit && (
             <button className="load-more" onClick={() => setLimit(limit + 40)}>
-              加载更多（共 {total} 个）
+              {uiText("加载更多（共")} {total} {uiText("个）")}
             </button>
           )}
         </>

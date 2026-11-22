@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import type { Glyph } from '../types'
 import type { GlyphSource, VariantType } from '../types/glyph'
 import { codepoints, unicodeScript } from '../lib/identity'
@@ -32,7 +33,7 @@ export function fontCatalog(): Promise<FontEntry[]> {
   if (!catalog)
     catalog = fetch(`${import.meta.env.BASE_URL}fonts/catalog.json`)
       .then(async (response) => {
-        if (!response.ok) throw new Error('内置字库加载失败，请刷新重试')
+        if (!response.ok) throw new Error(uiText("内置字库加载失败，请刷新重试"))
         return response.json()
       })
       .catch((error) => {
@@ -40,6 +41,10 @@ export function fontCatalog(): Promise<FontEntry[]> {
         throw error
       })
   return catalog
+}
+
+function fontVariant(font: FontEntry, character: string): { type?: VariantType; canonical?: string } {
+  return font.language === 'ja' ? japaneseVariant(character, font.variant_type) : { type: font.variant_type }
 }
 
 export async function fontGlyphs(character: string, style = '', designer = '', policy: CandidatePolicy = {}): Promise<Glyph[]> {
@@ -50,7 +55,7 @@ export async function fontGlyphs(character: string, style = '', designer = '', p
       (!style || font.style === style) &&
       (!designer || font.designer === designer) &&
       compatibleSource({ ...font, script: unicodeScript(character), work: font.family },
-        font.language === 'ja' ? japaneseVariant(character, font.variant_type) : { type: font.variant_type },
+        fontVariant(font, character),
         'font', selection, font.id),
     )
     // Coverage is the last resort when both ordinary and supplementary fonts can render the glyph.
@@ -66,12 +71,13 @@ export async function fontGlyphs(character: string, style = '', designer = '', p
 
 async function renderFontGlyph(font: FontEntry, character: string, vertical?: boolean): Promise<Glyph | null> {
   const id = `font:${font.id}:${character}${vertical ? ':vertical' : ''}`
-  const cached = glyphCache.get(id)
+  const cacheKey = JSON.stringify([id, font.locale, font.sha256, font.runtime_sha256])
+  const cached = glyphCache.get(cacheKey)
   if (cached) return cached
   const shaped = font.renderer === 'harfbuzz' ? await shapeFontGlyph(font, character, font.locale || 'ja-JP', vertical) : null
   if (font.renderer === 'harfbuzz' && !shaped) return null
   if (shaped) {
-    const variant = japaneseVariant(character, font.variant_type)
+    const variant = fontVariant(font, character)
     const glyph: Glyph = {
       id, character,
       identity: { text: character, codepoints: codepoints(character), language: font.language, locale: font.locale, script: unicodeScript(character), canonical:variant.canonical },
@@ -86,7 +92,7 @@ async function renderFontGlyph(font: FontEntry, character: string, vertical?: bo
       appearance: { opacity:1,blendMode:'multiply' }, provenance: { type:'font' }, metadata: { shaping: shaped.shaping, font_id:font.id, font_version:font.font_version, upstream_commit:font.upstream_commit,
         source_role:font.source_role, original_sha256:font.original_sha256, subset_command:font.subset_command },
     }
-    glyphCache.set(id,glyph)
+    glyphCache.set(cacheKey,glyph)
     if (glyphCache.size > 2048) glyphCache.delete(glyphCache.keys().next().value!)
     return glyph
   }
@@ -157,7 +163,7 @@ async function renderFontGlyph(font: FontEntry, character: string, vertical?: bo
     provenance: { type: 'font' },
     metadata:{ font_id:font.id, shaping:{engine:'browser-legacy',source_sequence:character,locale_aware:false,font_sha256:font.sha256} },
   }
-  glyphCache.set(id, glyph)
+  glyphCache.set(cacheKey, glyph)
   if (glyphCache.size > 2048) glyphCache.delete(glyphCache.keys().next().value!)
   return glyph
 }

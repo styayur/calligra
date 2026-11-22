@@ -2,7 +2,11 @@ import type { GlyphInstance } from './glyph'
 import type { BatchLayout } from './composition'
 import type { CandidatePolicy } from '../lib/candidatePolicy'
 
+export type TextLanguage = 'und' | 'zh' | 'ja' | 'ko' | 'en'
+
 export interface CompositionSettings {
+  /** Language of the source text, independent of the glyph source and interface. */
+  textLanguage?: TextLanguage
   layout: BatchLayout
   columns: number
   size: number

@@ -15,57 +15,64 @@ spec.loader.exec_module(gate)
 
 @pytest.fixture
 def release_files(tmp_path, monkeypatch):
-    version = json.loads((ROOT / 'release/version.json').read_text(encoding='utf-8'))['version']
+    release = json.loads((ROOT / 'release/version.json').read_text(encoding='utf-8'))
+    version = release['version']
     def digest(path):
         return hashlib.sha256((ROOT / path).read_text(encoding='utf-8').replace('\r\n', '\n').encode()).hexdigest()
     receipt = {
         'commit': 'release-test', 'version': version, 'working_tree_dirty': False,
         'build_timestamp': '2026-10-06T00:00:00Z',
         'locks': {key: digest(path) for key, path in {
-            'web': 'apps/web/package-lock.json', 'desktop': 'apps/desktop/package-lock.json',
+            'web': 'apps/web/package-lock.json',
             'python': 'apps/api/requirements.txt', 'android': 'apps/web/android/app/gradle.lockfile',
         }.items()},
         'asset_manifest_sha256': digest('samples/asset-manifest.json'),
         'third_party_manifest_sha256': digest('third_party/manifest.json'),
     }
-    for platform in ['windows', 'web', 'android']:
+    for platform in ['web', 'android']:
         (tmp_path / f'{platform}-build-provenance.json').write_text(json.dumps(receipt))
-    (tmp_path / 'windows-signing.json').write_text('[]')
-    (tmp_path / 'android-signing.json').write_text(json.dumps({'version': version, 'production_ready': False}))
-    for name in [f'Setup-{version}-x64.exe', f'Portable-{version}-x64.exe', f'Web-{version}.zip', f'Android-{version}.apk']:
+    (tmp_path / 'android-signing.json').write_text(json.dumps({
+        'version': version, 'production_ready': True,
+        'certificate_sha256': gate.SIGNER, 'package_id': release['application_id'],
+        'version_code': release['android_version_code'],
+    }))
+    for name in [f'Web-{version}.zip', f'Android-{version}.apk']:
         (tmp_path / f'CalligraphyStudio-{name}').write_bytes(b'test payload')
     monkeypatch.setattr(gate.subprocess, 'check_output', lambda *a, **kw: 'release-test')
     monkeypatch.setattr(sys, 'argv', ['manifest', '--directory', str(tmp_path), '--commit', 'release-test'])
     return tmp_path
 
 
+def alter_receipt(directory, name, **updates):
+    path = directory / name
+    path.write_text(json.dumps({**json.loads(path.read_text()), **updates}))
+
+
 def test_preview_apk_rejected(release_files):
+    alter_receipt(release_files, 'android-signing.json', production_ready=False)
     with pytest.raises(AssertionError, match='debug-signed'):
         gate.main()
 
 
-def test_omission_flag_cannot_smuggle_apk(release_files, monkeypatch):
-    monkeypatch.setattr(sys, 'argv', sys.argv + ['--without-android'])
-    with pytest.raises(AssertionError, match='Android files must be omitted'):
+def test_unapproved_production_signer_rejected(release_files):
+    alter_receipt(release_files, 'android-signing.json', certificate_sha256='0' * 64)
+    with pytest.raises(AssertionError, match='Unapproved Android'):
         gate.main()
 
 
-@pytest.mark.parametrize('dirty', [False, True])
-def test_windows_web_release_requires_clean_receipts(release_files, monkeypatch, dirty):
-    for path in release_files.iterdir():
-        if 'android' in path.name.lower():
-            path.unlink()
-    monkeypatch.setattr(sys, 'argv', sys.argv + ['--without-android'])
-    receipt_path = release_files / 'web-build-provenance.json'
-    receipt = json.loads(receipt_path.read_text())
-    receipt['working_tree_dirty'] = dirty
-    receipt_path.write_text(json.dumps(receipt))
-    if dirty:
-        with pytest.raises(AssertionError, match='Dirty source'):
-            gate.main()
-    else:
+def test_no_electron_files_in_release(release_files):
+    (release_files / 'Retired-Windows.exe').write_bytes(b'old payload')
+    with pytest.raises(AssertionError, match='Unexpected release asset names'):
         gate.main()
-        result = json.loads((release_files / 'release-manifest.json').read_text())
-        assert len(result['assets']) == 3
-        assert result['signing']['android']['published'] is False
-        assert len((release_files / 'SHA256SUMS.txt').read_text().splitlines()) == 3
+
+
+def test_official_release_requires_clean_exact_receipts(release_files):
+    alter_receipt(release_files, 'web-build-provenance.json', working_tree_dirty=True)
+    with pytest.raises(AssertionError, match='Dirty source'):
+        gate.main()
+    alter_receipt(release_files, 'web-build-provenance.json', working_tree_dirty=False)
+    gate.main()
+    result = json.loads((release_files / 'release-manifest.json').read_text())
+    assert {asset['platform'] for asset in result['assets']} == {'web', 'android'}
+    assert result['signing']['android']['production_ready']
+    assert len((release_files / 'SHA256SUMS.txt').read_text().splitlines()) == 2

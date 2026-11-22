@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 export interface ExportOptions {
   scale: number
   transparent: boolean
@@ -9,6 +10,6 @@ export function registerStageExporter(next: ((options: ExportOptions) => string)
 }
 
 export function exportStagePng(options: ExportOptions = { scale: 1, transparent: false }): string {
-  if (!exporter) throw new Error('画布尚未准备好，请稍后重试')
+  if (!exporter) throw new Error(uiText("画布尚未准备好，请稍后重试"))
   return exporter(options)
 }

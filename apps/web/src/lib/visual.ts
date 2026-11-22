@@ -286,21 +286,21 @@ export function extractVisualProfile(ink: Float32Array, n = RESOLUTION): VisualP
 }
 
 export const descriptorGroups = [
-  ['比例', (p: VisualProfile) => [Math.log(Math.max(0.01, p.aspectRatio))], 1.5],
-  ['墨量', (p: VisualProfile) => [p.inkDensity], 0.3],
-  ['重心', (p: VisualProfile) => p.centroid, 0.3],
-  ['图像矩', (p: VisualProfile) => p.moments, 0.06],
-  ['横向投影', (p: VisualProfile) => p.horizontal, 0.04],
-  ['纵向投影', (p: VisualProfile) => p.vertical, 0.04],
-  ['四象限墨量', (p: VisualProfile) => p.quadrants, 0.4],
-  ['留白', (p: VisualProfile) => p.whitespace, 0.5],
+  ["比例", (p: VisualProfile) => [Math.log(Math.max(0.01, p.aspectRatio))], 1.5],
+  ["墨量", (p: VisualProfile) => [p.inkDensity], 0.3],
+  ["重心", (p: VisualProfile) => p.centroid, 0.3],
+  ["图像矩", (p: VisualProfile) => p.moments, 0.06],
+  ["横向投影", (p: VisualProfile) => p.horizontal, 0.04],
+  ["纵向投影", (p: VisualProfile) => p.vertical, 0.04],
+  ["四象限墨量", (p: VisualProfile) => p.quadrants, 0.4],
+  ["留白", (p: VisualProfile) => p.whitespace, 0.5],
   [
-    '笔画距离',
+    "笔画距离",
     (p: VisualProfile) => [p.distance[0], Math.sqrt(p.distance[1]), p.distance[2]],
     0.08,
   ],
   [
-    '骨架',
+    "骨架",
     (p: VisualProfile) => [
       p.skeleton.length / 12,
       p.skeleton.branches / 40,
@@ -308,7 +308,7 @@ export const descriptorGroups = [
     ],
     1,
   ],
-  ['方向', (p: VisualProfile) => p.orientation, 0.2],
+  ["方向", (p: VisualProfile) => p.orientation, 0.2],
 ] as const
 export interface Difference {
   label: string

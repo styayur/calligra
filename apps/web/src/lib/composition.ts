@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import type { BatchLayout, Glyph, GlyphInstance } from '../types'
 import { textCharacters } from './identity'
 
@@ -29,11 +30,11 @@ export function validLayoutDimensions({ columns, size, gap, margin }: LayoutOpti
 
 export function layoutText(text: string, options: LayoutOptions) {
   const { layout, columns, size, gap, margin } = options
-  if (!validLayoutDimensions(options)) throw new Error('请填写有效的排版数值')
+  if (!validLayoutDimensions(options)) throw new Error(uiText("请填写有效的排版数值"))
   const lines = textLines(text, options.punctuation)
   const count = lines.flat().length
-  if (!count) throw new Error('请先输入需要集字的文字')
-  if (count > 1000) throw new Error('工作台最多支持 1000 字，更多文字请使用长卷模式')
+  if (!count) throw new Error(uiText("请先输入需要集字的文字"))
+  if (count > 1000) throw new Error(uiText("工作台最多支持 1000 字，更多文字请使用长卷模式"))
   const chunks: string[][] = []
   if (layout === 'grid') {
     const chars = lines.flat()

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "version": "0.8.1",
+  "version": "0.9.0",
   "components": [
     {
       "id": "application",
       "name": "Calligra",
       "category": "application",
-      "version": "0.8.1",
+      "version": "0.9.0",
       "source_uri": "https://github.com/styayur/calligra",
       "license": "GPL-3.0-or-later",
       "license_text": {
@@ -144,6 +144,45 @@
         "sha256": "9ff5bb567e1b92c801fc1069e5fbf992ff8efccacb9db94e5959a5b3ba9bb903"
       },
       "notes": "Adobe / Source Han Serif Project; font provenance, not manuscript originals. Copyright 2017-2022 Adobe; modified subset with renamed internal font family (OFL reserved name Source)"
+    },
+    {
+      "id": "nanum-brush",
+      "name": "Nanum Brush Script",
+      "category": "font",
+      "version": "Version 1.100;PS 1;hotconv 1.0.57;makeotf.lib2.0.21895",
+      "source_uri": "https://raw.githubusercontent.com/google/fonts/16680f8688ffcd467d2eb2146a9ce0343404581d/ofl/nanumbrushscript/NanumBrushScript-Regular.ttf",
+      "license": "OFL-1.1",
+      "license_text": {
+        "path": "fonts/licenses/OFL-nanum-brush.txt",
+        "sha256": "eeacf16032901d0ed0456876ec77b8f0fda6b3fecec7d972f8543eb602e6c30f"
+      },
+      "notes": "NAVER / Sandoll; font provenance, not manuscript originals. Copyright 2010 NHN Corporation"
+    },
+    {
+      "id": "nanum-pen",
+      "name": "Nanum Pen Script",
+      "category": "font",
+      "version": "Version 1.10",
+      "source_uri": "https://raw.githubusercontent.com/google/fonts/16680f8688ffcd467d2eb2146a9ce0343404581d/ofl/nanumpenscript/NanumPenScript-Regular.ttf",
+      "license": "OFL-1.1",
+      "license_text": {
+        "path": "fonts/licenses/OFL-nanum-pen.txt",
+        "sha256": "eeacf16032901d0ed0456876ec77b8f0fda6b3fecec7d972f8543eb602e6c30f"
+      },
+      "notes": "NAVER / Sandoll; font provenance, not manuscript originals. Copyright 2010 NHN Corporation"
+    },
+    {
+      "id": "kr-coverage-serif",
+      "name": "Source Han Serif KR",
+      "category": "font",
+      "version": "Version 2.003;hotconv 1.1.1;makeotfexe 2.6.0",
+      "source_uri": "https://raw.githubusercontent.com/adobe-fonts/source-han-serif/7889f11bf31170b5d092a083b357c8c8130f89e0/SubsetOTF/KR/SourceHanSerifKR-Regular.otf",
+      "license": "OFL-1.1",
+      "license_text": {
+        "path": "fonts/licenses/OFL-kr-coverage-serif.txt",
+        "sha256": "9ff5bb567e1b92c801fc1069e5fbf992ff8efccacb9db94e5959a5b3ba9bb903"
+      },
+      "notes": "Adobe / Source Han Serif Project; font provenance, not manuscript originals. Copyright 2017-2022 Adobe"
     },
     {
       "id": "codh",
@@ -471,6 +510,34 @@
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
+      "id": "npm:html-parse-stringify@4.0.1",
+      "name": "html-parse-stringify",
+      "category": "locked-production-dependency",
+      "version": "4.0.1",
+      "source_uri": "https://www.npmjs.com/package/html-parse-stringify",
+      "license": "MIT",
+      "license_text": {
+        "path": "licenses/npm/html-parse-stringify/4.0.1/LICENSE",
+        "sha256": "3eb2802a4d0ea79f80977817451b056571dccd8373c9bf4e9be4b05f86afbf90"
+      },
+      "additional_notices": [],
+      "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
+    },
+    {
+      "id": "npm:i18next@27.2.3",
+      "name": "i18next",
+      "category": "locked-production-dependency",
+      "version": "27.2.3",
+      "source_uri": "https://www.npmjs.com/package/i18next",
+      "license": "MIT",
+      "license_text": {
+        "path": "licenses/npm/i18next/27.2.3/LICENSE",
+        "sha256": "1cd0a2b02a6cc40ef8ee16310d13eeffdd7b5de4a562fd3ee7c921d8eb54f60a"
+      },
+      "additional_notices": [],
+      "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
+    },
+    {
       "id": "npm:its-fine@2.1.1",
       "name": "its-fine",
       "category": "locked-production-dependency",
@@ -550,6 +617,20 @@
       "license_text": {
         "path": "licenses/npm/react-dom/19.3.1/LICENSE",
         "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+      },
+      "additional_notices": [],
+      "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
+    },
+    {
+      "id": "npm:react-i18next@18.0.3",
+      "name": "react-i18next",
+      "category": "locked-production-dependency",
+      "version": "18.0.3",
+      "source_uri": "https://www.npmjs.com/package/react-i18next",
+      "license": "MIT",
+      "license_text": {
+        "path": "licenses/npm/react-i18next/18.0.3/LICENSE",
+        "sha256": "29b8ae456ef442e53a98df183ad088cf98c2ece73aa84c462330c43e665b8ab2"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."

@@ -1,9 +1,10 @@
 {
   "schema_version": 2,
-  "release": "0.8.1",
+  "release": "0.9.0",
   "font_packs": [
     "fonts/manifest.json",
-    "fonts/japanese/manifest.json"
+    "fonts/japanese/manifest.json",
+    "fonts/korean/manifest.json"
   ],
   "historical_samples": [
     "japanese/historical/sample/manifest.json"
@@ -13,7 +14,7 @@
     "historical-sample",
     "optional-local-corpus"
   ],
-  "canonical_sha256": "3ee93a299df7d80e9f888a2b27cd7ece5281f859f7bf9cfe68a57e23483ac464",
+  "canonical_sha256": "950641c6948e6e4e812bd2738f5f919aa268e558ddcfbdb92fcc75aa8990d834",
   "fonts": [
     {
       "id": "ma-shan-zheng",
@@ -194,6 +195,60 @@
       "source_role": "coverage-fallback",
       "original_sha256": "066dfd35dbcb96f953ebd72eb182169c3cec6b7c0f18be22f1b6e3936ac6ac20",
       "subset_command": "python scripts/build_japanese_coverage.py --fetch"
+    },
+    {
+      "id": "nanum-brush",
+      "original": {
+        "path": "samples/fonts/korean/NanumBrushScript-Regular.ttf",
+        "sha256": "27ceaf578c96f594cdf07fe0181b251790acbb746a164e45c1f6473f89911a31"
+      },
+      "runtime": {
+        "path": "apps/web/public/fonts/nanum-brush.ttf.gzip",
+        "sha256": "5b84c53df6f94bf75512ff9ca76dc0cc578f1498805fd620b81d035503881f07"
+      },
+      "source_uri": "https://raw.githubusercontent.com/google/fonts/16680f8688ffcd467d2eb2146a9ce0343404581d/ofl/nanumbrushscript/NanumBrushScript-Regular.ttf",
+      "upstream_commit": "16680f8688ffcd467d2eb2146a9ce0343404581d",
+      "license": "OFL-1.1",
+      "license_text": "fonts/licenses/OFL-nanum-brush.txt",
+      "source_role": "calligraphy",
+      "original_sha256": null,
+      "subset_command": null
+    },
+    {
+      "id": "nanum-pen",
+      "original": {
+        "path": "samples/fonts/korean/NanumPenScript-Regular.ttf",
+        "sha256": "6f0d1ab29c7894010dc88831fb7a0a51edb79136e450344183de5b1a8b52bd43"
+      },
+      "runtime": {
+        "path": "apps/web/public/fonts/nanum-pen.ttf.gzip",
+        "sha256": "bc1d817b330874f101735ffb6eb847fa4316221584e41e442fb17091a991fb81"
+      },
+      "source_uri": "https://raw.githubusercontent.com/google/fonts/16680f8688ffcd467d2eb2146a9ce0343404581d/ofl/nanumpenscript/NanumPenScript-Regular.ttf",
+      "upstream_commit": "16680f8688ffcd467d2eb2146a9ce0343404581d",
+      "license": "OFL-1.1",
+      "license_text": "fonts/licenses/OFL-nanum-pen.txt",
+      "source_role": "handwriting",
+      "original_sha256": null,
+      "subset_command": null
+    },
+    {
+      "id": "kr-coverage-serif",
+      "original": {
+        "path": "samples/fonts/korean/SourceHanSerifKR-Regular.otf",
+        "sha256": "b2b310255186ce92de2909f96522b9183a9f6c323dbe5663f205f02d6ece08b7"
+      },
+      "runtime": {
+        "path": "apps/web/public/fonts/kr-coverage-serif.otf.gzip",
+        "sha256": "e4edac797629a45a372f7cfb6716f756e91753659ad6080e2789c8dcd3c25dff"
+      },
+      "source_uri": "https://raw.githubusercontent.com/adobe-fonts/source-han-serif/7889f11bf31170b5d092a083b357c8c8130f89e0/SubsetOTF/KR/SourceHanSerifKR-Regular.otf",
+      "upstream_commit": "7889f11bf31170b5d092a083b357c8c8130f89e0",
+      "license": "OFL-1.1",
+      "license_text": "fonts/licenses/OFL-kr-coverage-serif.txt",
+      "source_role": "coverage-fallback",
+      "original_sha256": "b2b310255186ce92de2909f96522b9183a9f6c323dbe5663f205f02d6ece08b7",
+      "subset_command": null
     }
   ]
 }

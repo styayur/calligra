@@ -1,12 +1,13 @@
+import { uiText } from "../../i18n"
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { initialCandidates, resolveCharacters, type CandidateSource } from '../../api/candidates'
-import { JapaneseFontFallback, JapaneseFontSelect } from './JapaneseFontSelect'
+import { RegionalFontFallback, RegionalFontSelect } from './RegionalFontSelect'
 import { SourcePolicyControls } from './SourcePolicyControls'
-import { DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { usesRegionalFonts, DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
 import { layoutText, placeGlyph, textLines, validLayoutDimensions } from '../../lib/composition'
 import { useEditorStore } from '../../stores/editor'
-import type { BatchLayout, CompositionSettings, Glyph } from '../../types'
+import type { BatchLayout, CompositionSettings, Glyph, TextLanguage } from '../../types'
 import { Button } from '../ui'
 import { installedPacks } from '../../lib/privateLibrary'
 
@@ -57,7 +58,7 @@ export function BatchComposer({ active }: { active: boolean }) {
         JSON.stringify({ projectText: projectText ?? null, text }),
       )
     } catch {
-      setStatus('输入文字未能保存到本机，请及时生成并下载项目。')
+      setStatus(uiText("输入文字未能保存到本机，请及时生成并下载项目。"))
     }
   }, [text, projectText])
   useEffect(() => {
@@ -71,10 +72,11 @@ export function BatchComposer({ active }: { active: boolean }) {
     setSource(settings?.source ?? DEFAULT_SETTINGS.source)
     setPolicy(settings?.policy || DEFAULT_POLICY)
   }, [settings])
+  const textLanguage = settings?.textLanguage || 'und'
   const count = textLines(text, punctuation).flat().length
-  const japanese = policy.writing_tradition === 'Japanese'
+  const regional = usesRegionalFonts(policy.writing_tradition)
   const settingsFor = (nextPolicy: CandidatePolicy, nextSource: CandidateSource) =>
-    ({ layout, columns, size, gap, margin, punctuation, style, source: nextSource, policy: nextPolicy })
+    ({ layout, columns, size, gap, margin, punctuation, style, source: nextSource, policy: nextPolicy, textLanguage })
 
   function saveFontPreference(nextPolicy: CandidatePolicy, nextSource = source) {
     setPolicy(nextPolicy)
@@ -83,7 +85,7 @@ export function BatchComposer({ active }: { active: boolean }) {
     if (validLayoutDimensions(next)) setComposition(next)
     else {
       setComposition({ ...(settings ?? DEFAULT_SETTINGS), policy: nextPolicy, source: nextSource })
-      setStatus('字体偏好已保存，排版数值已恢复为上次的有效设置。')
+      setStatus(uiText("字体偏好已保存，排版数值已恢复为上次的有效设置。"))
     }
   }
   function updatePolicy(next: CandidatePolicy) {
@@ -94,7 +96,7 @@ export function BatchComposer({ active }: { active: boolean }) {
   const create = async () => {
     const previousProject = useEditorStore.getState().project
     setLoading(true)
-    setStatus('正在加载字库…')
+    setStatus(uiText("正在加载字库…"))
     try {
       const plan = layoutText(text, {
         layout,
@@ -108,10 +110,10 @@ export function BatchComposer({ active }: { active: boolean }) {
         plan.positions.map((p) => p.character),
         async (character) => {
           // Initial composition fetches a small page; further variants load only on selection.
-          const page = await initialCandidates(character, source, (japanese || policy.dataset) ? '' : style, 4, undefined, { ...policy, vertical: layout === 'vertical-rtl' })
+          const page = await initialCandidates(character, source, (regional || policy.dataset) ? '' : style, 4, undefined, { ...policy, vertical: layout === 'vertical-rtl' })
           return page.items[0]
         },
-        (done, total) => setStatus(`正在加载字库 ${done}/${total} 个不同字…`),
+        (done, total) => setStatus(uiText("正在加载字库 {{v0}}/{{v1}} 个不同字…", { v0: done, v1: total })),
       )
       const resolved = new Map<string, Glyph>()
       found.forEach((glyph, character) => {
@@ -122,15 +124,15 @@ export function BatchComposer({ active }: { active: boolean }) {
           plan.positions.filter((p) => !resolved.has(p.character)).map((p) => p.character),
         ),
       ]
-      const missingHint = japanese ? '可选择其他字体，或启用缺字补字。' : '可换书体或字形来源。'
+      const missingHint = regional ? uiText("可选择其他字体，或启用缺字补字。") : uiText("可换书体或字形来源。")
       if (!resolved.size)
-        throw new Error(`未找到可用字形：${missing.join('、')}。${missingHint}`)
+        throw new Error(uiText("未找到可用字形：{{v0}}。{{v1}}", { v0: missing.join('、'), v1: missingHint }))
       const glyphs = plan.positions.flatMap((p) => {
         const glyph = resolved.get(p.character)
         return glyph ? [placeGlyph(glyph, p.x, p.y, plan.size)] : []
       })
       if (useEditorStore.getState().project !== previousProject)
-        throw new Error('作品已更改，请重新生成以应用这段文字。')
+        throw new Error(uiText("作品已更改，请重新生成以应用这段文字。"))
       compose(
         glyphs,
         {
@@ -144,74 +146,86 @@ export function BatchComposer({ active }: { active: boolean }) {
       const fallbackFonts = [...new Set(glyphs.filter((g) => policy.font_id &&
         g.metadata?.font_id !== policy.font_id).map((g) => g.source.work).filter(Boolean))]
       const fallbackMessage = [
-        glyphs.some((g) => g.source.source_role === 'coverage-fallback') ? '部分汉字使用日文覆盖字体。' : '',
-        fallbackFonts.length ? `缺字由 ${fallbackFonts.join('、')} 补字。` : '',
+        glyphs.some((g) => g.source.source_role === 'coverage-fallback')
+          ? (policy.writing_tradition === 'Korean' ? uiText("部分字使用韩文覆盖字体。") : uiText("部分汉字使用日文覆盖字体。")) : '',
+        fallbackFonts.length ? uiText("缺字由 {{v0}} 补字。", { v0: fallbackFonts.join('、') }) : '',
       ].join('')
       setStatus(
         missing.length
-          ? `已排入 ${glyphs.length}/${count} 字，缺字「${missing.join('、')}」已留空位。${missingHint}${fallbackMessage}`
-          : `已排入 ${glyphs.length} 字。${fallbackMessage}${plan.fit < 1 ? '纸面已等比缩小；可调整每行或列字数改善阅读。' : ''}`,
+          ? uiText("已排入 {{v0}}/{{v1}} 字，缺字「{{v2}}」已留空位。{{v3}}{{v4}}", { v0: glyphs.length, v1: count, v2: missing.join('、'), v3: missingHint, v4: fallbackMessage })
+          : uiText("已排入 {{v0}} 字。{{v1}}{{v2}}", { v0: glyphs.length, v1: fallbackMessage, v2: plan.fit < 1 ? uiText("纸面已等比缩小；可调整每行或列字数改善阅读。") : '' }),
       )
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : '集字失败，请重试')
+      setStatus(error instanceof Error ? error.message : uiText("集字失败，请重试"))
     } finally {
       setLoading(false)
     }
   }
   return (
-    <fieldset className="composer" disabled={loading} aria-label="集字排版">
+    <fieldset className="composer" disabled={loading} aria-label={uiText("集字排版")}>
       <div className="section-title">
-        <label htmlFor="compose-text">集字内容</label>
-        <span>{count} / 1000 字</span>
+        <label htmlFor="compose-text">{uiText("集字内容")}</label>
+        <span>{count} {uiText("/ 1000 字")}</span>
       </div>
       <textarea
         id="compose-text"
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={5}
-        placeholder="输入文字，换行分句"
+        placeholder={uiText("输入文字，换行分句")}
       />
+      <label>{uiText("文本语言")}
+        <select value={textLanguage} aria-label={uiText("文本语言")} onChange={(event) => {
+          const selected = event.target.value as TextLanguage
+          const current = settingsFor(policy, source)
+          setComposition({ ...(validLayoutDimensions(current) ? current : settings ?? DEFAULT_SETTINGS), textLanguage: selected })
+        }}>
+          <option value="und">{uiText("自动或混合")}</option>
+          <option value="zh" lang="zh">{uiText("中文")}</option><option value="ja" lang="ja">{uiText("日本語")}</option>
+          <option value="ko" lang="ko">{uiText("한국어")}</option><option value="en" lang="en">English</option>
+        </select>
+      </label>
       <SourcePolicyControls policy={policy} onChange={updatePolicy} />
       <div className="field-grid">
-        {japanese ? <JapaneseFontSelect policy={policy} onChange={(next) => saveFontPreference(next, 'fonts')} /> : <label>
-          书体
-          <select aria-label="书体" value={style} disabled={source === 'private' || !!policy.dataset} onChange={(e) => setStyle(e.target.value)}>
-            <option>楷书</option>
-            <option>行书</option>
-            <option>草书</option>
+        {regional ? <RegionalFontSelect policy={policy} onChange={(next) => saveFontPreference(next, 'fonts')} /> : <label>
+          {uiText("书体")}
+          <select aria-label={uiText("书体")} value={style} disabled={source === 'private' || !!policy.dataset} onChange={(e) => setStyle(e.target.value)}>
+            <option value="楷书">{uiText("楷书")}</option>
+            <option value="行书">{uiText("行书")}</option>
+            <option value="草书">{uiText("草书")}</option>
           </select>
         </label>}
         <label>
-          来源
+          {uiText("来源")}
           <select
-            aria-label="字形来源"
+            aria-label={uiText("字形来源")}
             value={source === 'all' && policy.dataset ? 'pack:' + policy.dataset : source}
             onChange={(e) => {
               const value = e.target.value
               const nextSource = value.startsWith('pack:') ? 'all' : value as CandidateSource
               const next = { ...policy, dataset: value.startsWith('pack:') ? value.slice(5) : undefined }
-              if (japanese) saveFontPreference({ ...next, font_id: undefined, allow_font_fallback: undefined }, nextSource)
+              if (regional) saveFontPreference({ ...next, font_id: undefined, allow_font_fallback: undefined }, nextSource)
               else { setSource(nextSource); setPolicy(next) }
             }}
           >
-            <option value="fonts">字体</option>
-            <option value="original">原帖</option>
-            <option value="all">字体与原帖</option>
-            <option value="fallback">结构替补</option>
-            <option value="private">个人字库</option>
-            {policy.dataset && !packNames.includes(policy.dataset) && <option value={'pack:' + policy.dataset}>{policy.dataset}（未启用）</option>}
+            <option value="fonts">{uiText("字体")}</option>
+            <option value="original">{uiText("原帖")}</option>
+            <option value="all">{uiText("字体与原帖")}</option>
+            <option value="fallback">{uiText("结构替补")}</option>
+            <option value="private">{uiText("个人字库")}</option>
+            {policy.dataset && !packNames.includes(policy.dataset) && <option value={'pack:' + policy.dataset}>{policy.dataset}{uiText("（未启用）")}</option>}
             {packNames.map((name) => <option key={name} value={'pack:' + name}>{name}</option>)}
           </select>
         </label>
       </div>
-      {japanese && (source === 'fonts' || (source === 'all' && !policy.dataset)) &&
-        <JapaneseFontFallback policy={policy} onChange={(next) => saveFontPreference(next)} />}
-      <div className="segmented" aria-label="排版方向">
+      {regional && (source === 'fonts' || (source === 'all' && !policy.dataset)) &&
+        <RegionalFontFallback policy={policy} onChange={(next) => saveFontPreference(next)} />}
+      <div className="segmented" aria-label={uiText("排版方向")}>
         {(
           [
-            ['vertical-rtl', '竖排'],
-            ['horizontal-ltr', '横排'],
-            ['grid', '方格'],
+            ['vertical-rtl', uiText("竖排")],
+            ['horizontal-ltr', uiText("横排")],
+            ['grid', uiText("方格")],
           ] as const
         ).map(([value, label]) => (
           <button key={value} aria-pressed={layout === value} onClick={() => setLayout(value)}>
@@ -221,10 +235,10 @@ export function BatchComposer({ active }: { active: boolean }) {
       </div>
       <div className="field-grid">
         <label>
-          {layout === 'vertical-rtl' ? '每列最多' : '每行最多'}
+          {layout === 'vertical-rtl' ? uiText("每列最多") : uiText("每行最多")}
           <div className="unit-input">
             <input
-              aria-label="每行或列字数"
+              aria-label={uiText("每行或列字数")}
               type="number"
               min={1}
               max={30}
@@ -232,14 +246,14 @@ export function BatchComposer({ active }: { active: boolean }) {
               value={columns}
               onChange={(e) => setColumns(Math.floor(Number(e.target.value)))}
             />
-            <span>字</span>
+            <span>{uiText("字")}</span>
           </div>
         </label>
         <label>
-          字格大小
+          {uiText("字格大小")}
           <div className="unit-input">
             <input
-              aria-label="字格大小"
+              aria-label={uiText("字格大小")}
               type="number"
               min={40}
               max={400}
@@ -251,10 +265,10 @@ export function BatchComposer({ active }: { active: boolean }) {
         </label>
       </div>
       <details className="advanced">
-        <summary>间距与留白</summary>
+        <summary>{uiText("间距与留白")}</summary>
         <div className="field-grid">
           <label>
-            字距
+            {uiText("字距")}
             <input
               type="number"
               min={0}
@@ -264,7 +278,7 @@ export function BatchComposer({ active }: { active: boolean }) {
             />
           </label>
           <label>
-            页边距
+            {uiText("页边距")}
             <input
               type="number"
               min={0}
@@ -280,7 +294,7 @@ export function BatchComposer({ active }: { active: boolean }) {
             checked={punctuation}
             onChange={(e) => setPunctuation(e.target.checked)}
           />
-          保留标点
+          {uiText("保留标点")}
         </label>
       </details>
       <Button
@@ -293,9 +307,9 @@ export function BatchComposer({ active }: { active: boolean }) {
         ) : (
           <ArrowRight className="h-4 w-4" />
         )}
-        {loading ? '正在集字…' : '生成作品'}
+        {loading ? uiText("正在集字…") : uiText("生成作品")}
       </Button>
-      <p className="field-hint">自动适配纸面尺寸。重新生成会替换当前排版，可撤销。</p>
+      <p className="field-hint">{uiText("自动适配纸面尺寸。重新生成会替换当前排版，可撤销。")}</p>
       {status && (
         <p className="feedback" role="status">
           {status}

@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import { STATIC_MODE } from '../config/runtime'
 import { prepareInk } from './ink'
 import { migrateGlyph } from '../lib/identity'
@@ -94,7 +95,7 @@ export async function createProject(
   document: ProjectDocument,
 ): Promise<ProjectRecord> {
   if (STATIC_MODE)
-    throw new ApiError('GitHub Pages 静态版不支持服务端保存，请使用“保存 JSON”。', 501)
+    throw new ApiError(uiText("GitHub Pages 静态版不支持服务端保存，请使用“保存 JSON”。"), 501)
   return request<ProjectRecord>('/api/projects', {
     method: 'POST',
     body: JSON.stringify({ name, document }),
@@ -107,7 +108,7 @@ export async function updateProject(
   document: ProjectDocument,
 ): Promise<ProjectRecord> {
   if (STATIC_MODE)
-    throw new ApiError('GitHub Pages 静态版不支持服务端保存，请使用“保存 JSON”。', 501)
+    throw new ApiError(uiText("GitHub Pages 静态版不支持服务端保存，请使用“保存 JSON”。"), 501)
   return request<ProjectRecord>(`/api/projects/${id}`, {
     method: 'PUT',
     body: JSON.stringify({ name, document }),

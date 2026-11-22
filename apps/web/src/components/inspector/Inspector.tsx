@@ -1,3 +1,4 @@
+import { uiText } from "../../i18n"
 import { useState } from 'react'
 import { Copy, Trash2, X } from 'lucide-react'
 import { useEditorStore } from '../../stores/editor'
@@ -27,25 +28,25 @@ export function Inspector() {
     setScanError('')
     try {
       const scan = await originalScan(glyph.source.source_checksum!)
-      if (!scan) throw new Error('当前设备没有这份原图')
+      if (!scan) throw new Error(uiText("当前设备没有这份原图"))
       await saveFile(String(glyph.metadata?.original_filename || 'source-image'), scan)
     } catch (error) {
-      setScanError(error instanceof Error ? error.message : '无法读取本机原图')
+      setScanError(error instanceof Error ? error.message : uiText("无法读取本机原图"))
     }
   }
   const patch = (value: Partial<GlyphTransform>) =>
     setGlyphTransform(glyph.id, value, { recordHistory: false })
   return (
-    <aside className="inspector panel-scroll" aria-label="字形调整">
+    <aside className="inspector panel-scroll" aria-label={uiText("字形调整")}>
       <div className="inspector-heading">
         <div>
           <span className="selected-character">{glyph.character}</span>
-          <span>{glyph.source.style || '字形调整'}</span>
+          <span>{glyph.source.style || uiText("字形调整")}</span>
         </div>
         <Button
           size="icon"
           variant="ghost"
-          aria-label="关闭字形调整"
+          aria-label={uiText("关闭字形调整")}
           onClick={() => selectGlyph(null)}
         >
           <X size={16} />
@@ -54,13 +55,13 @@ export function Inspector() {
       <SimilarGlyphs key={glyph.id} glyph={glyph} />
       <section className="adjust-section">
         <div className="section-title">
-          <h3>调整单字</h3>
+          <h3>{uiText("调整单字")}</h3>
           <div className="flex">
             <Button
               variant="ghost"
               size="icon"
-              title="复制单字"
-              aria-label="复制单字"
+              title={uiText("复制单字")}
+              aria-label={uiText("复制单字")}
               onClick={() => duplicateGlyph(glyph.id)}
             >
               <Copy size={15} />
@@ -68,8 +69,8 @@ export function Inspector() {
             <Button
               variant="ghost"
               size="icon"
-              title="删除单字"
-              aria-label="删除单字"
+              title={uiText("删除单字")}
+              aria-label={uiText("删除单字")}
               onClick={() => removeGlyph(glyph.id)}
             >
               <Trash2 size={15} />
@@ -78,10 +79,10 @@ export function Inspector() {
         </div>
         <label className="slider-field">
           <span>
-            大小 <output>{Math.round(glyph.asset.width * glyph.transform.scaleX)} px</output>
+            {uiText("大小")} <output>{Math.round(glyph.asset.width * glyph.transform.scaleX)} px</output>
           </span>
           <input
-            aria-label="单字大小"
+            aria-label={uiText("单字大小")}
             type="range"
             min={20}
             max={600}
@@ -102,10 +103,10 @@ export function Inspector() {
         </label>
         <label className="slider-field">
           <span>
-            旋转 <output>{Math.round(glyph.transform.rotation)}°</output>
+            {uiText("旋转")} <output>{Math.round(glyph.transform.rotation)}°</output>
           </span>
           <input
-            aria-label="单字旋转"
+            aria-label={uiText("单字旋转")}
             type="range"
             min={-180}
             max={180}
@@ -119,10 +120,10 @@ export function Inspector() {
         </label>
         <label className="slider-field">
           <span>
-            墨色 <output>{Math.round(glyph.appearance.opacity * 100)}%</output>
+            {uiText("墨色")} <output>{Math.round(glyph.appearance.opacity * 100)}%</output>
           </span>
           <input
-            aria-label="墨色浓度"
+            aria-label={uiText("墨色浓度")}
             type="range"
             min={0.05}
             max={1}
@@ -142,16 +143,16 @@ export function Inspector() {
           />
         </label>
         <details className="advanced">
-          <summary>精细调整</summary>
+          <summary>{uiText("精细调整")}</summary>
           <div className="field-grid">
             {(
               [
-                ['x', '水平位置'],
-                ['y', '垂直位置'],
-                ['scaleX', '水平缩放'],
-                ['scaleY', '垂直缩放'],
-                ['skewX', '水平倾斜'],
-                ['skewY', '垂直倾斜'],
+                ['x', uiText("水平位置")],
+                ['y', uiText("垂直位置")],
+                ['scaleX', uiText("水平缩放")],
+                ['scaleY', uiText("垂直缩放")],
+                ['skewX', uiText("水平倾斜")],
+                ['skewY', uiText("垂直倾斜")],
               ] as const
             ).map(([key, label]) => (
               <label key={key}>
@@ -167,55 +168,55 @@ export function Inspector() {
             ))}
           </div>
           <label className="check-field">
-            混合
+            {uiText("混合")}
             <select
-              aria-label="混合模式"
+              aria-label={uiText("混合模式")}
               value={glyph.appearance.blendMode}
               onChange={(e) => setGlyphAppearance(glyph.id, { blendMode: e.target.value })}
             >
-              <option value="source-over">正常</option>
-              <option value="multiply">正片叠底</option>
-              <option value="screen">滤色</option>
-              <option value="overlay">叠加</option>
-              <option value="darken">变暗</option>
-              <option value="lighten">变亮</option>
+              <option value="source-over">{uiText("正常")}</option>
+              <option value="multiply">{uiText("正片叠底")}</option>
+              <option value="screen">{uiText("滤色")}</option>
+              <option value="overlay">{uiText("叠加")}</option>
+              <option value="darken">{uiText("变暗")}</option>
+              <option value="lighten">{uiText("变亮")}</option>
             </select>
           </label>
           <div className="flex gap-2 mt-3">
             <Button variant="secondary" size="sm" onClick={() => reorderGlyph(glyph.id, 'forward')}>
-              上移一层
+              {uiText("上移一层")}
             </Button>
             <Button
               variant="secondary"
               size="sm"
               onClick={() => reorderGlyph(glyph.id, 'backward')}
             >
-              下移一层
+              {uiText("下移一层")}
             </Button>
           </div>
         </details>
       </section>
       <section className="source-section">
-        <h3>字形来源</h3>
+        <h3>{uiText("字形来源")}</h3>
         <p>{glyph.source.work || glyph.source.dataset}</p>
-        <p>{glyph.source.calligrapher || '书家未标注'}</p>
+        <p>{glyph.source.calligrapher || uiText("书家未标注")}</p>
         <div className="source-meta">
           <span>
             {
               {
-                font: '字体字形',
-                original: glyph.metadata?.history_unverified ? '用户导入' : '原帖字形',
-                fallback: '结构替补',
-                generated: '生成字形',
+                font: uiText("字体字形"),
+                original: glyph.metadata?.history_unverified ? uiText("用户导入") : uiText("原帖字形"),
+                fallback: uiText("结构替补"),
+                generated: uiText("生成字形"),
               }[glyph.provenance.type]
             }
           </span>
-          {glyph.asset.processing === 'ink-mask' && <span>{extraction?.mode === 'restored' ? '已修复' : '已净底'}</span>}
-          <span>{glyph.source.license || '授权未标注'}</span>
+          {glyph.asset.processing === 'ink-mask' && <span>{extraction?.mode === 'restored' ? uiText("已修复") : uiText("已净底")}</span>}
+          <span>{glyph.source.license || uiText("授权未标注")}</span>
         </div>
-        {scanned && <Button variant="secondary" size="sm" onClick={() => void viewScan()}>下载原图</Button>}
+        {scanned && <Button variant="secondary" size="sm" onClick={() => void viewScan()}>{uiText("下载原图")}</Button>}
         {scanError && <p role="status">{scanError}</p>}
-        <details className="advanced provenance-details"><summary>来源详情 / Glyph details</summary>
+        <details className="advanced provenance-details"><summary>{uiText("来源详情 / Glyph details")}</summary>
           <dl>
             <dt>Semantic character</dt><dd>{semanticIdentity(glyph).text}</dd>
             <dt>Unicode</dt><dd>{semanticIdentity(glyph).codepoints.join(' ')}</dd>
@@ -235,7 +236,7 @@ export function Inspector() {
           </dl>
         </details>
       </section>
-      <p className="field-hint px-4">方向键微移，Shift 加速；Delete 删除。</p>
+      <p className="field-hint px-4">{uiText("方向键微移，Shift 加速；Delete 删除。")}</p>
     </aside>
   )
 }

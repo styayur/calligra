@@ -1,16 +1,16 @@
 # Calligra
 
-An offline workbench for composing, comparing and exporting Chinese and Japanese calligraphy.
+An offline workbench for composing, comparing and exporting Chinese, Japanese and Korean calligraphy.
 
-[简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Live demo](https://styayur.github.io/calligra/) · [Download v0.7.1](https://github.com/styayur/calligra/releases/tag/v0.7.1)
+[简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Open Calligra](https://styayur.github.io/calligra/) · [Releases](https://github.com/styayur/calligra/releases/latest)
 
-**Stage: Alpha.** Automated checks and release artifacts exist; independent installation, upgrade and sustained user validation remain outstanding. Current application manifests and published downloads are version 0.7.1, but default-branch changes are not automatically included in those downloads.
+The offline workbench offers Simplified Chinese, Japanese, Korean and English interfaces. Choose the UI language, text language and glyph tradition independently.
 
 ![Running Japanese workbench with font candidates, vertical composition and Visual Profile](docs/japanese-workbench.png)
 
 ## Features
 
-- Chinese and Japanese traditions are separated by default; cross-tradition exploration is explicit.
+- Chinese, Japanese, and Korean traditions are separated by default; cross-tradition exploration is explicit.
 - Compose up to 1,000 characters, replace glyphs, adjust layout and ink, then save project JSON or export artwork. Long-roll mode arranges up to 20,000 characters across pages.
 - Visual Profile compares shape, ink density, balance and spacing. Scores help compare candidates; they do not measure artistic quality.
 - Bundled fonts and samples work without an account or mandatory API. Sources and applicable rights stay attached to projects and historical-artwork exports.
@@ -19,27 +19,21 @@ Japanese sources include Yuji, Klee One, a labelled Source Han Serif JP coverage
 
 ## Installation / Quick Start
 
-### Published packages
+### Desktop and Android
 
-| Platform | v0.7.1 package | Start |
-|---|---|---|
-| Windows x64 | [Installer](https://github.com/styayur/calligra/releases/download/v0.7.1/CalligraphyStudio-Setup-0.7.1-x64.exe) or [portable executable](https://github.com/styayur/calligra/releases/download/v0.7.1/CalligraphyStudio-Portable-0.7.1-x64.exe) | Install or run the portable executable |
-| Web | [Offline ZIP](https://github.com/styayur/calligra/releases/download/v0.7.1/CalligraphyStudio-Web-0.7.1.zip) | Extract and serve over local HTTP |
-| Android | [APK](https://github.com/styayur/calligra/releases/download/v0.7.1/CalligraphyStudio-Android-0.7.1.apk) | Android 7.0+ |
+| Platform | Start |
+|---|---|
+| Windows, macOS and Linux | Open [Calligra Pages](https://styayur.github.io/calligra/) and optionally install the PWA. The Web ZIP can be served on localhost. |
+| Android 7.0 or later | Install the production-signed APK from [GitHub Releases](https://github.com/styayur/calligra/releases/latest). Use **App updates** for subsequent versions. |
+| Local Companion | Optional Python service for fonts, DOCX/ODT, PDF and experimental OCR. |
 
-Historical filenames still use `CalligraphyStudio`. Check downloads against [SHA256SUMS.txt](https://github.com/styayur/calligra/releases/download/v0.7.1/SHA256SUMS.txt); on Windows use `Get-FileHash <file> -Algorithm SHA256`. Windows packages are unsigned. Android uses the persistent v0.7.1 signing key; physical-device storage, sharing and lifecycle acceptance is pending. See [signing details](docs/RELEASE_SIGNING_0.7.1.md).
+Check the official ZIP and APK against the release's SHA256SUMS.txt. To run the extracted ZIP, use `python -m http.server 8080 --bind 127.0.0.1` and open `http://127.0.0.1:8080`. While online, use **Download offline fonts** to prepare all fonts for offline use.
 
-For the offline Web ZIP, keep the extracted directories together and run this inside the extracted folder:
-
-```sh
-python -m http.server 8080
-```
-
-Open `http://localhost:8080`. This local server needs Python 3; editing needs no internet after download. Double-clicking `index.html` is not the supported launch method. The hosted demo first downloads its assets from GitHub Pages; use a downloaded package for explicit offline operation.
+The last Windows Electron installer and portable application stay on the [v0.8.1 release](https://github.com/styayur/calligra/releases/tag/v0.8.1). The [desktop guide](docs/PWA_COMPANION.md) covers read-only project and personal-library migration and the separate Companion setup.
 
 ### First composition
 
-1. Open the demo or a local package. Select **Chinese** or **Japanese**, enter text and choose a layout.
+1. Open the demo or a local package. Select **Chinese**, **Japanese** or **Korean**, enter text and choose a layout.
 2. Generate a composition. Select a glyph to inspect its source, compare alternatives and preview a replacement.
 3. Save project JSON to continue editing, or export artwork. Back up projects before upgrading; see [schema migrations](docs/MIGRATIONS.md).
 
@@ -53,10 +47,10 @@ Use Node.js 22 (the CI version) and npm:
 git clone https://github.com/styayur/calligra.git
 cd calligra/apps/web
 npm ci
-npm run dev -- --mode desktop
+npm run dev -- --mode offline
 ```
 
-Open the URL printed by Vite, normally `http://localhost:5173`. Desktop mode uses bundled static assets; the optional FastAPI/SQLite corpus service is not required. Its development dependencies need Python 3.11+; installation and test commands follow below. See [architecture](docs/ARCHITECTURE.md) and [contributing](CONTRIBUTING.md) for corpus and platform development.
+Open the URL printed by Vite, normally `http://localhost:5173`. Offline mode uses bundled static assets; the optional FastAPI/SQLite corpus service is not required. Its development dependencies need Python 3.11+; installation and test commands follow below. See [architecture](docs/ARCHITECTURE.md) and [contributing](CONTRIBUTING.md) for corpus and platform development.
 
 ## Testing / CI / Platform Support
 
@@ -67,7 +61,7 @@ From `apps/web`:
 ```sh
 npm run typecheck
 npm run test:visual
-npm run build:desktop
+npm run build:offline
 ```
 
 For the optional API, from `apps/api`:
@@ -77,14 +71,14 @@ python -m pip install -r requirements.txt -r requirements-dev.txt
 python -m pytest -q
 ```
 
-The [Verify workflow](.github/workflows/ci.yml) also runs dependency audits, asset/provenance checks, built-browser regressions, packaged Windows renderer checks and Android package builds. [CodeForge regression](.github/workflows/codeforge-regression.yml) is an existing development gate. Windows x64, Web and Android have release artifacts; builds and automated renderer checks do not establish installer, upgrade or physical-device acceptance.
+The [Verify workflow](.github/workflows/ci.yml) also runs dependency audits, asset/provenance checks, built-browser regressions, Windows browser installation and migration tests, standalone Companion tests and Android package builds. [CodeForge regression](.github/workflows/codeforge-regression.yml) is an existing development gate. The release workflow checks a production-signed Android emulator upgrade. Device-specific results are reported separately.
 
 ## Known Limitations
 
 - Japanese text uses glyph cells. Full kinsoku, connected-kana continuity, tate-chū-yoko, arbitrary IVS and complete mixed-script vertical orientation are not implemented.
-- Historical samples and orthographic mappings are limited; Korean is not supported. The UI is primarily Chinese, with English and selected Japanese terms. README translations do not imply a translated application.
+- Historical samples and orthography remain limited. Nanum covers modern Korean. Regional Hanja and the tested archaic Jamo fixture use Source Han Serif KR. Historical OCR suggestions require manual verification.
 - Large ZIP exports are assembled in memory; rendering can vary between platforms. Long-roll mode does not provide individual glyph dragging.
-- Windows installer, upgrade and IME acceptance, plus physical Android storage, sharing and lifecycle checks, remain unverified. Older clients may discard v2 project fields when resaving.
+- Older clients may discard newer project fields when resaving. Keep a backup before moving projects between versions.
 
 ## Roadmap
 

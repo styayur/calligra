@@ -3,7 +3,7 @@
 set -euo pipefail
 
 package=io.github.styayur.calligraphystudio
-baseline=work/android-baseline/CalligraphyStudio-Android-0.8.0.apk
+baseline=work/android-baseline/CalligraphyStudio-Android-0.8.1.apk
 candidate=apps/web/android/app/build/outputs/apk/release/app-release.apk
 evidence=work/android-upgrade
 mkdir -p "$evidence"
@@ -20,14 +20,14 @@ launch() {
   for attempt in {1..12}; do
     adb shell uiautomator dump /sdcard/calligra-upgrade.xml
     adb pull /sdcard/calligra-upgrade.xml "$evidence/$generation-screen.xml"
-    if [[ "$generation" == baseline ]] || grep -Eq '集字内容|生成作品' "$evidence/$generation-screen.xml"; then
+    if [[ "$generation" == baseline ]] || grep -Eq '集字内容|生成作品|Composition text|Generate' "$evidence/$generation-screen.xml"; then
       break
     fi
     sleep 2
   done
   grep -q "package=\"$package\"" "$evidence/$generation-screen.xml"
   if [[ "$generation" == candidate ]]; then
-    grep -Eq '集字内容|生成作品' "$evidence/$generation-screen.xml"
+    grep -Eq '集字内容|生成作品|Composition text|Generate' "$evidence/$generation-screen.xml"
   fi
   adb exec-out screencap -p > "$evidence/$generation-screen.png"
   local pid
@@ -40,7 +40,7 @@ launch() {
 adb install "$baseline" | tee "$evidence/baseline-install.txt"
 launch baseline
 adb shell dumpsys package "$package" > "$evidence/baseline-package.txt"
-grep -q 'versionName=0\.8\.0' "$evidence/baseline-package.txt"
+grep -q 'versionName=0\.8\.1' "$evidence/baseline-package.txt"
 
 adb install -r "$candidate" | tee "$evidence/upgrade-install.txt"
 launch candidate
@@ -55,4 +55,5 @@ for field in 'appId|userId' 'dataDir' 'firstInstallTime'; do
   after=$(grep -m1 -E "^[[:space:]]+($field)=" "$evidence/candidate-package.txt")
   [[ "$before" == "$after" ]]
 done
+python scripts/test_android_update_screen.py --output "$evidence"
 echo 'PASS: existing production certificate accepted an in-place Android emulator upgrade; app ID, data path, and original install time preserved.'

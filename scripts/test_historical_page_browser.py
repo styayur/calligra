@@ -24,7 +24,7 @@ def exercise(browser, url, manifest):
     sx, sy = (size / original for size, original in zip(source["fixture_dimensions"], source["source_dimensions"], strict=True))
     labels = [(item["text"], [round(value * scale) for value, scale in zip(item["source_bbox"], (sx, sy, sx, sy), strict=True)])
               for item in source["labels"]]
-    page = browser.new_page(viewport={"width": 1360, "height": 960}, accept_downloads=True)
+    page = browser.new_page(locale='zh-CN', viewport={"width": 1360, "height": 960}, accept_downloads=True)
     page.route("**/*", lambda route: route.continue_() if
                route.request.url.startswith((url, "data:")) else route.abort())
     page.goto(url)

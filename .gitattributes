@@ -4,6 +4,8 @@ apps/web/public/fonts/asset-manifest.json text eol=lf
 third_party/harfbuzz/*.txt text eol=lf
 apps/web/public/licenses/*.txt text eol=lf
 *.ttf binary
+*.otf binary
+samples/fonts/korean/*.txt text eol=lf -whitespace
 *.woff2 binary
 *.gz binary
 *.gzip binary
@@ -19,7 +21,7 @@ apps/web/public/third-party-licenses.html text eol=lf
 apps/web/public/fonts/licenses/*.txt text eol=lf
 apps/web/public/demo/licenses/*.txt text eol=lf
 apps/web/public/japanese/licenses/*.txt text eol=lf
-apps/web/public/licenses/npm/** text eol=lf
+apps/web/public/licenses/npm/** text eol=lf -whitespace
 # Preserve upstream licence text verbatim, including its original whitespace.
 apps/web/public/fonts/licenses/*.txt -whitespace
 apps/web/public/japanese/licenses/*.txt -whitespace

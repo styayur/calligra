@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import { staticAssetUrl } from '../config/runtime'
 import type {
   BatchComposeRequest,
@@ -10,7 +11,7 @@ import type {
   SimilarityResponse,
 } from '../types'
 import type { GlyphListResponse, GlyphSearchParams } from './client'
-import { candidateCompatible } from '../lib/candidatePolicy'
+import { candidateCompatible, usesRegionalFonts } from '../lib/candidatePolicy'
 import { migrateGlyph, textCharacters } from '../lib/identity'
 import { historicalSample } from './historical'
 import { fontCatalog, fontGlyphs } from './fonts'
@@ -29,7 +30,7 @@ export async function loadStaticGlyphs(): Promise<Glyph[]> {
   if (!glyphPromise) {
     glyphPromise = fetch(`${import.meta.env.BASE_URL}demo/glyphs.json`)
       .then((response) => {
-        if (!response.ok) throw new Error('无法加载静态 Glyph 数据')
+        if (!response.ok) throw new Error(uiText("无法加载静态 Glyph 数据"))
         return response.json() as Promise<Glyph[]>
       })
       .then(async (glyphs) =>
@@ -46,7 +47,7 @@ export async function loadStaticSimilarity(): Promise<StaticSimilarity> {
   if (!similarityPromise) {
     similarityPromise = fetch(`${import.meta.env.BASE_URL}demo/similarity.json`)
       .then((response) => {
-        if (!response.ok) throw new Error('无法加载静态相似度数据')
+        if (!response.ok) throw new Error(uiText("无法加载静态相似度数据"))
         return response.json() as Promise<StaticSimilarity>
       })
   }
@@ -55,14 +56,15 @@ export async function loadStaticSimilarity(): Promise<StaticSimilarity> {
 
 export async function loadStaticMetadata(writingTradition = 'Chinese'): Promise<MetadataResponse> {
   const response = await fetch(`${import.meta.env.BASE_URL}demo/meta.json`)
-  if (!response.ok) throw new Error('无法加载静态元数据')
+  if (!response.ok) throw new Error(uiText("无法加载静态元数据"))
   const legacy = await response.json() as MetadataResponse
   if (writingTradition === 'Chinese') return legacy
   const fonts = (await fontCatalog()).filter((f) => writingTradition === '*' || f.writing_tradition === writingTradition)
   return { ...legacy,
     calligraphers: [...new Set(fonts.map((f) => f.designer))].map((name,i) => ({id:i+1,name})),
     styles: [...new Set(fonts.map((f) => f.style))].map((name,i) => ({id:i+1,name})),
-    datasets: [...new Set([...legacy.datasets, ...fonts.map((font) => font.dataset), 'CODH Kuzushiji'])] }
+    datasets: [...new Set([...(writingTradition === '*' ? legacy.datasets : []), ...fonts.map((font) => font.dataset),
+      ...(['Japanese', '*'].includes(writingTradition) ? ['CODH Kuzushiji'] : [])])] }
 }
 
 export async function staticSearch(params: GlyphSearchParams): Promise<GlyphListResponse> {
@@ -156,7 +158,7 @@ export async function staticCompose(request: BatchComposeRequest): Promise<Batch
         if (request.style && candidate.source.style !== request.style) return false
         if (request.dataset && candidate.source.dataset !== request.dataset) return false
         return true
-      }) ?? (request.writing_tradition === 'Japanese' ? (await fontGlyphs(position.character, request.style, request.calligrapher, { ...request, vertical:request.layout === 'vertical-rtl' }))[0] : null) ?? null
+      }) ?? (usesRegionalFonts(request.writing_tradition) ? (await fontGlyphs(position.character, request.style, request.calligrapher, { ...request, vertical:request.layout === 'vertical-rtl' }))[0] : null) ?? null
       cache.set(position.character, glyph)
     }
     const glyph = cache.get(position.character)

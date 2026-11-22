@@ -1,3 +1,4 @@
+import { uiText } from "../../i18n"
 import { useEffect, useRef, useState } from 'react'
 import {
   initialCandidates,
@@ -23,8 +24,8 @@ import { textLines } from '../../lib/composition'
 import { saveFile } from '../../lib/download'
 import { useEditorStore } from '../../stores/editor'
 import type { Glyph } from '../../types'
-import { DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
-import { JapaneseFontFallback, JapaneseFontSelect } from '../glyph-browser/JapaneseFontSelect'
+import { usesRegionalFonts, DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { RegionalFontFallback, RegionalFontSelect } from '../glyph-browser/RegionalFontSelect'
 import { SourcePolicyControls } from '../glyph-browser/SourcePolicyControls'
 import { assertExportRights, attributionFiles } from '../../lib/rights'
 
@@ -64,9 +65,9 @@ function PagePreview({
   }, [page, options])
   return (
     <figure className="roll-page">
-      <canvas ref={canvas} aria-label={`长卷第 ${number} 页`} />
+      <canvas ref={canvas} aria-label={uiText("长卷第 {{v0}} 页", { v0: number })} />
       <figcaption>
-        第 {number} 页 · {page.slots.length} 字{error && ` · ${error}`}
+        {uiText("第")} {number} {uiText("页 ·")} {page.slots.length} {uiText("字")}{error && ` · ${error}`}
       </figcaption>
     </figure>
   )
@@ -113,7 +114,7 @@ export function LongRoll({ active }: { active: boolean }) {
       const candidates = await resolveCharacters(
         characters,
         async (character) => {
-          const page = await initialCandidates(character, source, policy.writing_tradition === 'Japanese' ? '' : style, 8, abort.signal, { ...policy, vertical })
+          const page = await initialCandidates(character, source, usesRegionalFonts(policy.writing_tradition) ? '' : style, 8, abort.signal, { ...policy, vertical })
           if (page.warning) warnings.add(page.warning)
           const items: ProfileCandidate[] = []
           for (const g of page.items.slice(0, 8)) {
@@ -125,15 +126,15 @@ export function LongRoll({ active }: { active: boolean }) {
               profileById.set(g.id, profile)
               items.push({ id: g.id, character, profile, glyph: g })
             } catch {
-              warnings.add(`「${character}」部分候选无法分析`)
+              warnings.add(uiText("「{{v0}}」部分候选无法分析", { v0: character }))
             }
           }
           return items
         },
-        (done, total) => setStatus(`准备字形与特征 ${done}/${total} 个不同字`),
+        (done, total) => setStatus(uiText("准备字形与特征 {{v0}}/{{v1}} 个不同字", { v0: done, v1: total })),
         abort.signal,
       )
-      if (!byId.size) throw new Error('未找到可用字形，请更换字库或书体。')
+      if (!byId.size) throw new Error(uiText("未找到可用字形，请更换字库或书体。"))
       // Fixed representative context, independent of beam paths, deterministic across runs.
       const context = [...candidates.values()]
         .filter((c) => c.length)
@@ -144,7 +145,7 @@ export function LongRoll({ active }: { active: boolean }) {
         variation,
         policy,
         signal: abort.signal,
-        progress: (done) => setStatus(`自动选字 ${done}/${characters.length}`),
+        progress: (done) => setStatus(uiText("自动选字 {{v0}}/{{v1}}", { v0: done, v1: characters.length })),
       })
       const missing = new Map<string, number[]>(),
         costs: number[] = []
@@ -189,12 +190,12 @@ export function LongRoll({ active }: { active: boolean }) {
       setScroll(0)
       if (scroller.current) scroller.current.scrollTop = 0
       setStatus(
-        `已生成 ${characters.length} 字 / ${pages.length} 页；缺字 ${[...missing.values()].reduce((s, p) => s + p.length, 0)} 处。`,
+        uiText("已生成 {{v0}} 字 / {{v1}} 页；缺字 {{v2}} 处。", { v0: characters.length, v1: pages.length, v2: [...missing.values()].reduce((s, p) => s + p.length, 0) }),
       )
     } catch (e) {
       setStatus(
         abort.signal.aborted
-          ? '已取消，保留上次生成结果。'
+          ? uiText("已取消，保留上次生成结果。")
           : e instanceof Error
             ? e.message
             : String(e),
@@ -216,11 +217,11 @@ export function LongRoll({ active }: { active: boolean }) {
         encoder = new TextEncoder()
       for (let i = 0; i < result.pages.length; i++) {
         abort.signal.throwIfAborted()
-        setStatus(`导出第 ${i + 1}/${result.pages.length} 页…`)
+        setStatus(uiText("导出第 {{v0}}/{{v1}} 页…", { v0: i + 1, v1: result.pages.length }))
         await renderRollPage(result.pages[i], result.options, canvas, 1, abort.signal)
         const blob = await new Promise<Blob>((resolve, reject) =>
           canvas.toBlob(
-            (b) => (b ? resolve(b) : reject(new Error('页面导出失败'))),
+            (b) => (b ? resolve(b) : reject(new Error(uiText("页面导出失败")))),
             'image/png',
           ),
         )
@@ -272,10 +273,10 @@ export function LongRoll({ active }: { active: boolean }) {
       )
       files.push(...await attributionFiles(selectedGlyphs, { commercialOnly: result.policy.commercial_only }))
       abort.signal.throwIfAborted()
-      await saveFile('长卷作品.zip', zipFiles(files))
-      setStatus('已导出全部页面、缺字列表和字形来源清单。')
+      await saveFile(uiText("长卷作品.zip"), zipFiles(files))
+      setStatus(uiText("已导出全部页面、缺字列表和字形来源清单。"))
     } catch (e) {
-      setStatus(abort.signal.aborted ? '导出已取消。' : String(e))
+      setStatus(abort.signal.aborted ? uiText("导出已取消。") : String(e))
     } finally {
       setBusy(false)
     }
@@ -287,18 +288,18 @@ export function LongRoll({ active }: { active: boolean }) {
       p.slots.filter((s) => (s.cost ?? 0) > 0.28).map((s) => ({ ...s, page })),
     ) || []
   return (
-    <main className={active ? 'long-roll' : 'hidden'} aria-label="长卷模式">
+    <main className={active ? 'long-roll' : 'hidden'} aria-label={uiText("长卷模式")}>
       <aside className="roll-controls panel-scroll">
-        <h2>长卷模式</h2>
+        <h2>{uiText("长卷模式")}</h2>
         <p className="field-hint">
-          自动选字、分栏、分页。适合 1000 字以上作品，预览按页浏览，不提供逐字拖动。
+          {uiText("自动选字、分栏、分页。适合 1000 字以上作品，预览按页浏览，不提供逐字拖动。")}
         </p>
         <fieldset disabled={busy}>
           <SourcePolicyControls policy={policy} onChange={setPolicy} />
           <label>
-            长卷内容 <span>{count} / 20000 字</span>
+            {uiText("长卷内容")} <span>{count} {uiText("/ 20000 字")}</span>
             <textarea
-              aria-label="长卷内容"
+              aria-label={uiText("长卷内容")}
               rows={8}
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -308,48 +309,48 @@ export function LongRoll({ active }: { active: boolean }) {
             className="load-more"
             onClick={() => setText(useEditorStore.getState().project.text || '')}
           >
-            从工作台读取文字
+            {uiText("从工作台读取文字")}
           </button>
           <div className="field-grid">
             <label>
-              来源 / Source
+              {uiText("来源 / Source")}
               <select
-                aria-label="长卷字形来源"
+                aria-label={uiText("长卷字形来源")}
                 value={source}
                 onChange={(e) => {
                   setSource(e.target.value as CandidateSource)
                   setPolicy({ ...policy, font_id: undefined, allow_font_fallback: undefined })
                 }}
               >
-                <option value="fonts">字体 / Font</option>
-                <option value="original">原帖 / Original</option>
-                <option value="all">全部</option>
+                <option value="fonts">{uiText("字体 / Font")}</option>
+                <option value="original">{uiText("原帖 / Original")}</option>
+                <option value="all">{uiText("全部")}</option>
               </select>
             </label>
-            {policy.writing_tradition === 'Japanese' ? <JapaneseFontSelect policy={policy} onChange={(next) => {
+            {usesRegionalFonts(policy.writing_tradition) ? <RegionalFontSelect policy={policy} onChange={(next) => {
               setPolicy(next)
               setSource('fonts')
             }} /> : <label>
-              书体
+              {uiText("书体")}
               <select
-                aria-label="长卷书体"
+                aria-label={uiText("长卷书体")}
                 value={style}
                 onChange={(e) => setStyle(e.target.value)}
               >
-                <option value="">全部书体</option>
-                <option>楷书</option>
-                <option>行书</option>
-                <option>草书</option>
+                <option value="">{uiText("全部书体")}</option>
+                <option value="楷书">{uiText("楷书")}</option>
+                <option value="行书">{uiText("行书")}</option>
+                <option value="草书">{uiText("草书")}</option>
               </select>
             </label>}
           </div>
-          {policy.writing_tradition === 'Japanese' && source !== 'original' &&
-            <JapaneseFontFallback policy={policy} onChange={setPolicy} />}
+          {usesRegionalFonts(policy.writing_tradition) && source !== 'original' &&
+            <RegionalFontFallback policy={policy} onChange={setPolicy} />}
           <div className="field-grid">
             <label>
-              每页行数
+              {uiText("每页行数")}
               <input
-                aria-label="长卷每页行数"
+                aria-label={uiText("长卷每页行数")}
                 type="number"
                 min="2"
                 max="24"
@@ -358,9 +359,9 @@ export function LongRoll({ active }: { active: boolean }) {
               />
             </label>
             <label>
-              每页列数
+              {uiText("每页列数")}
               <input
-                aria-label="长卷每页列数"
+                aria-label={uiText("长卷每页列数")}
                 type="number"
                 min="2"
                 max="24"
@@ -375,7 +376,7 @@ export function LongRoll({ active }: { active: boolean }) {
               checked={vertical}
               onChange={(e) => setVertical(e.target.checked)}
             />
-            竖排，从右向左分栏
+            {uiText("竖排，从右向左分栏")}
           </label>
           <label className="check-field">
             <input
@@ -383,12 +384,12 @@ export function LongRoll({ active }: { active: boolean }) {
               checked={punctuation}
               onChange={(e) => setPunctuation(e.target.checked)}
             />
-            保留标点
+            {uiText("保留标点")}
           </label>
           <label className="slider-field">
-            重复字变化 {variation.toFixed(2)}
+            {uiText("重复字变化")} {variation.toFixed(2)}
             <input
-              aria-label="重复字变化"
+              aria-label={uiText("重复字变化")}
               type="range"
               min="0"
               max="1"
@@ -398,19 +399,18 @@ export function LongRoll({ active }: { active: boolean }) {
             />
           </label>
           <details className="advanced">
-            <summary>自动选字设置</summary>
+            <summary>{uiText("自动选字设置")}</summary>
             <label>
-              搜索宽度
+              {uiText("搜索宽度")}
               <select value={beam} onChange={(e) => setBeam(Number(e.target.value))}>
-                <option value="1">快速（1）</option>
-                <option value="4">均衡（4）</option>
-                <option value="8">精细（8）</option>
-                <option value="16">更精细（16）</option>
+                <option value="1">{uiText("快速（1）")}</option>
+                <option value="4">{uiText("均衡（4）")}</option>
+                <option value="8">{uiText("精细（8）")}</option>
+                <option value="16">{uiText("更精细（16）")}</option>
               </select>
             </label>
             <p className="field-hint">
-              每个不同字最多分析 8 个候选。综合整段参照、相邻字形差异和最近 32
-              字的重复情况；只有一个候选时保持原样。
+              {uiText("每个不同字最多分析 8 个候选。综合整段参照、相邻字形差异和最近 32 字的重复情况；只有一个候选时保持原样。")}
             </p>
           </details>
           <button
@@ -418,46 +418,46 @@ export function LongRoll({ active }: { active: boolean }) {
             disabled={busy || !count || count > 20000}
             onClick={generate}
           >
-            自动生成长卷
+            {uiText("自动生成长卷")}
           </button>
         </fieldset>
         {busy && (
           <button className="load-more" onClick={() => controller.current?.abort()}>
-            取消当前任务
+            {uiText("取消当前任务")}
           </button>
         )}
         <p className="feedback" role="status">
-          {status || '输入文字后开始生成。换行会另起一栏或一行。'}
+          {status || uiText("输入文字后开始生成。换行会另起一栏或一行。")}
         </p>
         {result && (
           <>
             <button className="roll-primary" disabled={busy} onClick={exportAll}>
-              批量导出 ZIP
+              {uiText("批量导出 ZIP")}
             </button>
             <p className="field-hint">
-              每页 PNG 800 × 1100，附来源与位置清单、缺字 CSV。请导出以保存本次长卷。
+              {uiText("每页 PNG 800 × 1100，附来源与位置清单、缺字 CSV。请导出以保存本次长卷。")}
             </p>
-            <h3>作品协调度 {result.score ?? '—'} / 100</h3>
+            <h3>{uiText("作品协调度")} {result.score ?? '—'} / 100</h3>
             <p className="field-hint">
-              局部字形相近度，非审美评分。{result.singleVariants} 个不同字只有一种候选。
+              {uiText("局部字形相近度，非审美评分。")}{result.singleVariants} {uiText("个不同字只有一种候选。")}
             </p>
             <details open={result.missing.length > 0}>
-              <summary>缺字列表（{result.missing.length} 种）</summary>
+              <summary>{uiText("缺字列表（")}{result.missing.length} {uiText("种）")}</summary>
               {result.missing.length ? (
                 result.missing.map((m) => (
                   <p key={m.character}>
-                    {m.character} · {m.positions.length} 处 · 位置{' '}
+                    {m.character} · {m.positions.length} {uiText("处 · 位置")}{' '}
                     {m.positions.slice(0, 20).join('、')}
                     {m.positions.length > 20 ? '…' : ''}
                   </p>
                 ))
               ) : (
-                <p>没有缺字。</p>
+                <p>{uiText("没有缺字。")}</p>
               )}
             </details>
             <details>
-              <summary>异常字检测（{anomalies.length} 处）</summary>
-              <p className="field-hint">与前后最多 8 字的平均差异超过 28%；仅供复核。</p>
+              <summary>{uiText("异常字检测（")}{anomalies.length} {uiText("处）")}</summary>
+              <p className="field-hint">{uiText("与前后最多 8 字的平均差异超过 28%；仅供复核。")}</p>
               {anomalies.slice(0, 100).map((s) => (
                 <button
                   className="anomaly-link"
@@ -467,11 +467,11 @@ export function LongRoll({ active }: { active: boolean }) {
                     setScroll(s.page * 580)
                   }}
                 >
-                  第 {s.index + 1} 字「{s.character}」· 第 {s.page + 1} 页 ·{' '}
-                  {harmonyScore(s.cost!)} 分
+                  {uiText("第")} {s.index + 1} {uiText("字「")}{s.character}{uiText("」· 第")} {s.page + 1} {uiText("页 ·")}{' '}
+                  {harmonyScore(s.cost!)} {uiText("分")}
                 </button>
               ))}
-              {anomalies.length > 100 && <p>这里只显示前 100 处，完整差异在导出清单中。</p>}
+              {anomalies.length > 100 && <p>{uiText("这里只显示前 100 处，完整差异在导出清单中。")}</p>}
             </details>
             {result.warnings.map((w) => (
               <p className="field-hint" key={w}>
@@ -485,7 +485,7 @@ export function LongRoll({ active }: { active: boolean }) {
         className="roll-preview panel-scroll"
         ref={scroller}
         onScroll={(e) => setScroll(e.currentTarget.scrollTop)}
-        aria-label="长卷分页预览"
+        aria-label={uiText("长卷分页预览")}
       >
         {result ? (
           <div style={{ height: result.pages.length * 580, position: 'relative' }}>
@@ -505,9 +505,9 @@ export function LongRoll({ active }: { active: boolean }) {
           </div>
         ) : (
           <div className="roll-empty">
-            <span>卷</span>
-            <h2>让千字成篇</h2>
-            <p>分页预览 · 自动选字 · 重复字变化</p>
+            <span>{uiText("卷")}</span>
+            <h2>{uiText("让千字成篇")}</h2>
+            <p>{uiText("分页预览 · 自动选字 · 重复字变化")}</p>
           </div>
         )}
       </section>

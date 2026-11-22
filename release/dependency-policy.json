@@ -3,5 +3,5 @@
   "reviewed": "2026-11-03",
   "maximum_vulnerabilities": 0,
   "exceptions": [],
-  "justification": "Both full npm trees and production web dependencies now pass raw npm audit with zero advisories. The previous development-only exception is retired. Legacy build consumers use explicit project-owned API glue backed by patched minimatch 11.0.1; modern consumers use 11.0.1 directly. Capacitor/rimraf uses patched glob 14.0.3. See docs/DEPENDENCY_AUDIT_2026-11-03.md."
+  "justification": "The full and production web trees must both pass npm audit with zero advisories. The retired Electron build used separately audited dependency pins preserved in the v0.8.1 release. Capacitor/rimraf retains patched glob 14.0.3 and its cancellation regression."
 }

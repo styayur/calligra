@@ -20,6 +20,12 @@ export interface CandidatePolicy {
   allow_font_fallback?: boolean
 }
 export const DEFAULT_POLICY: CandidatePolicy = { writing_tradition: 'Chinese', mode: 'strict' }
+export function usesRegionalFonts(tradition?: string): boolean {
+  return tradition === 'Japanese' || tradition === 'Korean'
+}
+export function traditionLocale(tradition: string): string | undefined {
+  return { Japanese: 'ja-JP', Korean: 'ko-KR' }[tradition]
+}
 export const CANDIDATE_WEIGHTS = { visual: .55, locale: .12, tradition: .12, script: .08, period: .05, work: .05, repetition: 1 }
 export type CandidateWeights = typeof CANDIDATE_WEIGHTS
 /** Fail closed for unknown traditions when a tradition is explicitly selected. */
@@ -30,7 +36,8 @@ export function compatibleSource(source: GlyphSource, variant: GlyphVariant | un
     if (policy.language && source.language && source.language !== policy.language) return false
   }
   if (policy.font_id && (provenance !== 'font' || fontId !== policy.font_id)) return false
-  if (source.source_role === 'coverage-fallback' && !policy.font_id && !policy.allow_font_fallback) return false
+  if (source.source_role === 'coverage-fallback' && !policy.font_id && !policy.allow_font_fallback &&
+      !(policy.writing_tradition === 'Korean' && source.writing_tradition === 'Korean' && source.script === 'Han')) return false
   if (policy.script && source.script !== policy.script) return false
   if (policy.variant_type && variant?.type !== policy.variant_type) return false
   // Related exploration and explicit variant or font selection may show historical kana.
@@ -49,7 +56,7 @@ export function candidateCompatible(glyph: Glyph, policy: CandidatePolicy): bool
   return compatibleSource(glyph.source, glyph.variant, glyph.provenance.type, policy, typeof glyph.metadata?.font_id === 'string' ? glyph.metadata.font_id : undefined)
 }
 export function fontFallbackPolicy(policy: CandidatePolicy): CandidatePolicy {
-  return { ...policy, font_id: undefined, writing_tradition: 'Japanese', mode: 'strict' }
+  return { ...policy, font_id: undefined, writing_tradition: policy.writing_tradition || 'Japanese', mode: 'strict' }
 }
 
 /** A computational cost, not authenticity or aesthetic merit. Unknown fields add no evidence. */
@@ -69,7 +76,7 @@ export function candidateCost(glyph: Glyph, visualCost: number, policy: Candidat
     weights.repetition * repetition
 }
 
-export function selectJapaneseFont(policy: CandidatePolicy, id: string): CandidatePolicy {
+export function selectRegionalFont(policy: CandidatePolicy, id: string): CandidatePolicy {
   if (!id) return { ...policy, font_id: undefined }
   return { ...policy, font_id: id, variant_type: undefined, orthography: undefined,
     dataset: undefined, work: undefined, designer: undefined, period: undefined, provenance_type: undefined }

@@ -1,3 +1,4 @@
+import { uiText } from "../../i18n"
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { assetToken, getVisualProfile } from '../../lib/featureCache'
 import {
@@ -84,8 +85,8 @@ export function ProfileReadout({ glyph, profile }: { glyph: Glyph; profile: Prof
   return (
     <div className="visual-readout">
       <div className="profile-overlay">
-        <img src={glyph.asset.url} alt={`${glyph.character} 特征定位`} />
-        <svg viewBox="0 0 100 100" aria-label="包围盒与重心">
+        <img src={glyph.asset.url} alt={uiText("{{v0}} 特征定位", { v0: glyph.character })} />
+        <svg viewBox="0 0 100 100" aria-label={uiText("包围盒与重心")}>
           <rect x={x * 100} y={y * 100} width={w * 100} height={h * 100} />
           <path
             d={`M ${profile.centroid[0] * 100 - 4} ${profile.centroid[1] * 100} h 8 M ${profile.centroid[0] * 100} ${profile.centroid[1] * 100 - 4} v 8`}
@@ -93,42 +94,42 @@ export function ProfileReadout({ glyph, profile }: { glyph: Glyph; profile: Prof
         </svg>
       </div>
       <dl className="profile-values">
-        <dt>宽高比</dt>
+        <dt>{uiText("宽高比")}</dt>
         <dd>{profile.aspectRatio.toFixed(2)}</dd>
-        <dt>墨量</dt>
+        <dt>{uiText("墨量")}</dt>
         <dd>{(profile.inkDensity * 100).toFixed(1)}%</dd>
-        <dt>重心 x / y</dt>
+        <dt>{uiText("重心 x / y")}</dt>
         <dd>{profile.centroid.map((v) => v.toFixed(2)).join(' / ')}</dd>
-        <dt>包围盒 x/y/w/h</dt>
+        <dt>{uiText("包围盒 x/y/w/h")}</dt>
         <dd>{profile.bbox.map((v) => v.toFixed(2)).join(' / ')}</dd>
-        <dt>骨架长度 / 端点 / 分支</dt>
+        <dt>{uiText("骨架长度 / 端点 / 分支")}</dt>
         <dd>
           {profile.skeleton.length.toFixed(2)} / {profile.skeleton.endpoints} /{' '}
           {profile.skeleton.branches}
         </dd>
-        <dt>距离均值 / 方差 / 最大</dt>
+        <dt>{uiText("距离均值 / 方差 / 最大")}</dt>
         <dd>{profile.distance.map((v) => v.toFixed(4)).join(' / ')}</dd>
-        <dt>四象限墨量 ↖ ↗ ↙ ↘</dt>
+        <dt>{uiText("四象限墨量 ↖ ↗ ↙ ↘")}</dt>
         <dd>{profile.quadrants.map((v) => (v * 100).toFixed(0) + '%').join(' / ')}</dd>
-        <dt>留白 左 / 上 / 右 / 下 / 内</dt>
+        <dt>{uiText("留白 左 / 上 / 右 / 下 / 内")}</dt>
         <dd>{profile.whitespace.map((v) => (v * 100).toFixed(0) + '%').join(' / ')}</dd>
       </dl>
-      <Distribution values={profile.horizontal} label="水平投影（逐行）" />
-      <Distribution values={profile.vertical} label="垂直投影（逐列）" />
-      <Distribution values={profile.orientation} label="笔画方向 0–180°" />
+      <Distribution values={profile.horizontal} label={uiText("水平投影（逐行）")} />
+      <Distribution values={profile.vertical} label={uiText("垂直投影（逐列）")} />
+      <Distribution values={profile.orientation} label={uiText("笔画方向 0–180°")} />
       <details>
-        <summary>图像矩与实验拓扑</summary>
+        <summary>{uiText("图像矩与实验拓扑")}</summary>
         <p>
-          中心矩 μ20, μ02, μ11, μ30, μ03, μ21, μ12：
+          {uiText("中心矩 μ20, μ02, μ11, μ30, μ03, μ21, μ12：")}
           {profile.moments.map((v) => v.toExponential(2)).join(' / ')}
         </p>
         <p>Hu 1–7：{profile.hu.map((v) => v.toExponential(2)).join(' / ')}</p>
         <p>
-          连通分量 {profile.topology.components} · 孔洞 {profile.topology.holes} · Euler{' '}
+          {uiText("连通分量")} {profile.topology.components} {uiText("· 孔洞")} {profile.topology.holes} · Euler{' '}
           {profile.topology.euler}
         </p>
-        <p>H0 持久条码（最长 12 条；本质类截断于 1）</p>
-        <svg viewBox="0 0 100 65" className="barcode" aria-label="H0 持久条码">
+        <p>{uiText("H0 持久条码（最长 12 条；本质类截断于 1）")}</p>
+        <svg viewBox="0 0 100 65" className="barcode" aria-label={uiText("H0 持久条码")}>
           {profile.persistence.slice(0, 12).map(([b, d], i) => (
             <line
               key={i}
@@ -158,24 +159,24 @@ export function DifferencePanel({
   const experimental = reference ? experimentalDifference(profile, reference) : null
   return (
     <div className="difference-panel">
-      <h4>可解释差异</h4>
+      <h4>{uiText("可解释差异")}</h4>
       {rows.length ? (
         <>
           <p>
-            上下文协调度 <strong>{harmonyScore(profileCost(profile, context))}</strong> / 100
+            {uiText("上下文协调度")} <strong>{harmonyScore(profileCost(profile, context))}</strong> / 100
           </p>
           <p className="field-hint">
-            条越长，差异越大。{context.length} 个附近字形等权参照；相近度不代表审美优劣。
+            {uiText("条越长，差异越大。")}{context.length} {uiText("个附近字形等权参照；相近度不代表审美优劣。")}
           </p>
           <details className="context-profile">
-            <summary>Context Profile · 上下文参照</summary>
+            <summary>{uiText("Context Profile · 上下文参照")}</summary>
             <dl className="profile-values">
-              <dt>参照宽高比 / 当前候选</dt>
+              <dt>{uiText("参照宽高比 / 当前候选")}</dt>
               <dd>
                 {(context.reduce((s, p) => s + p.aspectRatio, 0) / context.length).toFixed(2)} /{' '}
                 {profile.aspectRatio.toFixed(2)}
               </dd>
-              <dt>参照墨量 / 当前候选</dt>
+              <dt>{uiText("参照墨量 / 当前候选")}</dt>
               <dd>
                 {(
                   (context.reduce((s, p) => s + p.inkDensity, 0) / context.length) *
@@ -183,7 +184,7 @@ export function DifferencePanel({
                 ).toFixed(1)}
                 % / {(profile.inkDensity * 100).toFixed(1)}%
               </dd>
-              <dt>参照重心 x / y</dt>
+              <dt>{uiText("参照重心 x / y")}</dt>
               <dd>
                 {[0, 1]
                   .map((i) =>
@@ -204,19 +205,18 @@ export function DifferencePanel({
           ))}
         </>
       ) : (
-        <p className="field-hint">加入其他字形后显示上下文比较。</p>
+        <p className="field-hint">{uiText("加入其他字形后显示上下文比较。")}</p>
       )}
       {experimental && (
         <details>
-          <summary>实验：OT / topology / persistent homology</summary>
+          <summary>{uiText("实验：OT / topology / persistent homology")}</summary>
           <p>
-            与当前原字比较：投影 W₁ {experimental.transport.toFixed(4)}
-            ；连通/孔洞差 {experimental.topology}；H0 寿命向量差{' '}
+            {uiText("与当前原字比较：投影 W₁")} {experimental.transport.toFixed(4)}
+            {uiText("；连通/孔洞差")} {experimental.topology}{uiText("；H0 寿命向量差")}{' '}
             {experimental.persistence.toFixed(4)}。
           </p>
           <p className="field-hint">
-            仅横纵投影的 1D Optimal Transport；H0 为灰度过滤的连通分量持久性。未计算 2D OT、H1
-            持久性或图间 Wasserstein；实验指标不参与默认排序。
+            {uiText("仅横纵投影的 1D Optimal Transport；H0 为灰度过滤的连通分量持久性。未计算 2D OT、H1 持久性或图间 Wasserstein；实验指标不参与默认排序。")}
           </p>
         </details>
       )}
@@ -273,24 +273,24 @@ export function WorkHarmony() {
   return (
     <section className="work-harmony">
       <button onClick={() => setOpen(!open)} aria-expanded={open}>
-        作品协调度{' '}
+        {uiText("作品协调度")}{' '}
         {open && !pending && summary.score !== null
           ? `${summary.score} / 100`
           : open
-            ? '收起'
-            : '分析'}
+            ? uiText("收起")
+            : uiText("分析")}
       </button>
       {open && (
         <div>
           <p className="field-hint">
             {pending
-              ? '按需计算中…'
-              : `已分析 ${profiles.size}/${glyphs.length} 字；${failed} 字读取失败。`}{' '}
-            基于原始字形与最近 8 字，未计入手动变形和墨色。
+              ? uiText("按需计算中…")
+              : uiText("已分析 {{v0}}/{{v1}} 字；{{v2}} 字读取失败。", { v0: profiles.size, v1: glyphs.length, v2: failed })}{' '}
+            {uiText("基于原始字形与最近 8 字，未计入手动变形和墨色。")}
           </p>
           {summary.outliers.length > 0 && (
             <p>
-              差异较大的字：
+              {uiText("差异较大的字：")}
               {summary.outliers.map(({ g }) => (
                 <button key={g.id} onClick={() => useEditorStore.getState().selectGlyph(g.id)}>
                   {g.character}

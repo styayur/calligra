@@ -62,10 +62,8 @@ jobs:
       - name: Install web dependencies
         working-directory: apps/web
         run: npm ci
-      - name: Verify local build adapter and abort regression
-        run: |
-          python3 scripts/verify_matcher_archive.py
-          node scripts/test_glob_cancellation.cjs
+      - name: Verify Capacitor file traversal cancellation
+        run: node scripts/test_glob_cancellation.cjs
       - name: Type check
         working-directory: apps/web
         run: npm run typecheck
@@ -86,7 +84,7 @@ jobs:
       - name: Built browser regression tests
         run: |
           python scripts/audit_dependencies.py
-          npm --prefix apps/web run build:desktop
+          npm --prefix apps/web run build:offline
           python -m pip install playwright pillow
           python -m playwright install --with-deps chromium
           python -m http.server 5178 --directory apps/web/dist > /tmp/calligraphy-http.log 2>&1 &
@@ -96,61 +94,50 @@ jobs:
           python scripts/test_extraction_browser.py --url http://127.0.0.1:5178
           python scripts/test_historical_page_browser.py --url http://127.0.0.1:5178 --output work/historical-page.json
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5178 --output work/japanese-fonts-web.json --screenshot work/japanese-font-selection.png
+          python scripts/test_korean_browser.py --url http://127.0.0.1:5178 --output work/korean-fonts-web.json
+          python scripts/test_pwa_browser.py --url http://127.0.0.1:5178/ --output work/pwa-linux.json
+          python scripts/test_i18n_browser.py --url http://127.0.0.1:5178/ --output work/i18n-web.json
       - uses: actions/upload-artifact@v7
         with:
           name: web-japanese-font-evidence
           path: |
             work/japanese-fonts-web.json
+            work/korean-fonts-web.json
             work/japanese-font-selection.png
+            work/pwa-linux.json
+            work/i18n-web.json
           if-no-files-found: error
 
   windows:
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 22
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Generate desktop brand resources
-        run: |
-          $PSNativeCommandUseErrorActionPreference = $true
-          python -m pip install pillow
-          python scripts/build_desktop_icon.py
-      - name: Build Windows packages
+      - name: Install dependencies and build the offline Web app
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
           npm --prefix apps/web ci
-          npm --prefix apps/web run build:desktop
-          npm --prefix apps/desktop ci
-          python scripts/verify_matcher_archive.py
-          python scripts/audit_dependencies.py
-          node scripts/test_legacy_matcher.cjs
-          node scripts/test_glob_cancellation.cjs
-          node scripts/test_desktop_proxy.cjs
-          npm --prefix apps/desktop run dist:win
-          node scripts/validate_desktop_package.cjs
-          $taskVersion = (Get-Content -Raw release/version.json | ConvertFrom-Json).version
-          $taskSetup = "apps/desktop/release/CalligraphyStudio-Setup-$taskVersion-x64.exe"
-          $taskPortable = "apps/desktop/release/CalligraphyStudio-Portable-$taskVersion-x64.exe"
-          python scripts/validate_windows_distributables.py $taskSetup $taskPortable
-      - name: Actual packaged Windows renderer smoke
-        run: |
-          $PSNativeCommandUseErrorActionPreference = $true
-          python -m pip install playwright -r apps/api/requirements.txt -r apps/api/requirements-dev.txt
-          python scripts/test_windows_native.py --exe "apps/desktop/release/win-unpacked/Calligraphy Studio.exe" --output work/windows-native-unpacked.json
-          $taskVersion = (Get-Content -Raw release/version.json | ConvertFrom-Json).version
-          $taskPortable = "apps/desktop/release/CalligraphyStudio-Portable-$taskVersion-x64.exe"
-          python scripts/test_windows_native.py --exe $taskPortable --output work/windows-native-portable.json
-          $taskSetup = "apps/desktop/release/CalligraphyStudio-Setup-$taskVersion-x64.exe"
-          python scripts/test_windows_native.py --installer $taskSetup --companion --output work/windows-native-installed.json
+          npm --prefix apps/web run build:offline
+          python -m pip install playwright -r apps/api/requirements-companion.txt
+          python -m playwright install chromium
+      - name: Verify Windows PWA, migration, and standalone Companion
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/test_windows_platform.py
       - uses: actions/upload-artifact@v7
         with:
-          name: windows-native-evidence
-          path: work/windows-native-*.json
+          name: windows-browser-evidence
+          path: |
+            work/pwa-windows.json
+            work/windows-migration.json
           if-no-files-found: error
 
   android:
@@ -175,7 +162,7 @@ jobs:
           npm --prefix apps/web run cap:sync
           cd apps/web/android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew testDebugUnitTest assembleRelease
           python ../../../scripts/validate_package.py --apk app/build/outputs/apk/release/app-release.apk
           python ../../../scripts/validate_android_release.py --apk app/build/outputs/apk/release/app-release.apk --allow-preview
       - uses: actions/setup-python@v7
@@ -188,8 +175,11 @@ jobs:
           python -m zipfile -e apps/web/android/app/build/outputs/apk/release/app-release.apk work/android-bundle
           python -m http.server 5180 --bind 127.0.0.1 --directory work/android-bundle/assets/public > /tmp/calligraphy-apk-http.log 2>&1 &
           python scripts/test_japanese_font_selection.py --url http://127.0.0.1:5180 --output work/japanese-fonts-android.json
+          python scripts/test_korean_browser.py --url http://127.0.0.1:5180 --output work/korean-fonts-android.json
       - uses: actions/upload-artifact@v7
         with:
           name: android-japanese-font-evidence
-          path: work/japanese-fonts-android.json
+          path: |
+            work/japanese-fonts-android.json
+            work/korean-fonts-android.json
           if-no-files-found: error

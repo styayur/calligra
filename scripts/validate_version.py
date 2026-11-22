@@ -5,11 +5,10 @@ ROOT=Path(__file__).resolve().parents[1]
 def validate():
     release=json.loads((ROOT/'release/version.json').read_text(encoding='utf-8'))
     version=release['version']
-    for folder in ['apps/web','apps/desktop']:
-        for file in ['package.json','package-lock.json']:
-            data=json.loads((ROOT/folder/file).read_text(encoding='utf-8'))
-            assert data['version']==version,(folder,file)
-            if file.endswith('lock.json'): assert data['packages']['']['version']==version
+    for file in ['package.json','package-lock.json']:
+        data=json.loads((ROOT/'apps/web'/file).read_text(encoding='utf-8'))
+        assert data['version']==version,file
+        if file.endswith('lock.json'): assert data['packages']['']['version']==version
     for file,pattern in [('apps/api/pyproject.toml',r'version\s*=\s*"([^"]+)"'),('apps/api/app/main.py',r'version="([^"]+)"'),('apps/web/android/app/build.gradle',r'versionName "([^"]+)"')]:
         assert re.search(pattern,(ROOT/file).read_text(encoding='utf-8')).group(1)==version,file
     gradle=(ROOT/'apps/web/android/app/build.gradle').read_text(encoding='utf-8')
@@ -22,9 +21,8 @@ def validate():
     assert version in (ROOT/f'release/RELEASE_NOTES_{version}.md').read_text(encoding='utf-8')
     for name in ['release-all.yml', 'ci.yml']:
         workflow=(ROOT/'.github/workflows'/name).read_text(encoding='utf-8')
-        assert not re.search(r'CalligraphyStudio-(?:Setup|Portable)-\d+\.\d+\.\d+-x64\.exe', workflow)
-        assert 'CalligraphyStudio-Setup-$taskVersion-x64.exe' in workflow
-        assert 'CalligraphyStudio-Portable-$taskVersion-x64.exe' in workflow
+        assert 'apps/desktop' not in workflow
+        assert 'run build:offline' in workflow
     release_workflow = (ROOT/'.github/workflows/release-all.yml').read_text(encoding='utf-8')
     assert 'release/RELEASE_NOTES_${VERSION}.md' in release_workflow
     assert 'SCHEMA_VERSION = 2' in (ROOT/'apps/api/app/domain.py').read_text(encoding='utf-8')

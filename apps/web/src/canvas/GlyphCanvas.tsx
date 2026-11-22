@@ -1,3 +1,4 @@
+import { uiText } from "../i18n"
 import Konva from 'konva'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Image as KonvaImage, Layer, Rect, Stage, Text, Transformer } from 'react-konva'
@@ -135,12 +136,12 @@ export function GlyphCanvas() {
     registerStageExporter(({ scale, transparent }) => {
       const stage = stageRef.current
       const transformer = transformerRef.current
-      if (!stage) throw new Error('画布尚未准备好')
+      if (!stage) throw new Error(uiText("画布尚未准备好"))
       const logical = useEditorStore.getState().project.canvas
       if (logical.width * logical.height * scale * scale > 40_000_000)
-        throw new Error('导出尺寸过大，请选择原尺寸或减小纸面')
+        throw new Error(uiText("导出尺寸过大，请选择原尺寸或减小纸面"))
       if (stage.find('Image').length !== useEditorStore.getState().project.glyphs.length)
-        throw new Error('部分字形图片尚未加载，请稍后重试或检查字库连接')
+        throw new Error(uiText("部分字形图片尚未加载，请稍后重试或检查字库连接"))
       const background = stage.findOne('.paper-background')
       const transformerWasVisible = transformer?.visible() ?? false
       transformer?.visible(false)
@@ -265,9 +266,9 @@ export function GlyphCanvas() {
       {project.glyphs.length === 0 && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="canvas-empty">
-            <div className="empty-character">字</div>
-            <p>把喜欢的文字，集成一幅作品</p>
-            <span>输入一句诗或一段文字，点击「生成作品」</span>
+            <div className="empty-character">{uiText("字")}</div>
+            <p>{uiText("把喜欢的文字，集成一幅作品")}</p>
+            <span>{uiText("输入一句诗或一段文字，点击「生成作品」")}</span>
           </div>
         </div>
       )}

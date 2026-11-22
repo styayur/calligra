@@ -1,7 +1,7 @@
 """Build every platform's catalog from the canonical manifest, fully offline.
 
-Chinese WOFF2 assets stay unchanged. Japanese fonts use gzip of the unmodified
-upstream TTF for portable HarfBuzz WASM shaping.
+Chinese WOFF2 assets stay unchanged. Regional OpenType fonts use lossless gzip
+transport for portable HarfBuzz WASM shaping.
 """
 import gzip
 import hashlib
@@ -34,7 +34,7 @@ def main():
                 raise ValueError(f"Font checksum mismatch: {entry['id']}")
             with TTFont(original) as font:
                 coverage = "".join(chr(c) for c in sorted(font.getBestCmap()))
-                if entry.get("language") == "ja":
+                if entry.get("language") in {"ja", "ko"}:
                     # AAPT transparently decompresses/renames *.gz assets. Preserve the
                     # exact compressed bytes and manifest URI on Android with *.gzip.
                     file = f"{entry['id']}{original.suffix}.gzip"

@@ -10,7 +10,7 @@ import uharfbuzz as hb
 from fontTools.ttLib import TTFont
 from PIL import Image
 
-SCRIPT_TAGS = {"Han": "Hani", "Hiragana": "Hira", "Katakana": "Kana"}
+SCRIPT_TAGS = {"Han": "Hani", "Hiragana": "Hira", "Katakana": "Kana", "Hangul": "Hang", "Latin": "Latn"}
 
 
 class FontShaper:

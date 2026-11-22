@@ -1,5 +1,10 @@
+import { uiText } from "./i18n"
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { LanguageSelect } from './components/editor/LanguageSelect'
 import { GlyphCanvas } from './canvas/GlyphCanvas'
+import { AndroidUpdates } from './components/editor/AndroidUpdates'
+import { OfflineControls } from './components/editor/OfflineControls'
 import { Toolbar } from './components/editor/Toolbar'
 import { BatchComposer } from './components/glyph-browser/BatchComposer'
 import { GlyphBrowser } from './components/glyph-browser/GlyphBrowser'
@@ -15,6 +20,7 @@ import { readDraft, validateProject, writeDraft } from './lib/project'
 import type { Draft } from './lib/project'
 
 export default function App() {
+  useTranslation()
   const [mode, setMode] = useState<'studio' | 'roll' | 'materials' | 'fonts' | 'documents'>('studio')
   const [rollVisited, setRollVisited] = useState(false)
   const [tab, setTab] = useState('compose')
@@ -37,10 +43,10 @@ export default function App() {
           useEditorStore.getState().loadProject(draft.name, validateProject(draft.document))
         useEditorStore
           .getState()
-          .setLocalStatus(draft ? '已恢复本机草稿' : '草稿自动保存在本机')
+          .setLocalStatus(draft ? "已恢复本机草稿" : "草稿自动保存在本机")
       })
       .catch(() => {
-        if (active) useEditorStore.getState().setLocalStatus('草稿恢复失败，请从项目文件载入')
+        if (active) useEditorStore.getState().setLocalStatus("草稿恢复失败，请从项目文件载入")
       })
       .finally(() => {
         if (active) setReady(true)
@@ -63,9 +69,9 @@ export default function App() {
           await writeDraft(draft)
           const latest = useEditorStore.getState()
           if (latest.project === draft.document && latest.projectName === draft.name)
-            latest.setLocalStatus('草稿已保存到本机')
+            latest.setLocalStatus("草稿已保存到本机")
         } catch {
-          useEditorStore.getState().setLocalStatus('本机保存失败，请下载项目备份')
+          useEditorStore.getState().setLocalStatus("本机保存失败，请下载项目备份")
         }
       }
       writing = false
@@ -74,7 +80,7 @@ export default function App() {
       if (state.project === previous.project && state.projectName === previous.projectName)
         return
       pending = { name: state.projectName, document: state.project }
-      state.setLocalStatus('正在保存草稿…')
+      state.setLocalStatus("正在保存草稿…")
       void save()
     })
   }, [ready])
@@ -132,13 +138,13 @@ export default function App() {
   return (
     <div className="studio-shell">
       {mode === 'studio' && <Toolbar />}
-      <nav className="mode-switch" aria-label="创作模式">
+      <nav className="mode-switch" aria-label={uiText("创作模式")}>
         <button aria-pressed={mode === 'studio'} onClick={() => setMode('studio')}>
-          集字工作台
+          {uiText("集字工作台")}
         </button>
-        <button aria-pressed={mode === 'fonts'} onClick={() => setMode('fonts')}>字体</button>
-        <button aria-pressed={mode === 'documents'} onClick={() => setMode('documents')}>文档</button>
-        <div className="mode-secondary" role="group" aria-label="工作台工具">
+        <button aria-pressed={mode === 'fonts'} onClick={() => setMode('fonts')}>{uiText("字体")}</button>
+        <button aria-pressed={mode === 'documents'} onClick={() => setMode('documents')}>{uiText("文档")}</button>
+        <div className="mode-secondary" role="group" aria-label={uiText("工作台工具")}>
           <button
             aria-pressed={mode === 'roll'}
             onClick={() => {
@@ -146,22 +152,25 @@ export default function App() {
               setMode('roll')
             }}
           >
-            长卷模式
+            {uiText("长卷模式")}
           </button>
           <button aria-pressed={mode === 'materials'} onClick={() => setMode('materials')}>
-            素材
+            {uiText("素材")}
           </button>
         </div>
+        <OfflineControls />
+        <AndroidUpdates />
+        <LanguageSelect />
       </nav>
-      <nav className={mode === 'studio' ? 'mobile-nav' : 'hidden'} aria-label="工作区">
+      <nav className={mode === 'studio' ? 'mobile-nav' : 'hidden'} aria-label={uiText("工作区")}>
         <button aria-pressed={mobilePanel === 'edit'} onClick={() => setMobilePanel('edit')}>
-          文字与字库
+          {uiText("文字与字库")}
         </button>
         <button
           aria-pressed={mobilePanel === 'canvas'}
           onClick={() => setMobilePanel('canvas')}
         >
-          作品预览 {glyphCount > 0 && `(${glyphCount})`}
+          {uiText("作品预览")} {glyphCount > 0 && `(${glyphCount})`}
         </button>
       </nav>
       {ready ? (
@@ -175,7 +184,7 @@ export default function App() {
           <aside className="library-panel">
             <div className="panel-tabs">
               <button aria-pressed={tab === 'compose'} onClick={() => setTab('compose')}>
-                集字
+                {uiText("集字")}
               </button>
               <button
                 aria-pressed={tab === 'search'}
@@ -184,7 +193,7 @@ export default function App() {
                   setTab('search')
                 }}
               >
-                查字
+                {uiText("查字")}
               </button>
             </div>
             <div className={tab === 'compose' ? 'panel-scroll composition-body' : 'hidden'}>
@@ -197,16 +206,16 @@ export default function App() {
           <section className="canvas-column">
             <div className="canvas-toolbar">
               <span>
-                纸面{' '}
+                {uiText("纸面")}{' '}
                 <span className="dimension">
                   {canvas.width} × {canvas.height}
                 </span>
               </span>
-              <div className="paper-swatches" aria-label="纸色">
+              <div className="paper-swatches" aria-label={uiText("纸色")}>
                 {[
-                  ['#ffffff', '白纸'],
-                  ['#f5f0e4', '米纸'],
-                  ['#e7ebe4', '青纸'],
+                  ['#ffffff', uiText("白纸")],
+                  ['#f5f0e4', uiText("米纸")],
+                  ['#e7ebe4', uiText("青纸")],
                 ].map(([color, label]) => (
                   <button
                     key={color}
@@ -225,7 +234,7 @@ export default function App() {
           <Inspector />
         </main>
       ) : (
-        <div className="loading-workspace">正在恢复工作台…</div>
+        <div className="loading-workspace">{uiText("正在恢复工作台…")}</div>
       )}
       {rollVisited && <LongRoll active={mode === 'roll'} />}
       {ready && mode === 'fonts' && <FontStudio projectGlyphs={projectGlyphs} />}
