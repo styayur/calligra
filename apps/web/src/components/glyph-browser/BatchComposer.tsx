@@ -88,14 +88,14 @@ export function BatchComposer({ active }: { active: boolean }) {
   const count = typography ? segmentText(text).length : textLines(text, punctuation).flat().length
   const regional = usesRegionalFonts(policy.writing_tradition)
   const settingsFor = (nextPolicy: CandidatePolicy, nextSource: CandidateSource) =>
-    ({ layout, columns, size, gap, margin, punctuation, style, source: nextSource, policy: nextPolicy, textLanguage,
-      typography: settings?.typography, shapedRuns: settings?.shapedRuns, flowCosts: settings?.flowCosts })
+    ({ layout, columns, size, gap, margin, punctuation, style, source: nextSource, policy: nextPolicy, textLanguage })
 
   function saveFontPreference(nextPolicy: CandidatePolicy, nextSource = source) {
     setPolicy(nextPolicy)
     setSource(nextSource)
     const next = settingsFor(nextPolicy, nextSource)
-    if (validLayoutDimensions(next)) setComposition(next)
+    if (validLayoutDimensions(next)) setComposition({ ...next, typography: settings?.typography,
+      shapedRuns: settings?.shapedRuns, flowCosts: settings?.flowCosts })
     else {
       setComposition({ ...(settings ?? DEFAULT_SETTINGS), policy: nextPolicy, source: nextSource })
       setStatus(uiText("字体偏好已保存，排版数值已恢复为上次的有效设置。"))
@@ -180,7 +180,7 @@ export function BatchComposer({ active }: { active: boolean }) {
           background: previousProject.canvas.background,
         },
         text,
-        { ...settingsFor(policy, source), typography: undefined, shapedRuns: undefined },
+        settingsFor(policy, source),
       )
       const fallbackFonts = [...new Set(glyphs.filter((g) => policy.font_id &&
         g.metadata?.font_id !== policy.font_id).map((g) => g.source.work).filter(Boolean))]

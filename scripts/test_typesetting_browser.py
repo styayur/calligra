@@ -148,7 +148,9 @@ def exercise_flow(page, composer, compose, gallery):
             project = compose(raw if mode == "grid" else None)
             glyphs = project["glyphs"]
             assert "".join(glyph["character"] for glyph in glyphs) == raw.replace(" ", "")
-            if mode != "grid":
+            if mode == "grid":
+                assert not {"typography", "shapedRuns", "flowCosts"} & project["composition"].keys()
+            else:
                 assert all(raw[glyph["textRange"]["start"]:glyph["textRange"]["end"]] == glyph["character"]
                            for glyph in glyphs)
                 assert all(glyph["transform"]["rotation"] == 0 for glyph in glyphs)
