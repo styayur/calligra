@@ -16,6 +16,24 @@ def codepoints(text: str) -> list[str]:
     return [f"U+{ord(char):04X}" for char in text]
 
 
+def is_variation_selector(codepoint: int) -> bool:
+    return 0xFE00 <= codepoint <= 0xFE0F or 0xE0100 <= codepoint <= 0xE01EF
+
+
+def variation_pairs(text: str) -> list[tuple[int, int]] | None:
+    pairs = []
+    previous = ""
+    for character in text:
+        selector = ord(character)
+        if is_variation_selector(selector):
+            if (not previous or regex.fullmatch(r"[\p{M}\p{C}\s]", previous) or
+                    selector >= 0xE0100 and not regex.fullmatch(r"\p{Ideographic}", previous)):
+                return None
+            pairs.append((ord(previous), selector))
+        previous = character
+    return pairs
+
+
 def unicode_script(text: str) -> str | None:
     # Unicode script classification is not evidence of language or tradition.
     for script in ('Hiragana', 'Katakana', 'Han', 'Hangul', 'Latin'):

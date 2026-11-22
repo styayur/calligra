@@ -1,9 +1,9 @@
 import { uiText } from "../i18n"
 import type { Glyph } from '../types'
 import type { GlyphSource, VariantType } from '../types/glyph'
-import { codepoints, unicodeScript } from '../lib/identity'
+import { codepoints, unicodeScript, variationPairs } from '../lib/identity'
 import { compatibleSource, fontFallbackPolicy, type CandidatePolicy } from '../lib/candidatePolicy'
-import { shapeFontGlyph, sha256 } from '../lib/fontShaper'
+import { fontHasExactVariations, shapeFontGlyph, sha256, type OpenTypeCluster } from '../lib/fontShaper'
 import { japaneseVariant } from '../lib/orthography'
 
 export interface FontEntry extends GlyphSource {
@@ -19,6 +19,7 @@ export interface FontEntry extends GlyphSource {
   renderer: string
   sha256: string
   runtime_sha256: string
+  opentype?: { path: string; runtime_sha256: string }
   upstream_commit?: string
   font_version?: string
   original_sha256?: string
@@ -47,26 +48,67 @@ function fontVariant(font: FontEntry, character: string): { type?: VariantType; 
   return font.language === 'ja' ? japaneseVariant(character, font.variant_type) : { type: font.variant_type }
 }
 
-export async function fontGlyphs(character: string, style = '', designer = '', policy: CandidatePolicy = {}): Promise<Glyph[]> {
+export async function fontEntries(character: string, style = '', designer = '', policy: CandidatePolicy = {}): Promise<FontEntry[]> {
   const catalog = await fontCatalog()
-  const render = (selection: CandidatePolicy) => {
-    const eligible = catalog.filter((font) =>
-      [...character.normalize('NFC')].every((c) => font.characters.includes(c) || /\p{M}/u.test(c)) &&
-      (!style || font.style === style) &&
-      (!designer || font.designer === designer) &&
-      compatibleSource({ ...font, script: unicodeScript(character), work: font.family },
-        fontVariant(font, character),
-        'font', selection, font.id),
-    )
-    // Coverage is the last resort when both ordinary and supplementary fonts can render the glyph.
-    const entries = eligible.filter((font) => font.source_role !== 'coverage-fallback')
-      .concat(eligible.filter((font) => font.source_role === 'coverage-fallback'))
+  const pairs = variationPairs(character)
+  if (!pairs) return []
+  const eligible = catalog.filter((font) =>
+    (!pairs.length || font.renderer === 'harfbuzz') &&
+    [...character.normalize('NFC')].every((c) => font.characters.includes(c) || /\p{M}/u.test(c)) &&
+    (!style || font.style === style) &&
+    (!designer || font.designer === designer) &&
+    compatibleSource({ ...font, script: unicodeScript(character), work: font.family },
+      fontVariant(font, character), 'font', policy, font.id),
+  )
+  const entries = eligible.filter((font) => font.source_role !== 'coverage-fallback')
+    .concat(eligible.filter((font) => font.source_role === 'coverage-fallback'))
+  if (!pairs.length) return entries
+  const support = await Promise.all(entries.map((font) => fontHasExactVariations(font, character)))
+  return entries.filter((_, index) => support[index])
+}
+
+export async function fontGlyphs(character: string, style = '', designer = '', policy: CandidatePolicy = {}): Promise<Glyph[]> {
+  const render = async (selection: CandidatePolicy) => {
+    const entries = await fontEntries(character, style, designer, selection)
     return Promise.all(entries.map((font) => renderFontGlyph(font, character, policy.vertical)))
       .then((items) => items.filter((g): g is Glyph => g !== null))
   }
   const matches = await render(policy)
   if (matches.length || !policy.font_id || !policy.allow_font_fallback) return matches
   return render(fontFallbackPolicy(policy))
+}
+
+function shapedFontGlyph(
+  font: FontEntry,
+  id: string,
+  character: string,
+  asset: Glyph['asset'],
+  shaping: Record<string, unknown> & { font_glyph_ids: number[]; glyph_names: (string | undefined)[] },
+): Glyph {
+  const variant = fontVariant(font, character)
+  return {
+    id, character,
+    identity: { text: character, codepoints: codepoints(character), language: font.language, locale: font.locale, script: unicodeScript(character), canonical:variant.canonical },
+    variant: { type:variant.type, id, font_glyph_id: shaping.font_glyph_ids[0], glyph_name: shaping.glyph_names[0] },
+    source: { dataset: font.dataset, work: font.family, source_role: font.source_role, source_checksum: font.sha256, dataset_version: font.upstream_commit,
+      language:font.language, locale:font.locale, script:unicodeScript(character), writing_tradition:font.writing_tradition,
+      orthography:font.orthography, period:font.period, region:font.region, source_collection:font.source_collection,
+      designer:font.designer, calligrapher:font.designer, style:font.style, source_uri:font.source_uri,
+      license:font.license, license_url:font.license_url, license_text:font.license_text, attribution:font.attribution, rights:font.rights },
+    asset,
+    transform: { x:0,y:0,scaleX:.3,scaleY:.3,rotation:0,skewX:0,skewY:0 },
+    appearance: { opacity:1,blendMode:'multiply' }, provenance: { type:'font' }, metadata: { shaping: shaping, font_id:font.id, font_version:font.font_version, upstream_commit:font.upstream_commit,
+      source_role:font.source_role, original_sha256:font.original_sha256, subset_command:font.subset_command },
+  }
+}
+
+export function fontGlyphForCluster(font: FontEntry, cluster: OpenTypeCluster): Glyph {
+  const { text } = cluster.sequence
+  const id = 'font-run:' + font.id + ':' + cluster.checksum.slice(0, 24)
+  return shapedFontGlyph(font, id, text, {
+    type: 'raster', url: cluster.url, checksum: cluster.checksum,
+    width: cluster.width, height: cluster.height, bbox: [0, 0, cluster.width, cluster.height],
+  }, cluster.shaping)
 }
 
 async function renderFontGlyph(font: FontEntry, character: string, vertical?: boolean): Promise<Glyph | null> {
@@ -77,21 +119,9 @@ async function renderFontGlyph(font: FontEntry, character: string, vertical?: bo
   const shaped = font.renderer === 'harfbuzz' ? await shapeFontGlyph(font, character, font.locale || 'ja-JP', vertical) : null
   if (font.renderer === 'harfbuzz' && !shaped) return null
   if (shaped) {
-    const variant = fontVariant(font, character)
-    const glyph: Glyph = {
-      id, character,
-      identity: { text: character, codepoints: codepoints(character), language: font.language, locale: font.locale, script: unicodeScript(character), canonical:variant.canonical },
-      variant: { type:variant.type, id, font_glyph_id: shaped.shaping.font_glyph_ids[0], glyph_name: shaped.shaping.glyph_names[0] },
-      source: { dataset: font.dataset, work: font.family, source_role: font.source_role, source_checksum: font.sha256, dataset_version: font.upstream_commit,
-        language:font.language, locale:font.locale, script:unicodeScript(character), writing_tradition:font.writing_tradition,
-        orthography:font.orthography, period:font.period, region:font.region, source_collection:font.source_collection,
-        designer:font.designer, calligrapher:font.designer, style:font.style, source_uri:font.source_uri,
-        license:font.license, license_url:font.license_url, license_text:font.license_text, attribution:font.attribution, rights:font.rights },
-      asset: { type: 'raster', url: shaped.url, checksum: shaped.checksum, width: 512, height: 512, bbox: [0,0,512,512] },
-      transform: { x:0,y:0,scaleX:.3,scaleY:.3,rotation:0,skewX:0,skewY:0 },
-      appearance: { opacity:1,blendMode:'multiply' }, provenance: { type:'font' }, metadata: { shaping: shaped.shaping, font_id:font.id, font_version:font.font_version, upstream_commit:font.upstream_commit,
-        source_role:font.source_role, original_sha256:font.original_sha256, subset_command:font.subset_command },
-    }
+    const glyph = shapedFontGlyph(font, id, character,
+      { type: 'raster', url: shaped.url, checksum: shaped.checksum, width: 512, height: 512, bbox: [0, 0, 512, 512] },
+      shaped.shaping)
     glyphCache.set(cacheKey,glyph)
     if (glyphCache.size > 2048) glyphCache.delete(glyphCache.keys().next().value!)
     return glyph

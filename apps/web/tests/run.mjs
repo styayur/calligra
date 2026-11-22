@@ -13,3 +13,5 @@ await build({ entryPoints: ['tests/eastAsian.test.ts'], bundle:true, platform:'n
 await import('../../../work/eastAsian.test.mjs')
 await build({ entryPoints:['tests/releaseIntegrity.test.ts'],bundle:true,platform:'node',format:'esm',outfile:'../../work/releaseIntegrity.test.mjs' })
 await import('../../../work/releaseIntegrity.test.mjs')
+await build({entryPoints:['tests/typesetting.test.ts'],bundle:true,platform:'node',format:'esm',outfile:'../../work/typesetting.test.mjs'})
+await import('../../../work/typesetting.test.mjs')

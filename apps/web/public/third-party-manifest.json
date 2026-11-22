@@ -237,6 +237,19 @@
       "notes": ""
     },
     {
+      "id": "unicode-layout-data",
+      "name": "Unicode Character Database layout properties",
+      "category": "data",
+      "version": "18.0.0",
+      "source_uri": "https://www.unicode.org/Public/18.0.0/ucd/",
+      "license": "Unicode-3.0",
+      "license_text": {
+        "path": "licenses/Unicode-3.0.txt",
+        "sha256": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96"
+      },
+      "notes": "Vertical_Orientation lookup generated from the official UCD. The line breaking data used by the locked @cto.af/linebreak dependency is covered by the Unicode data licence."
+    },
+    {
       "id": "android-native",
       "name": "AndroidX / Kotlin / Cordova native dependencies",
       "category": "native",
@@ -398,6 +411,33 @@
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
     },
     {
+      "id": "npm:@cto.af/linebreak@5.0.0",
+      "name": "@cto.af/linebreak",
+      "category": "locked-production-dependency",
+      "version": "5.0.0",
+      "source_uri": "https://www.npmjs.com/package/@cto.af/linebreak",
+      "license": "MIT",
+      "license_text": {
+        "path": "licenses/npm/_cto.af_linebreak/5.0.0/LICENSE",
+        "sha256": "62112025b949ce7ffb95c409f9ebccfe4010703872ce22ef3ec1a4268ad7ae47"
+      },
+      "additional_notices": [],
+      "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
+    },
+    {
+      "id": "npm:@cto.af/unicode-trie-runtime@3.2.11",
+      "name": "@cto.af/unicode-trie-runtime",
+      "category": "locked-production-dependency",
+      "version": "3.2.11",
+      "source_uri": "https://github.com/cto-af/unicode-trie/blob/8ccc27b7dac5b6a1311ed276c4224824901f4c17/LICENSE",
+      "license": "MIT",
+      "license_text": {
+        "path": "licenses/npm/_cto.af_unicode-trie-runtime/3.2.11/LICENSE.txt",
+        "sha256": "e59138ecbc0b770010b0781905e2bcc181e4f0735494c58fd9681b24f0246187"
+      },
+      "notes": "Verbatim licence from the locked npm version’s upstream commit. Its published tarball omits the monorepo licence."
+    },
+    {
       "id": "npm:@radix-ui/react-compose-refs@1.1.5",
       "name": "@radix-ui/react-compose-refs",
       "category": "locked-production-dependency",
@@ -491,6 +531,20 @@
       "license_text": {
         "path": "licenses/npm/csstype/3.2.3/LICENSE",
         "sha256": "11d55bd4541c75ee7879547ac49089c489163dae49551389713c3d026cab383e"
+      },
+      "additional_notices": [],
+      "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."
+    },
+    {
+      "id": "npm:fflate@0.8.3",
+      "name": "fflate",
+      "category": "locked-production-dependency",
+      "version": "0.8.3",
+      "source_uri": "https://www.npmjs.com/package/fflate",
+      "license": "MIT",
+      "license_text": {
+        "path": "licenses/npm/fflate/0.8.3/LICENSE",
+        "sha256": "0a1df3a083d0c010560aa342e87959c8c1070e6fd54545741f083f22d0c8b551"
       },
       "additional_notices": [],
       "notes": "Includes installed production dependency notices; some type-only entries are not emitted in renderer code."

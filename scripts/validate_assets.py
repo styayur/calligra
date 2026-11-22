@@ -38,6 +38,15 @@ def main():
         data=(runtime/'fonts'/entry['path']).read_bytes()
         if hashlib.sha256(data).hexdigest()!=entry['runtime_sha256']: raise ValueError('Runtime font checksum mismatch')
         if entry['renderer']=='harfbuzz' and hashlib.sha256(gzip.decompress(data)).hexdigest()!=entry['sha256']: raise ValueError('Source/runtime HarfBuzz font differs')
+        if entry['renderer'] == 'browser-legacy':
+            opentype = entry['opentype']
+            asset = runtime / 'fonts' / opentype['path']
+            if hashlib.sha256(asset.read_bytes()).hexdigest() != opentype['runtime_sha256'] or \
+                    hashlib.sha256(gzip.decompress(asset.read_bytes())).hexdigest() != entry['sha256']:
+                raise ValueError('Source/runtime supplemental OpenType font differs')
+            receipt = next(item for item in packed['fonts'] if item['id'] == entry['id'])
+            if receipt.get('opentype') != {'path': asset.relative_to(ROOT).as_posix(), 'sha256': opentype['runtime_sha256']}:
+                raise ValueError('Supplemental OpenType receipt differs')
         if not (runtime/entry['license_text']).is_file(): raise ValueError('Missing independently bundled font licence')
     original_sample=json.loads((ROOT/'samples/japanese/historical/sample/manifest.json').read_text(encoding='utf-8'))
     for item in original_sample['assets']:

@@ -67,6 +67,15 @@ def main():
                                "license": entry["license"], "license_text": record["license_text"],
                                "source_role": entry.get("source_role"), "original_sha256": entry.get("original_sha256"),
                                "subset_command": entry.get("subset_command")})
+            if renderer == "browser-legacy":
+                # Keep the existing grid renderer and give advanced text runs an OpenType source.
+                filename = f"{entry['id']}{original.suffix}.gzip"
+                opentype = target / filename
+                if not opentype.is_file() or gzip.decompress(opentype.read_bytes()) != raw:
+                    opentype.write_bytes(gzip.compress(raw, compresslevel=9, mtime=0))
+                digest = hashlib.sha256(opentype.read_bytes()).hexdigest()
+                record["opentype"] = {"path": filename, "runtime_sha256": digest}
+                provenance[-1]["opentype"] = {"path": f"apps/web/public/fonts/{filename}", "sha256": digest}
     (target / "catalog.json").write_text(json.dumps(entries, ensure_ascii=False), encoding="utf-8", newline="\n")
     # Git stores this text as LF; universal-newline reading also handles an older
     # Windows working copy that predates the repository's .gitattributes rules.

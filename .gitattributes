@@ -27,6 +27,8 @@ apps/web/public/fonts/licenses/*.txt -whitespace
 apps/web/public/japanese/licenses/*.txt -whitespace
 apps/web/public/third-party-licenses.html -whitespace
 third_party/japanese/**/*.txt -whitespace
+third_party/unicode/**/*.txt text eol=lf -whitespace
+third_party/unicode-trie-runtime/*.txt text eol=lf -whitespace
 # Local npm archives are verified against these exact source bytes on every OS.
 third_party/legacy-matcher/** -text
 apps/web/public/demo/assets/**/*.svg text eol=lf

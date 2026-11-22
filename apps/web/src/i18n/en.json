@@ -623,5 +623,15 @@
   "留白": "Whitespace",
   "笔画距离": "Stroke distance",
   "骨架": "Skeleton",
-  "方向": "Direction"
+  "方向": "Direction",
+  "高级排版": "Advanced typesetting",
+  "启用 OpenType 排版": "Use OpenType typesetting",
+  "混合文字传统": "Mix writing traditions",
+  "遵守断行禁则": "Apply line-breaking restrictions",
+  "压缩标点间距": "Compress punctuation spacing",
+  "启用字体的可选连字": "Use discretionary font ligatures",
+  "自动纵中横": "Automatic horizontal groups in vertical text",
+  "在正文中选中最多八个拉丁字符或数字，再指定纵中横。": "Select up to eight Latin letters or digits to set a horizontal group.",
+  "将所选文字设为纵中横": "Set horizontal group for selection",
+  "撤销上一个纵中横范围": "Undo last horizontal group"
 }

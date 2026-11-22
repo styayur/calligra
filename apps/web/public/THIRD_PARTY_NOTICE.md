@@ -130,6 +130,13 @@ Licence: **Old-MIT**. Source: https://github.com/harfbuzz/harfbuzz.
 Bundled text: `licenses/HarfBuzz-COPYING.txt` (SHA-256 `ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64`).
 
 
+## Unicode Character Database layout properties · 18.0.0
+
+Licence: **Unicode-3.0**. Source: https://www.unicode.org/Public/18.0.0/ucd/.
+
+Bundled text: `licenses/Unicode-3.0.txt` (SHA-256 `e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96`).
+Vertical_Orientation lookup generated from the official UCD. The line breaking data used by the locked @cto.af/linebreak dependency is covered by the Unicode data licence.
+
 ## AndroidX / Kotlin / Cordova native dependencies
 
 Licence: **Apache-2.0**. Source: https://source.android.com/docs/setup/about/licenses.
@@ -179,6 +186,20 @@ Licence: **ISC**. Source: https://www.npmjs.com/package/@capacitor/synapse.
 Bundled text: `licenses/npm/_capacitor_synapse/1.0.4/LICENSE.md` (SHA-256 `de884404585ed20280150b0768082b6004d3548aaa0d6e596d6bfa0538ab331d`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
+## @cto.af/linebreak · 5.0.0
+
+Licence: **MIT**. Source: https://www.npmjs.com/package/@cto.af/linebreak.
+
+Bundled text: `licenses/npm/_cto.af_linebreak/5.0.0/LICENSE` (SHA-256 `62112025b949ce7ffb95c409f9ebccfe4010703872ce22ef3ec1a4268ad7ae47`).
+Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
+
+## @cto.af/unicode-trie-runtime · 3.2.11
+
+Licence: **MIT**. Source: https://github.com/cto-af/unicode-trie/blob/8ccc27b7dac5b6a1311ed276c4224824901f4c17/LICENSE.
+
+Bundled text: `licenses/npm/_cto.af_unicode-trie-runtime/3.2.11/LICENSE.txt` (SHA-256 `e59138ecbc0b770010b0781905e2bcc181e4f0735494c58fd9681b24f0246187`).
+Verbatim licence from the locked npm version’s upstream commit. Its published tarball omits the monorepo licence.
+
 ## @radix-ui/react-compose-refs · 1.1.5
 
 Licence: **MIT**. Source: https://www.npmjs.com/package/@radix-ui/react-compose-refs.
@@ -226,6 +247,13 @@ Includes installed production dependency notices; some type-only entries are not
 Licence: **MIT**. Source: https://www.npmjs.com/package/csstype.
 
 Bundled text: `licenses/npm/csstype/3.2.3/LICENSE` (SHA-256 `11d55bd4541c75ee7879547ac49089c489163dae49551389713c3d026cab383e`).
+Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
+
+## fflate · 0.8.3
+
+Licence: **MIT**. Source: https://www.npmjs.com/package/fflate.
+
+Bundled text: `licenses/npm/fflate/0.8.3/LICENSE` (SHA-256 `0a1df3a083d0c010560aa342e87959c8c1070e6fd54545741f083f22d0c8b551`).
 Includes installed production dependency notices; some type-only entries are not emitted in renderer code.
 
 ## harfbuzzjs · 1.6.4
