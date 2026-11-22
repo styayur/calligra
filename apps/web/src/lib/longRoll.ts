@@ -3,6 +3,7 @@ import type { Glyph } from '../types'
 import type { TextRun } from '../types/typesetting'
 import { textLines } from './composition'
 import { loadImage } from './featureCache'
+import type { RestorationRecord } from './glyphRestoration'
 import type { ArtworkPage } from './hybridPdf'
 
 export interface RollOptions {
@@ -26,6 +27,7 @@ export interface RollPage {
   measured?: boolean
   runs?: TextRun[]
   flowCosts?: number[]
+  restorations?: RestorationRecord[]
 }
 
 export function rollArtwork(page: RollPage, options: RollOptions): ArtworkPage {
@@ -54,7 +56,7 @@ export function paginateRoll(text: string, options: RollOptions): RollPage[] {
   const pages: RollPage[] = []
   let page: RollPage = { slots: [] },
     track = 0,
-    index = 0
+    index = 0, offset = 0
   for (const line of lines)
     for (let start = 0; start < line.length; start += along) {
       if (track === across) {
@@ -62,16 +64,13 @@ export function paginateRoll(text: string, options: RollOptions): RollPage[] {
         page = { slots: [] }
         track = 0
       }
-      line.slice(start, start + along).forEach((character, pos) =>
-        page.slots.push({
-          index: index++,
-          character,
-          row: vertical ? pos : track,
-          column: vertical ? columns - track - 1 : pos,
-          glyph: null,
-          cost: null,
-        }),
-      )
+      line.slice(start, start + along).forEach((character, pos) => {
+        const start = text.indexOf(character, offset)
+        if (start >= 0) offset = start + character.length
+        page.slots.push({ index: index++, character, start: start >= 0 ? start : undefined,
+          end: start >= 0 ? offset : undefined, row: vertical ? pos : track,
+          column: vertical ? columns - track - 1 : pos, glyph: null, cost: null })
+      })
       track++
     }
   if (page.slots.length) pages.push(page)

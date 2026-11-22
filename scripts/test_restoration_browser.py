@@ -22,7 +22,7 @@ def restore_project(page, project):
 
 def exercise(page):
     composer = page.locator(".composer")
-    mode = composer.get_by_label("Tradition", exact=True)
+    mode = composer.get_by_label("集字模式", exact=True)
     expect(mode).to_have_value("mixed")
 
     def compose(text):

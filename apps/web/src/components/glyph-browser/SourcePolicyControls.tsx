@@ -5,11 +5,12 @@ export function SourcePolicyControls({ policy, onChange }: { policy: CandidatePo
   const update = (key: keyof CandidatePolicy, value: string) => onChange({ ...policy, [key]: value || undefined })
   return <div className="source-policy">
     <label>{uiText('集字模式')}
-      <select aria-label={uiText("Tradition")} value={policy.smart_mix ? 'mixed' : policy.writing_tradition || 'Chinese'}
+      <select aria-label={uiText('集字模式')} value={policy.smart_mix ? 'mixed' : policy.writing_tradition || 'Chinese'}
         onChange={(event) => {
           const smart_mix = event.target.value === 'mixed'
           const writing_tradition = smart_mix ? 'Chinese' : event.target.value
-          onChange({ writing_tradition, smart_mix, locale: traditionLocale(writing_tradition), mode: 'strict' })
+          onChange({ writing_tradition, smart_mix, locale: traditionLocale(writing_tradition), mode: 'strict',
+            commercial_only: policy.commercial_only })
         }}>
         <option value="mixed">{uiText('智能混排')}</option>
         <option value="Chinese">{uiText('中国书法')}</option>

@@ -5,6 +5,7 @@ import { localWorkbench, type CompanionStatus } from '../../api/localWorkbench'
 import { fontCatalog, type FontEntry } from '../../api/fonts'
 import { bundledFontBytes } from '../../lib/fontShaper'
 import { saveFile } from '../../lib/download'
+import { zipFiles } from '../../lib/longRoll'
 
 interface Analysis {
   font_family: string
@@ -14,6 +15,12 @@ interface Analysis {
   missing_characters: string[]
   skipped_complex_paragraphs: number[]
   changed_segments: number
+}
+
+async function localFont(entry: FontEntry) {
+  const raw = await bundledFontBytes({ ...entry, ...entry.opentype })
+  const extension = new TextDecoder().decode(raw.slice(0, 4)) === 'OTTO' ? '.otf' : '.ttf'
+  return new File([raw], entry.id + extension)
 }
 
 export function DocumentTypesetting({ createdFont }: { createdFont?: File }) {
@@ -32,6 +39,7 @@ export function DocumentTypesetting({ createdFont }: { createdFont?: File }) {
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
   const kind = input?.name.split('.').at(-1)?.toLowerCase()
+  const selectedFont = fonts.find((item) => item.id === style)
 
   useEffect(() => {
     void fontCatalog().then((rows) => setFonts(rows.filter((font) => font.source_role !== 'coverage-fallback' &&
@@ -48,11 +56,8 @@ export function DocumentTypesetting({ createdFont }: { createdFont?: File }) {
     try {
       let font = style === 'generated' ? createdFont : uploaded
       if (style !== 'generated' && style !== 'uploaded') {
-        const source = fonts.find((item) => item.id === style)
-        if (!source) throw new Error(uiText('请选择文档字体'))
-        const raw = await bundledFontBytes({ ...source, ...source.opentype })
-        const extension = new TextDecoder().decode(raw.slice(0, 4)) === 'OTTO' ? '.otf' : '.ttf'
-        font = new File([raw], source.id + extension)
+        if (!selectedFont) throw new Error(uiText('请选择文档字体'))
+        font = await localFont(selectedFont)
       }
       if (!font || !['docx', 'odt'].includes(kind) || !/\.(ttf|otf)$/i.test(font.name))
         throw new Error(uiText("请选择 DOCX 或 ODT 文档和 TTF 或 OTF 字体"))
@@ -76,6 +81,24 @@ export function DocumentTypesetting({ createdFont }: { createdFont?: File }) {
         await saveFile('Calligra-' + kind + '.zip', await result.blob())
         setStatus(uiText("已下载处理后的文档和分析清单"))
       }
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : String(error))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const downloadBundled = async (entry: FontEntry) => {
+    if (!entry.license_text || !/^fonts\/licenses\/OFL-[a-z-]+\.txt$/.test(entry.license_text)) return
+    setBusy(true)
+    try {
+      const font = await localFont(entry)
+      const license = await fetch(import.meta.env.BASE_URL + entry.license_text, { redirect: 'error' })
+      if (!license.ok) throw new Error(uiText('字体许可证无法读取'))
+      await saveFile(entry.id + '.zip', zipFiles([
+        { name: font.name, data: new Uint8Array(await font.arrayBuffer()) },
+        { name: entry.license_text.split('/').at(-1)!, data: new Uint8Array(await license.arrayBuffer()) },
+      ]))
     } catch (error) {
       setStatus(error instanceof Error ? error.message : String(error))
     } finally {
@@ -110,6 +133,7 @@ export function DocumentTypesetting({ createdFont }: { createdFont?: File }) {
           <label>{uiText("段落编号")}<input value={paragraphs} maxLength={1000} placeholder={uiText("留空处理所选范围内的所有段落")} onChange={(event) => { setParagraphs(event.target.value); setReport(undefined) }} /></label>
           {kind === 'docx' && <label>{uiText("原字体")}<input value={originalFont} maxLength={120} placeholder={uiText("仅匹配明确指定的字体")} onChange={(event) => { setOriginalFont(event.target.value); setReport(undefined) }} /></label>}
           <label className="check-field"><input type="checkbox" disabled={!companion.pdf} checked={includePdf} onChange={(event) => { setIncludePdf(event.target.checked); setReport(undefined) }} />{uiText("同时导出 PDF（需本机 LibreOffice）")}</label>
+          {companion.pdf && <p className="field-hint">{uiText('使用 LibreOffice 导出前，请先在系统安装所选字体。')}</p>}
         </details>
         <div className="scan-actions">
           <button type="button" disabled={!ready} onClick={() => void execute(true)}>{uiText("分析覆盖")}</button>
@@ -126,6 +150,9 @@ export function DocumentTypesetting({ createdFont }: { createdFont?: File }) {
       {report.missing_characters.length > 0 && <p>{uiText("缺字")} {report.missing_characters.join('、')}</p>}
       {report.skipped_complex_paragraphs.length > 0 && <p>{uiText("保留含复杂对象的段落")} {report.skipped_complex_paragraphs.join('、')}</p>}
       <p>{uiText('下方预览显示字形效果。分页由打开文档的程序重新计算。')}</p>
+      <p>{uiText('在办公软件中查看替换效果前，请先安装所选字体。')}</p>
+      {selectedFont?.license_text && <button disabled={busy} type="button"
+        onClick={() => void downloadBundled(selectedFont)}>{uiText('下载字体与许可证')}</button>}
       <ol className="document-paragraphs">
         {report.paragraphs.slice(0, 500).map((paragraph) => <li key={paragraph.number}>
           <strong>{paragraph.number} {paragraph.heading ? uiText("标题") : ''}</strong>{' '}

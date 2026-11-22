@@ -183,6 +183,8 @@ export function BatchComposer({ active }: { active: boolean }) {
           throw new Error(uiText('作品已更改，请重新生成以应用这段文字。'))
         const missing = [...new Set(restored.missing.map((unit) => unit.text))]
         const missingHint = uiText('可选择其他字体，或启用缺字补字。')
+        if (!restored.glyphs.length && previousProject.glyphs.length)
+          throw new Error(uiText('未找到可用字形：{{v0}}。{{v1}}', { v0: missing.join('、'), v1: missingHint }))
         compose(restored.glyphs, {
           width: result.width, height: result.height, background: previousProject.canvas.background,
         }, text, { ...base, typography: advanced, shapedRuns: result.runs, flowCosts: result.flowCosts }, restored.records)
@@ -233,6 +235,8 @@ export function BatchComposer({ active }: { active: boolean }) {
       const missing = [...new Set(pending.map((slot) => slot.text))]
       if (useEditorStore.getState().project !== previousProject)
         throw new Error(uiText("作品已更改，请重新生成以应用这段文字。"))
+      if (!glyphs.length && previousProject.glyphs.length)
+        throw new Error(uiText('未找到可用字形：{{v0}}。{{v1}}', { v0: missing.join('、'), v1: missingHint }))
       compose(
         glyphs,
         {

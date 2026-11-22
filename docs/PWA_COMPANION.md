@@ -24,7 +24,7 @@ When a new version is ready, save your work and close all Calligra windows. The 
 
 ## Optional local Companion
 
-The Companion is a separate Python process for TTF/OTF/WOFF2 compilation, DOCX/ODT conversion, optional PDF export, and experimental OCR. Basic composition, image exports and private-library editing run in the browser. Android can use the basic workbench without a desktop connection.
+The Companion is a separate Python process for TTF/OTF/WOFF2 compilation, DOCX/ODT conversion, optional office-document PDF export, and experimental OCR. Composition, artwork PDF and PNG export, and private-library editing run in the browser and Android app.
 
 Use Python 3.12 or 3.13 with the pinned requirements from the same source release.
 

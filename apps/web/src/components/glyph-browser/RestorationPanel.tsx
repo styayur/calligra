@@ -20,7 +20,7 @@ export function RestorationPanel() {
   const [confirmation, setConfirmation] = useState<RestorationCandidate>()
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
-  useEffect(() => { setConfirmation(undefined); setResults([]); setManual('') }, [project.text, range])
+  useEffect(() => { setConfirmation(undefined); setResults([]); setManual('') }, [project, range])
   if (!records.length) return null
 
   const search = async (override?: string) => {
@@ -32,6 +32,7 @@ export function RestorationPanel() {
       const anchor = project.glyphs.find((glyph) => glyph.provenance.type === 'original')?.source
       const candidates = await restorationCandidates(project.text, slot,
         { ...project.composition?.policy, vertical: project.composition?.layout === 'vertical-rtl' }, anchor, override)
+      if (useEditorStore.getState().project !== project) return
       setResults(candidates)
       if (!candidates.length) setMessage(uiText('暂无有据且可用的字形'))
     } catch (error) {

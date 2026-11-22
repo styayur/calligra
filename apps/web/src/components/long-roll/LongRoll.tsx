@@ -31,8 +31,9 @@ import { SourcePolicyControls } from '../glyph-browser/SourcePolicyControls'
 import { assertExportRights, attributionFiles } from '../../lib/rights'
 import { PDF_PAPER, PdfSettings } from '../editor/PdfSettings'
 import type { TextLanguage } from '../../types'
-import type { AdvancedTypography } from '../../types/typesetting'
-import { TypographyControls } from '../glyph-browser/TypographyControls'
+import type { AdvancedTypography, Tradition } from '../../types/typesetting'
+import { DEFAULT_TYPOGRAPHY, TypographyControls } from '../glyph-browser/TypographyControls'
+import { isLacuna, restorationCandidates, restorationDecision, type RestorationCandidate } from '../../lib/glyphRestoration'
 import { typesetScroll } from '../../lib/typesetComposition'
 
 interface RollResult {
@@ -82,7 +83,7 @@ function PagePreview({
 }
 export function LongRoll({ active }: { active: boolean }) {
   const [pdfPaper, setPdfPaper] = useState(PDF_PAPER)
-  const [policy, setPolicy] = useState<CandidatePolicy>(() => useEditorStore.getState().project.composition?.policy || DEFAULT_POLICY)
+  const [policy, setPolicy] = useState<CandidatePolicy>(() => useEditorStore.getState().project.composition?.policy || { ...DEFAULT_POLICY, smart_mix: true })
   const [text, setText] = useState(
     () => useEditorStore.getState().project.text || '明月松间照\n清泉石上流',
   )
@@ -124,16 +125,18 @@ export function LongRoll({ active }: { active: boolean }) {
     setBusy(true)
     try {
       const options = { rows, columns, vertical, punctuation }
-      if (typography) {
+      const mixed = policy.smart_mix && /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(text)
+      const advanced = typography || (mixed ? { ...DEFAULT_TYPOGRAPHY, mixed: true } : undefined)
+      if (advanced) {
         const language = useEditorStore.getState().project.composition?.textLanguage || 'und'
         const tradition = policy.writing_tradition === 'Japanese' || policy.writing_tradition === 'Korean'
           ? policy.writing_tradition : 'Chinese'
         const shaped = await typesetScroll(text, {
-          ...options, ...typography, layout: vertical ? 'vertical-rtl' : 'horizontal-ltr',
+          ...options, ...advanced, mixed: advanced.mixed || Boolean(mixed), layout: vertical ? 'vertical-rtl' : 'horizontal-ltr',
           language, tradition, signal: abort.signal,
           source, style, policy,
         })
-        setResult({ ...shaped, options, text, source, style, beam, variation, policy, typography, language,
+        setResult({ ...shaped, options, text, source, style, beam, variation, policy, typography: advanced, language,
           warnings: [], score: null, singleVariants: 0 })
         setScroll(0)
         if (scroller.current) scroller.current.scrollTop = 0
@@ -150,6 +153,7 @@ export function LongRoll({ active }: { active: boolean }) {
       const candidates = await resolveCharacters(
         characters,
         async (character) => {
+          if (isLacuna(character)) return []
           const page = await initialCandidates(character, source, usesRegionalFonts(policy.writing_tradition) ? '' : style, 8, abort.signal, { ...policy, vertical })
           if (page.warning) warnings.add(page.warning)
           const items: ProfileCandidate[] = []
@@ -170,7 +174,6 @@ export function LongRoll({ active }: { active: boolean }) {
         (done, total) => setStatus(uiText("准备字形与特征 {{v0}}/{{v1}} 个不同字", { v0: done, v1: total })),
         abort.signal,
       )
-      if (!byId.size) throw new Error(uiText("未找到可用字形，请更换字库或书体。"))
       // Fixed representative context, independent of beam paths, deterministic across runs.
       const context = [...candidates.values()]
         .filter((c) => c.length)
@@ -185,10 +188,27 @@ export function LongRoll({ active }: { active: boolean }) {
       })
       const missing = new Map<string, number[]>(),
         costs: number[] = []
+      const recovery = new Map<string, RestorationCandidate | undefined>()
+      const tradition: Tradition = policy.writing_tradition === 'Japanese' || policy.writing_tradition === 'Korean'
+        ? policy.writing_tradition : 'Chinese'
+      const anchor = [...byId.values()].find((glyph) => glyph.provenance.type === 'original')?.source
       for (const page of pages)
         for (const slot of page.slots) {
           const id = chosen[slot.index]
           if (!id) {
+            abort.signal.throwIfAborted()
+            if (slot.start !== undefined && slot.end !== undefined) {
+              const record = { start: slot.start, end: slot.end, text: slot.character, tradition,
+                x: 48 + (slot.column + .5) * 704 / columns, y: 50 + (slot.row + .5) * 980 / rows,
+                size: .86 * Math.min(704 / columns, 980 / rows) }
+              if (!recovery.has(slot.character) && !isLacuna(slot.character)) {
+                const ranked = await restorationCandidates(text, record, { ...policy, vertical }, anchor)
+                recovery.set(slot.character, ranked.find((candidate) => candidate.automatic))
+              }
+              const match = recovery.get(slot.character)
+              ;(page.restorations ??= []).push({ ...record, decisions: match ? [restorationDecision(match, false)] : [] })
+              if (match) { slot.glyph = match.glyph; continue }
+            }
             missing.set(slot.character, [
               ...(missing.get(slot.character) || []),
               slot.index + 1,
@@ -292,6 +312,7 @@ export function LongRoll({ active }: { active: boolean }) {
         glyphs,
         pages: result.pages.map((p) => ({
           runs: p.runs,
+          restoration: p.restorations,
           flowCosts: p.flowCosts,
           slots: p.slots.map((s) => ({
             ...s, glyph: s.glyph?.id || null, position: p.measured ? s.glyph?.transform : undefined,
@@ -332,7 +353,7 @@ export function LongRoll({ active }: { active: boolean }) {
       const { buildHybridPdf } = await import('../../lib/hybridPdf')
       const pdf = await buildHybridPdf(result.pages.map((page) => rollArtwork(page, result.options)), {
         ...pdfPaper, commercialOnly: result.policy.commercial_only, signal: abort.signal,
-        originalText: result.text, restoration: result.missing,
+        originalText: result.text, restoration: { missing: result.missing, records: result.pages.flatMap((page) => page.restorations || []) },
         progress: (page, total) => setStatus(uiText("导出第 {{v0}}/{{v1}} 页…", { v0: page, v1: total })),
       })
       abort.signal.throwIfAborted()

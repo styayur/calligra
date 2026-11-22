@@ -43,8 +43,16 @@ def exercise_workbench(page, *, verify_gdi=False):
     page.get_by_label("已核实允许改作与再分发").check()
     page.get_by_role("button", name="保存确认字形").click()
     expect(page.locator("form > [role=status]")).to_contain_text("已保存 1 个确认字形")
-    page.get_by_role("button", name="字体", exact=True).click()
-    page.get_by_label("目标文字").fill("日月")
+    page.get_by_role("button", name="集字工作台", exact=True).click()
+    page.get_by_label("项目名称").fill("Collection")
+    composer = page.locator(".composer")
+    composer.get_by_label("字形来源").select_option("private")
+    composer.get_by_label("集字内容").fill("日月")
+    composer.get_by_role("button", name="生成作品", exact=True).click()
+    expect(composer.locator(".feedback")).to_contain_text("已排入")
+    page.get_by_label("项目菜单").click()
+    page.get_by_role("button", name="从作品制作字体", exact=True).click()
+    expect(page.get_by_label("目标文字")).to_have_value("日月")
     expect(page.get_by_text("目标覆盖 1/2")).to_be_visible()
     expect(page.get_by_text("缺字 月")).to_be_visible()
     page.get_by_label("确认私人来源允许生成和分发字体").check()
@@ -94,6 +102,19 @@ def exercise_workbench(page, *, verify_gdi=False):
         })
         page.get_by_role("button", name="分析覆盖").click()
         expect(page.get_by_text("覆盖 1/2 字", exact=False)).to_be_visible()
+
+    page.get_by_label("书法字体").select_option("ma-shan-zheng")
+    page.get_by_label("替换范围").select_option("body")
+    page.get_by_label("文档", exact=True).set_input_files({
+        "name": "bundled.docx", "mimeType": "application/octet-stream", "buffer": docx(),
+    })
+    page.get_by_role("button", name="分析覆盖").click()
+    expect(page.get_by_role("button", name="转换并下载")).to_be_enabled()
+    with page.expect_download() as event:
+        page.get_by_role("button", name="转换并下载").click()
+    with ZipFile(event.value.path()) as result:
+        analysis = json.loads(result.read("analysis.json"))
+        assert analysis["font_family"] == "Ma Shan Zheng" and analysis["selected_paragraphs"]
 
 
 def main():

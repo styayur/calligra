@@ -1,5 +1,8 @@
 import { fontCatalog } from '../api/fonts'
+import { uiText } from '../i18n'
+import { zlibSync } from 'fflate'
 import type { Glyph } from '../types'
+import { imageDimensions } from './extraction'
 import { artworkOutlines, sha256 } from './fontShaper'
 import { attributionFiles, type ExportPolicy } from './rights'
 
@@ -12,6 +15,7 @@ export interface ArtworkPage {
 export interface PdfOptions extends ExportPolicy {
   paper: 'artwork' | 'a4' | 'a3' | 'custom'
   preset: 'reading' | 'print' | 'archive'
+  transparent?: boolean
   widthMm?: number
   heightMm?: number
   signal?: AbortSignal
@@ -130,6 +134,7 @@ function paper(page: ArtworkPage, options: PdfOptions) {
 }
 
 async function deflate(data: Uint8Array<ArrayBuffer>) {
+  if (typeof CompressionStream === 'undefined') return Uint8Array.from(zlibSync(data))
   const stream = new Blob([data]).stream().pipeThrough(new CompressionStream('deflate'))
   return new Uint8Array(await new Response(stream).arrayBuffer())
 }
@@ -145,7 +150,11 @@ async function artworkImage(pdf: PdfFile, glyph: Glyph, signal?: AbortSignal) {
   const bytes = await response.arrayBuffer()
   if (bytes.byteLength > 20 * 1024 * 1024) throw new Error('PDF image exceeds 20 MiB')
   if (glyph.asset.checksum && await sha256(bytes) !== glyph.asset.checksum) throw new Error('Glyph checksum mismatch')
-  const blob = new Blob([bytes], { type: response.headers.get('content-type') || 'image/png' })
+  const bundledSvg = local && url.pathname.endsWith('.svg')
+  const dimensions = imageDimensions(new Uint8Array(bytes))
+  if (!bundledSvg && (!dimensions || !dimensions.every((value) => value > 0 && value <= 8192) ||
+      dimensions[0] * dimensions[1] > 16_000_000)) throw new Error(uiText('PDF 裁片尺寸或格式超出限制'))
+  const blob = new Blob([bytes], { type: bundledSvg ? 'image/svg+xml' : response.headers.get('content-type') || 'image/png' })
   const image = await createImageBitmap(blob)
   try {
     signal?.throwIfAborted()
@@ -161,7 +170,9 @@ async function artworkImage(pdf: PdfFile, glyph: Glyph, signal?: AbortSignal) {
     const rgb = new Uint8Array(width * height * 3), alpha = new Uint8Array(width * height)
     let hasAlpha = false
     for (let i = 0; i < alpha.length; i++) {
-      rgb.set(data.subarray(i * 4, i * 4 + 3), i * 3)
+      rgb[i * 3] = data[i * 4]
+      rgb[i * 3 + 1] = data[i * 4 + 1]
+      rgb[i * 3 + 2] = data[i * 4 + 2]
       alpha[i] = data[i * 4 + 3]
       hasAlpha ||= alpha[i] !== 255
     }
@@ -200,8 +211,8 @@ export async function buildHybridPdf(pages: ArtworkPage[], options: PdfOptions) 
     const content: string[] = [], textLayer: string[] = []
     const bg = /^#[0-9a-fA-F]{6}$/.test(page.background) ? page.background : '#ffffff'
     const rgb = bg.slice(1).match(/../g)!.map((value) => parseInt(value, 16) / 255)
-    content.push('q', row(media.scale, 0, 0, -media.scale, media.x, media.height - media.y) + ' cm',
-      row(...rgb) + ' rg', row(0, 0, page.width, page.height) + ' re f')
+    content.push('q', row(media.scale, 0, 0, -media.scale, media.x, media.height - media.y) + ' cm')
+    if (!options.transparent) content.push(row(...rgb) + ' rg', row(0, 0, page.width, page.height) + ' re f')
     for (const glyph of page.glyphs) {
       options.signal?.throwIfAborted()
       const transform = glyph.transform

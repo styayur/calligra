@@ -70,7 +70,7 @@ export function Toolbar({ onCreateFont }: { onCreateFont: () => void }) {
     try {
       const { buildHybridPdf } = await import('../../lib/hybridPdf')
       const pdf = await buildHybridPdf([{ ...project.canvas, glyphs: project.glyphs }], {
-        ...pdfPaper, commercialOnly, originalText: project.text, restoration: project.restorations,
+        ...pdfPaper, commercialOnly, transparent, originalText: project.text, restoration: project.restorations,
       })
       await saveFile(`${projectName || 'Calligra'}.pdf`, pdf.blob)
       setStatus(uiText('PDF 已导出，最低图像分辨率 {{dpi}} DPI', { dpi: pdf.statistics.minimumDpi?.toFixed(0) ?? '—' }))

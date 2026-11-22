@@ -14,7 +14,7 @@ from PIL import Image, ImageChops, ImageDraw
 def exercise(page, gallery=None):
     composer = page.locator(".composer")
     field = composer.get_by_label("集字内容", exact=True)
-    tradition = composer.get_by_label("Tradition", exact=True)
+    tradition = composer.get_by_label("集字模式", exact=True)
     font = composer.get_by_label("字体", exact=True)
     tradition.select_option("Japanese")
     font.select_option("yuji-boku")
@@ -122,7 +122,7 @@ def exercise(page, gallery=None):
 def exercise_flow(page, composer, compose, gallery):
     selection = composer.get_by_label("字形排列", exact=True)
     mode_enabled = composer.get_by_label("启用 OpenType 排版", exact=True)
-    tradition = composer.get_by_label("Tradition", exact=True)
+    tradition = composer.get_by_label("集字模式", exact=True)
     cases = [
         ("Chinese", "行书", "山水日月山水", False),
         ("Chinese", "草书", "山水日月山水", False),
@@ -215,7 +215,7 @@ def exercise_reviewed_group(page, composer, compose):
     page.get_by_role("button", name="保存确认字形").click()
     expect(page.locator("form > [role=status]")).to_contain_text("已保存 1 个确认字形")
     page.get_by_role("button", name="集字工作台", exact=True).click()
-    composer.get_by_label("Tradition", exact=True).select_option("Japanese")
+    composer.get_by_label("集字模式", exact=True).select_option("Japanese")
     composer.get_by_label("字形来源", exact=True).select_option("private")
     composer.get_by_label("启用 OpenType 排版", exact=True).check()
     composer.get_by_label("使用已校对的原帖连绵假名（个人字库或全部来源）").check()
@@ -234,7 +234,7 @@ def exercise_reviewed_group(page, composer, compose):
 def exercise_scroll(page):
     page.get_by_role("button", name="长卷模式", exact=True).click()
     scroll = page.get_by_role("main", name="长卷模式")
-    scroll.get_by_label("Tradition", exact=True).select_option("Japanese")
+    scroll.get_by_label("集字模式", exact=True).select_option("Japanese")
     scroll.get_by_label("字体", exact=True).select_option("yuji-boku")
     original = "日本12月\n「かな」\nAI fi"
     scroll.get_by_label("长卷内容", exact=True).fill(original)

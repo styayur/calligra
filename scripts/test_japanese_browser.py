@@ -30,8 +30,8 @@ def main():
         notices=json.loads((Path(__file__).resolve().parents[1]/'third_party/manifest.json').read_text(encoding='utf-8'))
         expect(page.frame_locator('iframe').locator('details')).to_have_count(len(notices['components']))
         page.get_by_label('关闭第三方许可').click();page.get_by_label('项目菜单').click()
-        expect(composer.get_by_label('Tradition',exact=True)).to_have_value('Chinese')
-        composer.get_by_label('Tradition',exact=True).select_option('Japanese')
+        expect(composer.get_by_label('集字模式',exact=True)).to_have_value('mixed')
+        composer.get_by_label('集字模式',exact=True).select_option('Japanese')
         composer.get_by_label('集字内容').fill('骨国國学學あか\u3099カ「」、。ー')
         composer.locator('summary').filter(has_text='间距与留白').click()
         composer.get_by_label('保留标点').check()
@@ -122,7 +122,7 @@ def main():
             assert all(g['source']['rights']['share_alike_required'] for g in attribution['glyphs'])
         # Reload proves project schema, local assets and persisted policy survive.
         page.reload(); page.wait_for_load_state('networkidle')
-        expect(composer.get_by_label('Tradition',exact=True)).to_have_value('Japanese')
+        expect(composer.get_by_label('集字模式',exact=True)).to_have_value('Japanese')
         restored=project(); assert restored['glyphs']==history['glyphs']
         # Long Japanese composition with repeated kana, vertical punctuation, and ZIP attribution.
         page.get_by_role('button',name='长卷模式',exact=True).click()

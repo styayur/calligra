@@ -125,7 +125,7 @@ with sync_playwright() as p:
     grid = project()['glyphs']
     assert grid[0]['transform']['y'] == grid[1]['transform']['y']
     assert grid[2]['transform']['y'] > grid[0]['transform']['y']
-    page.locator('.composer').get_by_label('Tradition', exact=True).select_option('Japanese')
+    page.locator('.composer').get_by_label('集字模式', exact=True).select_option('Japanese')
     page.get_by_label('集字内容').fill('あの水')
     page.get_by_label('字形来源').select_option('original')
     page.get_by_role('button', name='生成作品', exact=True).click()

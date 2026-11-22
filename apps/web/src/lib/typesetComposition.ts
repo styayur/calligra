@@ -7,7 +7,7 @@ import { placeGlyph } from './composition'
 import { rasterizeOpenTypeRun, shapeOpenTypeRun, type ShaperFont } from './fontShaper'
 import { analyzeText, runsForLine, segmentText } from './textLayout'
 import type { RollOptions, RollPage } from './longRoll'
-import { isLacuna, type RestorationSlot } from './glyphRestoration'
+import { isLacuna, restorationCandidates, restorationDecision, type RestorationCandidate, type RestorationRecord, type RestorationSlot } from './glyphRestoration'
 import { selectSequence, type ProfileCandidate } from './beam'
 import { getVisualProfile } from './featureCache'
 import type { VisualProfile } from './visual'
@@ -346,6 +346,7 @@ export async function typesetScroll(text: string, options: TypesettingOptions & 
   const clusterIndices = new Map(layout.clusters.map((item, index) => [item.start, index]))
   const pages: RollPage[] = []
   const unresolved: LayoutUnit[] = []
+  const recovery = new Map<string, RestorationCandidate | undefined>()
   const gapEm = .08
   for (let start = 0; start < layout.lines.length; start += capacity) {
     options.signal?.throwIfAborted()
@@ -363,8 +364,28 @@ export async function typesetScroll(text: string, options: TypesettingOptions & 
       row: vertical ? Math.floor(record.y) : track, column: vertical ? capacity - track - 1 : Math.floor(record.x),
       glyph: materialize(record, marginX, 50, em), cost: null, start: record.start, end: record.end,
     })))
-    unresolved.push(...lines.flatMap((line) => line.missing))
-    pages.push({ slots, runs: lines.flatMap((line) => line.runs), measured: true,
+    const restorations: RestorationRecord[] = []
+    const pending = new Set<number>()
+    const anchor = slots.find((slot) => slot.glyph.provenance.type === 'original')?.glyph.source
+    for (const lost of lines.flatMap((line) => line.missingPositions)) {
+      options.signal?.throwIfAborted()
+      const slot = { ...lost, x: marginX + lost.x * em, y: 50 + lost.y * em, size: lost.size * em }
+      const key = JSON.stringify([lost.text, lost.tradition, anchor?.work, anchor?.calligrapher, anchor?.style])
+      if (!recovery.has(key) && !isLacuna(lost.text)) {
+        const ranked = await restorationCandidates(text, slot, { ...options.policy, vertical }, anchor)
+        recovery.set(key, ranked.find((candidate) => candidate.automatic))
+      }
+      const match = recovery.get(key)
+      restorations.push({ ...slot, decisions: match ? [restorationDecision(match, false)] : [] })
+      if (!match) { pending.add(slot.start); continue }
+      const glyph = placeGlyph(match.glyph, slot.x, slot.y, slot.size)
+      glyph.textRange = { start: slot.start, end: slot.end }
+      slots.push({ index: clusterIndices.get(slot.start)!, character: slot.text, glyph, cost: null,
+        row: Math.floor(lost.y), column: Math.floor(lost.x), start: slot.start, end: slot.end })
+    }
+    slots.sort((a,b) => a.start - b.start)
+    unresolved.push(...lines.flatMap((line) => line.missing).filter((item) => pending.has(item.start)))
+    pages.push({ slots, restorations, runs: lines.flatMap((line) => line.runs), measured: true,
       flowCosts: lines.flatMap(({ flowCost }) => flowCost === null ? [] : [flowCost]) })
     await new Promise((resolve) => setTimeout(resolve, 0))
   }

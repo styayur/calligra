@@ -78,7 +78,8 @@ export function validateProject(value: unknown): ProjectDocument {
             typeof decision.confirmed === 'boolean' &&
             (decision.confirmed || entry.text === decision.character && !['variant','loan','editorial'].includes(decision.kind)) &&
             (decision.evidence === undefined || typeof decision.evidence === 'string' && decision.evidence.length <= 2048) &&
-            (decision.checksum == null || /^[a-f0-9]{64}$/i.test(decision.checksum)))) return false
+            (decision.checksum === null || decision.checksum === undefined ||
+              typeof decision.checksum === 'string' && /^[a-f0-9]{64}$/i.test(decision.checksum)))) return false
         const last = entry.decisions.at(-1)
         if (last) decided.set(key, last)
         return true

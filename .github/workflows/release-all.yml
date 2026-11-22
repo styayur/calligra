@@ -250,7 +250,9 @@ jobs:
           args=()
           if [ -f "$native_project" ]; then args=(--native-project "$native_project"); fi
           python scripts/test_typesetting_browser.py --url http://127.0.0.1:5180/ --output work/typesetting-android.json "${args[@]}"
-          python scripts/test_hybrid_pdf_browser.py --url http://127.0.0.1:5180/ --output work/hybrid-pdf-android
+          pdf=()
+          if [ -f "$native_project" ]; then pdf=(--native-pdf work/android-upgrade/typesetting-native.pdf); fi
+          python scripts/test_hybrid_pdf_browser.py --url http://127.0.0.1:5180/ --output work/hybrid-pdf-android "${pdf[@]}"
       - uses: actions/upload-artifact@v7
         with:
           name: android-japanese-font-evidence
@@ -341,6 +343,14 @@ jobs:
           python scripts/test_i18n_browser.py --url http://127.0.0.1:5179/ --output work/i18n-web.json
           python scripts/test_restoration_browser.py --url http://127.0.0.1:5179/ --output work/restoration-web.json
           python scripts/test_hybrid_pdf_browser.py --url http://127.0.0.1:5179/ --output work/hybrid-pdf-web
+      - name: Upgrade a v0.10.0 browser profile and verify project and library compatibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download v0.10.0 --dir work/web-baseline --pattern 'CalligraphyStudio-Web-0.10.0.zip' --pattern 'SHA256SUMS.txt'
+          (cd work/web-baseline && grep '  CalligraphyStudio-Web-0.10.0.zip$' SHA256SUMS.txt | sha256sum --strict --check -)
+          python -m zipfile -e work/web-baseline/CalligraphyStudio-Web-0.10.0.zip work/old-web
+          python scripts/test_v010_browser_migration.py --baseline work/old-web --current work/offline-web --output work/v010-migration.json
       - uses: actions/upload-artifact@v7
         with:
           name: web-japanese-font-evidence
@@ -353,6 +363,7 @@ jobs:
             work/pwa-linux.json
             work/i18n-web.json
             work/restoration-web.json
+            work/v010-migration.json
             work/hybrid-pdf-web/*
           if-no-files-found: error
       - uses: actions/upload-artifact@v7

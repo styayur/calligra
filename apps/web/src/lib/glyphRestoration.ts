@@ -96,6 +96,7 @@ async function components(character: string, policy: CandidatePolicy): Promise<G
     id: 'ids:' + checksum, character, asset: { url, checksum, type: 'generated', width: size, height: size, bbox: [0, 0, size, size] },
     source: { dataset: 'Calligra IDS composition', writing_tradition: policy.writing_tradition,
       locale: policy.locale, script: 'Han', attribution: [...new Set(sources.map((part) => part.source.attribution || part.source.work))].join(', '),
+      license: 'OFL-1.1 (components)',
       rights: { redistribution_allowed: true, derivatives_allowed: true, commercial_use: glyphs.every((g) => g.source.rights?.commercial_use === true) } },
     provenance: { type: 'generated' }, transform: glyphs[0].transform, appearance: glyphs[0].appearance,
     metadata: { ids: structures[character], components: sources, changes: 'Component bitmaps scaled into explicit slots' },
@@ -141,13 +142,13 @@ export async function restorationCandidates(text: string, slot: RestorationSlot,
     found.sort((a, b) => (order[a.kind] ?? 3) - (order[b.kind] ?? 3))
     const hasVariation = Boolean(variationPairs(requested)?.length)
     if (!found.some((candidate) => candidate.automatic)) {
-      for (const glyph of (await tryFonts(requested)).slice(0, 2))
-        if (glyph.metadata?.font_id !== policy.font_id)
-          found.push({ glyph, kind: 'coverage', automatic: !strictFont })
-      if (!found.some((candidate) => candidate.automatic) && !hasVariation && slot.tradition === 'Chinese') {
+      if (!hasVariation && slot.tradition === 'Chinese') {
         const glyph = await components(requested, selection).catch(() => undefined)
         if (glyph) found.push({ glyph, kind: 'components', automatic: !strictFont })
       }
+      for (const glyph of (await tryFonts(requested)).slice(0, 2))
+        if (glyph.metadata?.font_id !== policy.font_id)
+          found.push({ glyph, kind: 'coverage', automatic: !strictFont })
     }
     for (const link of editorialRelations(text, slot)) {
       const [glyph] = await tryFonts(link.character)

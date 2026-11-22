@@ -7,10 +7,10 @@ from playwright.sync_api import expect, sync_playwright
 
 
 COPY = {
-    "zh-CN": ("集字工作台", "界面语言", "文本语言", "Tradition", "生成作品", "字体制作", "文档排版", "碑帖提取", "长卷内容", ""),
-    "ja-JP": ("集字ワークスペース", "表示言語", "本文の言語", "書の伝統", "作品を生成", "フォント制作", "文書の組版", "画像から字形を切り出す", "長巻の本文", "ja/"),
-    "ko-KR": ("집자 작업실", "인터페이스 언어", "텍스트 언어", "서예 전통", "작품 만들기", "글꼴 제작", "문서 조판", "스캔에서 자형 추출", "두루마리 텍스트", "ko/"),
-    "en": ("Composition Studio", "Interface language", "Text language", "Tradition", "Generate", "Font Studio", "Document typesetting", "Extract from scans", "Long scroll text", "en/"),
+    "zh-CN": ("集字工作台", "界面语言", "文本语言", "集字模式", "生成作品", "字体制作", "文档排版", "碑帖提取", "长卷内容", ""),
+    "ja-JP": ("集字ワークスペース", "表示言語", "本文の言語", "集字モード", "作品を生成", "フォント制作", "文書の組版", "画像から字形を切り出す", "長巻の本文", "ja/"),
+    "ko-KR": ("집자 작업실", "인터페이스 언어", "텍스트 언어", "집자 모드", "작품 만들기", "글꼴 제작", "문서 조판", "스캔에서 자형 추출", "두루마리 텍스트", "ko/"),
+    "en": ("Composition Studio", "Interface language", "Text language", "Composition mode", "Generate", "Font Studio", "Document typesetting", "Extract from scans", "Long scroll text", "en/"),
 }
 WORKSPACES = {
     "zh-CN": ("字体", "文档", "素材", "长卷模式", "项目菜单", "教程", "保存项目"),
@@ -27,9 +27,9 @@ def exercise(page, url):
     composer = page.locator(".composer")
     language = page.locator(".ui-language select")
     expect(language).to_have_value("ja-JP")
-    expect(composer.get_by_label("書の伝統", exact=True)).to_have_value("Chinese")
+    expect(composer.get_by_label("集字モード", exact=True)).to_have_value("mixed")
     composer.get_by_label("本文の言語", exact=True).select_option("en")
-    composer.get_by_label("書の伝統", exact=True).select_option("Korean")
+    composer.get_by_label("集字モード", exact=True).select_option("Korean")
     composer.get_by_label("集字する文字", exact=True).fill("한漢A")
     composer.get_by_role("button", name="作品を生成", exact=True).click()
     expect(composer.locator(".feedback")).to_contain_text("3 字を配置しました")
@@ -74,7 +74,7 @@ def exercise(page, url):
     page.reload()
     expect(language).to_have_value("en")
     expect(composer.get_by_label("Text language", exact=True)).to_have_value("en")
-    expect(composer.get_by_label("Tradition", exact=True)).to_have_value("Korean")
+    expect(composer.get_by_label("Composition mode", exact=True)).to_have_value("Korean")
     assert not errors, errors
     return receipt
 
