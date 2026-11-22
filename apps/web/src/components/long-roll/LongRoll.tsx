@@ -24,6 +24,7 @@ import { saveFile } from '../../lib/download'
 import { useEditorStore } from '../../stores/editor'
 import type { Glyph } from '../../types'
 import { DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { JapaneseFontFallback, JapaneseFontSelect } from '../glyph-browser/JapaneseFontSelect'
 import { SourcePolicyControls } from '../glyph-browser/SourcePolicyControls'
 import { assertExportRights, attributionFiles } from '../../lib/rights'
 
@@ -315,14 +316,20 @@ export function LongRoll({ active }: { active: boolean }) {
               <select
                 aria-label="长卷字形来源"
                 value={source}
-                onChange={(e) => setSource(e.target.value as CandidateSource)}
+                onChange={(e) => {
+                  setSource(e.target.value as CandidateSource)
+                  setPolicy({ ...policy, font_id: undefined, allow_font_fallback: undefined })
+                }}
               >
                 <option value="fonts">字体 / Font</option>
                 <option value="original">原帖 / Original</option>
                 <option value="all">全部</option>
               </select>
             </label>
-            <label>
+            {policy.writing_tradition === 'Japanese' ? <JapaneseFontSelect policy={policy} onChange={(next) => {
+              setPolicy(next)
+              setSource('fonts')
+            }} /> : <label>
               书体
               <select
                 aria-label="长卷书体"
@@ -334,8 +341,10 @@ export function LongRoll({ active }: { active: boolean }) {
                 <option>行书</option>
                 <option>草书</option>
               </select>
-            </label>
+            </label>}
           </div>
+          {policy.writing_tradition === 'Japanese' && source !== 'original' &&
+            <JapaneseFontFallback policy={policy} onChange={setPolicy} />}
           <div className="field-grid">
             <label>
               每页行数

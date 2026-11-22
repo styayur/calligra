@@ -25,9 +25,18 @@ assert.equal(candidateCost(zh,0,policy),Infinity)
 const yuji = { ...ja,id:'yuji',source:{ ...ja.source,work:'Yuji Syuku',source_role:'calligraphy' as const } }
 const klee = { ...ja,id:'klee',source:{ ...ja.source,work:'Klee One',source_role:'handwriting' as const } }
 const coverage = { ...ja,id:'coverage',source:{ ...ja.source,work:'JP Coverage Serif',source_role:'coverage-fallback' as const,license:'OFL-1.1',source_checksum:'b'.repeat(64) } }
-assert.equal(candidateCompatible(coverage,policy),true)
-assert.ok(candidateCost(coverage,0,policy) > candidateCost(yuji,1,policy))
-assert.ok(candidateCost(coverage,0,policy) > candidateCost(klee,1,policy))
+assert.equal(candidateCompatible(coverage,policy),false)
+const withFallback = { ...policy, allow_font_fallback: true }
+assert.equal(candidateCompatible(coverage,withFallback),true)
+const boku = { ...yuji, metadata: { font_id: 'yuji-boku' } }
+const syuku = { ...yuji, metadata: { font_id: 'yuji-syuku' } }
+const selected = { ...policy, font_id: 'yuji-boku' }
+assert.equal(candidateCompatible(boku, selected), true)
+assert.equal(candidateCompatible(syuku, selected), false)
+assert.equal(candidateCost(syuku, 0, selected), Infinity)
+assert.ok(Number.isFinite(candidateCost(syuku, 0, { ...selected, allow_font_fallback: true })))
+assert.ok(candidateCost(coverage,0,withFallback) > candidateCost(yuji,1,policy))
+assert.ok(candidateCost(coverage,0,withFallback) > candidateCost(klee,1,policy))
 assert.equal(candidateCompatible({...coverage,source:{...coverage.source,writing_tradition:'Chinese'}},policy),false)
 const exportedCoverage = attributionManifest([coverage])
 assert.equal(exportedCoverage.glyphs[0].source.source_role,'coverage-fallback')
@@ -59,6 +68,11 @@ assert.equal(migrated.version,2)
 assert.deepEqual(migrated.glyphs[0].identity?.codepoints,['U+9AA8'])
 assert.equal(migrated.glyphs[0].identity?.language,undefined)
 assert.deepEqual(validateProject(migrated),migrated)
+const settings = { ...options, gap: 0, source: 'fonts' as const, style: '行书' }
+const preference = { ...migrated, composition: { ...settings, policy: { ...selected, allow_font_fallback: false } } }
+assert.deepEqual(validateProject(JSON.parse(JSON.stringify(preference))).composition, preference.composition)
+assert.throws(() => validateProject({ ...preference, composition: { ...settings, policy: { ...selected, font_id: '../face' } } }))
+assert.throws(() => validateProject({ ...preference, composition: { ...settings, policy: { ...selected, allow_font_fallback: 'true' } } }))
 assert.equal(migrateGlyph(ja).source.rights?.share_alike_required,null)
 assert.throws(() => validateProject({ ...old,glyphs:[{ ...instance,identity:{text:'骨',codepoints:['U+570B']} }] }))
 assert.throws(() => validateProject({ ...old,glyphs:[{ ...instance,source:{...instance.source,rights:{commercial_use:'true'}} }] }))

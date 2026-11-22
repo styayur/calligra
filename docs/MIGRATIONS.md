@@ -12,3 +12,7 @@ Before upgrading, back up project JSON and the local SQLite database. Existing r
 Do not downgrade a migrated database in place. Restore the pre-upgrade backup to run a previous release.
 
 The database migration carries forward provider-level Chinese language/tradition facts for the existing named NCCU, OFL Chinese font, MCCD and Hanzi Writer packs. It does not infer language from shared Han characters or assign an unverified Chinese regional locale. Other legacy source metadata remains unknown.
+
+## v0.8.1 Japanese font selection
+
+Project schema 2 accepts optional `font_id` and `allow_font_fallback` fields under `composition.policy`. An omitted ID means automatic selection. An omitted fallback option means other fonts are excluded from an exact selection, and supplementary coverage is opt-in. v0.8.0 artwork keeps its saved glyphs and provenance.

@@ -1,4 +1,5 @@
 import type { ProjectDocument } from '../types'
+import { validLayoutDimensions } from './composition'
 import { codepoints, migrateGlyph } from './identity'
 
 export function validateProject(value: unknown): ProjectDocument {
@@ -21,16 +22,7 @@ export function validateProject(value: unknown): ProjectDocument {
       !['fonts', 'original', 'all', 'fallback', 'private'].includes(c.source) ||
       typeof c.style !== 'string' ||
       typeof c.punctuation !== 'boolean' ||
-      ![c.columns, c.size, c.gap, c.margin].every(Number.isFinite) ||
-      !Number.isInteger(c.columns) ||
-      c.columns < 1 ||
-      c.columns > 30 ||
-      c.size < 40 ||
-      c.size > 400 ||
-      c.gap < 0 ||
-      c.gap > 160 ||
-      c.margin < 0 ||
-      c.margin > 300
+      !validLayoutDimensions(c)
     )
       throw new Error('项目排版参数无效')
     if (c.policy) {
@@ -39,6 +31,9 @@ export function validateProject(value: unknown): ProjectDocument {
         !['writing_tradition','language','locale','script','variant_type','orthography','period','work','designer','dataset','provenance_type'].every((key) => {const value=policy[key as keyof typeof policy]; return value == null || (typeof value === 'string' && value.length <= 1000)}) ||
         (policy.mode != null && !['strict','related','cross-tradition'].includes(policy.mode)) ||
         (policy.commercial_only != null && typeof policy.commercial_only !== 'boolean') ||
+        (policy.font_id !== undefined && (typeof policy.font_id !== 'string' ||
+          !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(policy.font_id) || policy.font_id.length > 80)) ||
+        (policy.allow_font_fallback !== undefined && typeof policy.allow_font_fallback !== 'boolean') ||
         (policy.vertical != null && typeof policy.vertical !== 'boolean')) throw new Error('项目选择规则无效')
     }
   }

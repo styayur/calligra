@@ -18,21 +18,18 @@ export function textLines(text: string, punctuation: boolean): string[][] {
     )
     .filter((line) => line.length)
 }
+export function validLayoutDimensions({ columns, size, gap, margin }: LayoutOptions): boolean {
+  return [columns, size, gap, margin].every(Number.isFinite) &&
+    Number.isInteger(columns) &&
+    columns >= 1 && columns <= 30 &&
+    size >= 40 && size <= 400 &&
+    gap >= 0 && gap <= 160 &&
+    margin >= 0 && margin <= 300
+}
+
 export function layoutText(text: string, options: LayoutOptions) {
   const { layout, columns, size, gap, margin } = options
-  if (
-    ![columns, size, gap, margin].every(Number.isFinite) ||
-    !Number.isInteger(columns) ||
-    columns < 1 ||
-    columns > 30 ||
-    size < 40 ||
-    size > 400 ||
-    gap < 0 ||
-    gap > 160 ||
-    margin < 0 ||
-    margin > 300
-  )
-    throw new Error('请填写有效的排版数值')
+  if (!validLayoutDimensions(options)) throw new Error('请填写有效的排版数值')
   const lines = textLines(text, options.punctuation)
   const count = lines.flat().length
   if (!count) throw new Error('请先输入需要集字的文字')

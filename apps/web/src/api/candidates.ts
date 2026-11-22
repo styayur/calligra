@@ -20,6 +20,7 @@ export async function candidatePage(
   limit = 12,
   policy: CandidatePolicy = {},
 ): Promise<CandidatePage> {
+  if (policy.font_id) return catalogPage(character, 'fonts', '', offset, limit, policy)
   if (source === 'private') {
     const items = await privateGlyphs(character, policy)
     return { items: items.slice(offset, offset + limit), hasMore: offset + limit < items.length, warning: '' }
