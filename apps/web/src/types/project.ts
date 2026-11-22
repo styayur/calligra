@@ -11,6 +11,7 @@ export interface CompositionSettings {
   punctuation: boolean
   style: string
   source: 'fonts' | 'original' | 'all' | 'fallback' | 'private'
+  /** Optional cultural and font preferences. Schema 2 projects without a font ID use Auto. */
   policy?: CandidatePolicy
 }
 

@@ -5,10 +5,22 @@ import { harmonyScore, profileCost } from '../../lib/visual'
 import { DifferencePanel, nearestNeighbors, ProfileReadout, useProfiles } from './VisualProfile'
 import type { GlyphInstance, Glyph } from '../../types'
 import { candidateCost, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { JapaneseFontFallback, JapaneseFontSelect } from '../glyph-browser/JapaneseFontSelect'
 import { SourcePolicyControls } from '../glyph-browser/SourcePolicyControls'
 
 export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
-  const [policy, setPolicy] = useState<CandidatePolicy>({ writing_tradition: glyph.source.writing_tradition || 'Chinese', locale: glyph.source.locale || undefined, mode: 'strict', variant_type: glyph.variant?.type === 'hentaigana' ? 'hentaigana' : undefined })
+  const composition = useEditorStore((s) => s.project.composition)
+  const projectPolicy = composition?.policy
+  const [policy, setPolicy] = useState<CandidatePolicy>(() => {
+    const tradition = glyph.source.writing_tradition || 'Chinese'
+    const japanese = tradition === 'Japanese' && projectPolicy?.writing_tradition === 'Japanese'
+    return { writing_tradition: tradition, locale: glyph.source.locale || undefined, mode: 'strict',
+      font_id: japanese ? projectPolicy?.font_id : undefined,
+      allow_font_fallback: japanese ? projectPolicy?.allow_font_fallback : undefined,
+      variant_type: glyph.variant?.type === 'hentaigana' ? 'hentaigana' : undefined }
+  })
+  const shaping = glyph.metadata?.shaping as { direction?: string } | undefined
+  const vertical = shaping ? shaping.direction === 'ttb' : composition?.layout === 'vertical-rtl'
   const [items, setItems] = useState<Glyph[]>([]),
     [status, setStatus] = useState(''),
     [offset, setOffset] = useState(0)
@@ -28,7 +40,7 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
   useEffect(() => {
     let active = true
     setLoading(true)
-    candidatePage(glyph.character, 'all', '', offset, 12, { ...policy, vertical: (glyph.metadata?.shaping as { direction?: string } | undefined)?.direction === 'ttb' })
+    candidatePage(glyph.character, 'all', '', offset, 12, { ...policy, vertical })
       .then((page) => {
         if (!active) return
         setItems((previous) =>
@@ -37,7 +49,7 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
             : page.items,
         )
         setMore(page.hasMore)
-        setStatus(page.warning || (!page.items.length ? '暂无其他字形' : ''))
+        setStatus(page.warning || (!page.items.length ? (policy.font_id ? '所选字体缺少此字。可更换字体或允许补字。' : '暂无其他字形') : ''))
       })
       .catch((e) => {
         if (active) setStatus(String(e))
@@ -48,7 +60,7 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
     return () => {
       active = false
     }
-  }, [glyph.character, offset, policy, glyph.metadata])
+  }, [glyph.character, offset, policy, vertical])
   const { profiles, pending, failed } = useProfiles(analysisOpen || sort ? [glyph, ...neighbors, ...items] : [])
   const context = neighbors.flatMap((g) => {
     const p = profiles.get(g.id)
@@ -85,6 +97,10 @@ export function SimilarGlyphs({ glyph }: { glyph: GlyphInstance }) {
         <h3>换个字形</h3>
               </div>
       <SourcePolicyControls policy={policy} onChange={setPolicy} />
+      {policy.writing_tradition === 'Japanese' && <>
+        <JapaneseFontSelect policy={policy} onChange={setPolicy} />
+        <JapaneseFontFallback policy={policy} onChange={setPolicy} />
+      </>}
       <label className="check-field">
         <input type="checkbox" checked={sort} onChange={(e) => setSort(e.target.checked)} />
         按协调度排序

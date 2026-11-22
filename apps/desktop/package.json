@@ -1,6 +1,6 @@
 {
   "name": "calligraphy-studio-desktop",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "description": "Offline desktop build of Calligraphy Studio",
   "main": "main.js",

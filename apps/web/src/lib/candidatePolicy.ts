@@ -16,22 +16,26 @@ export interface CandidatePolicy {
   commercial_only?: boolean
   mode?: ExplorationMode
   vertical?: boolean
+  font_id?: string
+  allow_font_fallback?: boolean
 }
 export const DEFAULT_POLICY: CandidatePolicy = { writing_tradition: 'Chinese', mode: 'strict' }
 export const CANDIDATE_WEIGHTS = { visual: .55, locale: .12, tradition: .12, script: .08, period: .05, work: .05, repetition: 1 }
 export type CandidateWeights = typeof CANDIDATE_WEIGHTS
 /** Fail closed for unknown traditions when a tradition is explicitly selected. */
-export function compatibleSource(source: GlyphSource, variant: GlyphVariant | undefined, provenance: string, policy: CandidatePolicy): boolean {
+export function compatibleSource(source: GlyphSource, variant: GlyphVariant | undefined, provenance: string, policy: CandidatePolicy, fontId?: string): boolean {
   if (policy.mode !== 'cross-tradition') {
     if (policy.writing_tradition && source.writing_tradition !== policy.writing_tradition) return false
     if (policy.locale && source.locale && source.locale !== policy.locale) return false
     if (policy.language && source.language && source.language !== policy.language) return false
   }
+  if (policy.font_id && (provenance !== 'font' || fontId !== policy.font_id)) return false
+  if (source.source_role === 'coverage-fallback' && !policy.font_id && !policy.allow_font_fallback) return false
   if (policy.script && source.script !== policy.script) return false
   if (policy.variant_type && variant?.type !== policy.variant_type) return false
-  // Historical kana is an explicit opt-in; related mode permits exploration within tradition.
-  if (policy.mode === 'strict' && !policy.variant_type && variant?.type === 'hentaigana') return false
-  if (policy.mode === 'strict' && !policy.variant_type && source.orthography === 'historical-kana') return false
+  // Related exploration and explicit variant or font selection may show historical kana.
+  if ((!policy.mode || policy.mode === 'strict') && !policy.variant_type && !policy.font_id &&
+      (variant?.type === 'hentaigana' || source.orthography === 'historical-kana')) return false
   if (policy.orthography && source.orthography !== policy.orthography) return false
   if (policy.period && source.period !== policy.period) return false
   if (policy.work && source.work !== policy.work) return false
@@ -42,12 +46,18 @@ export function compatibleSource(source: GlyphSource, variant: GlyphVariant | un
   return true
 }
 export function candidateCompatible(glyph: Glyph, policy: CandidatePolicy): boolean {
-  return compatibleSource(glyph.source, glyph.variant, glyph.provenance.type, policy)
+  return compatibleSource(glyph.source, glyph.variant, glyph.provenance.type, policy, typeof glyph.metadata?.font_id === 'string' ? glyph.metadata.font_id : undefined)
 }
+export function fontFallbackPolicy(policy: CandidatePolicy): CandidatePolicy {
+  return { ...policy, font_id: undefined, writing_tradition: 'Japanese', mode: 'strict' }
+}
+
 /** A computational cost, not authenticity or aesthetic merit. Unknown fields add no evidence. */
 export function candidateCost(glyph: Glyph, visualCost: number, policy: CandidatePolicy,
   neighbors: Glyph[] = [], repetition = 0, weights: CandidateWeights = CANDIDATE_WEIGHTS): number {
-  if (!candidateCompatible(glyph, policy)) return Infinity
+  if (!candidateCompatible(glyph, policy) &&
+      !(policy.font_id && policy.allow_font_fallback && glyph.provenance.type === 'font' &&
+        candidateCompatible(glyph, fontFallbackPolicy(policy)))) return Infinity
   if (Object.values(weights).some((v) => !Number.isFinite(v) || v < 0)) throw new Error('Invalid candidate weights')
   const mismatch = (actual?: string | null, expected?: string | null) => actual && expected && actual !== expected ? 1 : 0
   const work = neighbors.filter((g) => g.source.work && glyph.source.work)
@@ -57,4 +67,10 @@ export function candidateCost(glyph: Glyph, visualCost: number, policy: Candidat
     weights.script * mismatch(glyph.source.script, policy.script) + weights.period * mismatch(glyph.source.period, policy.period) +
     weights.work * (work.length ? work.filter((g) => g.source.work !== glyph.source.work).length / work.length : 0) +
     weights.repetition * repetition
+}
+
+export function selectJapaneseFont(policy: CandidatePolicy, id: string): CandidatePolicy {
+  if (!id) return { ...policy, font_id: undefined }
+  return { ...policy, font_id: id, variant_type: undefined, orthography: undefined,
+    dataset: undefined, work: undefined, designer: undefined, period: undefined, provenance_type: undefined }
 }

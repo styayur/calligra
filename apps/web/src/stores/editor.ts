@@ -37,6 +37,7 @@ interface EditorState {
     text: string,
     composition: ProjectDocument['composition'],
   ) => void
+  setComposition: (composition: NonNullable<ProjectDocument['composition']>) => void
   replaceGlyph: (id: string, glyph: Glyph) => void
   duplicateGlyph: (id: string) => void
   setCanvas: (patch: Partial<ProjectDocument['canvas']>) => void
@@ -101,6 +102,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         canvas: { ...state.project.canvas, ...patch },
       }),
     ),
+  setComposition: (composition) => set((state) => ({ project: { ...state.project, composition }, dirty: true })),
   replaceGlyph: (id, glyph) =>
     set((state) => {
       const glyphs = state.project.glyphs.map((current) => {

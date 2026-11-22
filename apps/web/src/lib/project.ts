@@ -39,6 +39,9 @@ export function validateProject(value: unknown): ProjectDocument {
         !['writing_tradition','language','locale','script','variant_type','orthography','period','work','designer','dataset','provenance_type'].every((key) => {const value=policy[key as keyof typeof policy]; return value == null || (typeof value === 'string' && value.length <= 1000)}) ||
         (policy.mode != null && !['strict','related','cross-tradition'].includes(policy.mode)) ||
         (policy.commercial_only != null && typeof policy.commercial_only !== 'boolean') ||
+        (policy.font_id !== undefined && (typeof policy.font_id !== 'string' ||
+          !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(policy.font_id) || policy.font_id.length > 80)) ||
+        (policy.allow_font_fallback !== undefined && typeof policy.allow_font_fallback !== 'boolean') ||
         (policy.vertical != null && typeof policy.vertical !== 'boolean')) throw new Error('项目选择规则无效')
     }
   }

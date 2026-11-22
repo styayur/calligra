@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "release": "0.8.0",
+  "release": "0.8.1",
   "font_packs": [
     "fonts/manifest.json",
     "fonts/japanese/manifest.json"
@@ -13,7 +13,7 @@
     "historical-sample",
     "optional-local-corpus"
   ],
-  "canonical_sha256": "f41678b7f16a2e1a360e7aabe2c225037b0bff0cbedea7affc265e01ceb18f6a",
+  "canonical_sha256": "3ee93a299df7d80e9f888a2b27cd7ece5281f859f7bf9cfe68a57e23483ac464",
   "fonts": [
     {
       "id": "ma-shan-zheng",

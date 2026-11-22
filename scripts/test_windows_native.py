@@ -104,6 +104,7 @@ def main():
                 expect(page.locator('.variant-grid')).to_contain_text('Klee One')
                 page.get_by_label('关闭字形调整').click()
                 checks.append('Yuji and Klee candidates / HarfBuzz glyph IDs')
+                composer.get_by_label('缺字时允许其他日文字体补字').check()
                 compose('㐆',1)
                 rare=save('japanese-coverage.json')['glyphs'][0]
                 assert rare['source']['source_role']=='coverage-fallback' and rare['source']['locale']=='ja-JP'
@@ -137,6 +138,11 @@ def main():
                     from test_local_workbench_browser import exercise_workbench
                     exercise_workbench(page, installed_windows=True)
                     checks.append('installed Companion bootstrap, generated Windows GDI font, DOCX and ODT export')
+                    from test_japanese_font_selection import exercise_font_selection
+                    japanese = exercise_font_selection(page)
+                    args.output.with_name('windows-native-japanese-fonts.json').write_text(
+                        json.dumps(japanese, indent=2) + '\n', encoding='utf-8')
+                    checks.append('Japanese exact font IDs and rasters, fallback, replacement, project round trip, Chinese styles')
                 assert not errors,errors
                 browser.close()
                 browser=None

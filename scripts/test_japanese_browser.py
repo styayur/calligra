@@ -81,6 +81,7 @@ def main():
                 alpha=Image.open(io.BytesIO(base64.b64decode(g['asset']['url'].split(',')[1]))).getchannel('A')
                 bounds=alpha.getbbox(); assert bounds and (bounds[0]+bounds[2])/2<200 and (bounds[1]+bounds[3])/2>300
         composer.get_by_role('button',name='竖排',exact=True).click()
+        composer.get_by_label('缺字时允许其他日文字体补字').check()
         composer.get_by_label('集字内容').fill('㐆')
         page.get_by_role('button',name='生成作品',exact=True).click()
         expect(composer.locator('.feedback')).to_contain_text('日文覆盖字体',timeout=120000)

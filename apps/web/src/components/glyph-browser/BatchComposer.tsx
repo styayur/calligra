@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { initialCandidates, resolveCharacters, type CandidateSource } from '../../api/candidates'
+import { JapaneseFontFallback, JapaneseFontSelect } from './JapaneseFontSelect'
 import { SourcePolicyControls } from './SourcePolicyControls'
 import { DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
 import { layoutText, placeGlyph, textLines } from '../../lib/composition'
@@ -39,6 +40,7 @@ export function BatchComposer({ active }: { active: boolean }) {
   const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
   const compose = useEditorStore((s) => s.compose)
+  const setComposition = useEditorStore((s) => s.setComposition)
   useEffect(() => {
     if (previousText.current !== projectText) setText(projectText ?? '')
     previousText.current = projectText
@@ -54,18 +56,30 @@ export function BatchComposer({ active }: { active: boolean }) {
     }
   }, [text, projectText])
   useEffect(() => {
-    if (!settings) return
-    setLayout(settings.layout)
-    setColumns(settings.columns)
-    setSize(settings.size)
-    setGap(settings.gap)
-    setMargin(settings.margin)
-    setPunctuation(settings.punctuation)
-    setStyle(settings.style)
-    setSource(settings.source)
-    setPolicy(settings.policy || DEFAULT_POLICY)
+    setLayout(settings?.layout ?? 'vertical-rtl')
+    setColumns(settings?.columns ?? 5)
+    setSize(settings?.size ?? 160)
+    setGap(settings?.gap ?? 12)
+    setMargin(settings?.margin ?? 64)
+    setPunctuation(settings?.punctuation ?? false)
+    setStyle(settings?.style ?? '行书')
+    setSource(settings?.source ?? 'fonts')
+    setPolicy(settings?.policy || DEFAULT_POLICY)
   }, [settings])
   const count = textLines(text, punctuation).flat().length
+  const japanese = policy.writing_tradition === 'Japanese'
+  const settingsFor = (nextPolicy: CandidatePolicy, nextSource: CandidateSource) =>
+    ({ layout, columns, size, gap, margin, punctuation, style, source: nextSource, policy: nextPolicy })
+
+  function saveFontPreference(nextPolicy: CandidatePolicy, nextSource = source) {
+    setPolicy(nextPolicy)
+    setSource(nextSource)
+    setComposition(settingsFor(nextPolicy, nextSource))
+  }
+  function updatePolicy(next: CandidatePolicy) {
+    if (next.writing_tradition !== policy.writing_tradition) saveFontPreference(next, 'fonts')
+    else setPolicy(next)
+  }
 
   const create = async () => {
     const previousProject = useEditorStore.getState().project
@@ -84,7 +98,7 @@ export function BatchComposer({ active }: { active: boolean }) {
         plan.positions.map((p) => p.character),
         async (character) => {
           // Initial composition fetches a small page; further variants load only on selection.
-          const page = await initialCandidates(character, source, (policy.writing_tradition === 'Japanese' || policy.dataset) ? '' : style, 4, undefined, { ...policy, vertical: layout === 'vertical-rtl' })
+          const page = await initialCandidates(character, source, (japanese || policy.dataset) ? '' : style, 4, undefined, { ...policy, vertical: layout === 'vertical-rtl' })
           return page.items[0]
         },
         (done, total) => setStatus(`正在加载字库 ${done}/${total} 个不同字…`),
@@ -98,8 +112,9 @@ export function BatchComposer({ active }: { active: boolean }) {
           plan.positions.filter((p) => !resolved.has(p.character)).map((p) => p.character),
         ),
       ]
+      const missingHint = japanese ? '可选择其他字体，或启用缺字补字。' : '可换书体或字形来源。'
       if (!resolved.size)
-        throw new Error(`未找到可用字形：${missing.join('')}。请切换书体或字形来源。`)
+        throw new Error(`未找到可用字形：${missing.join('、')}。${missingHint}`)
       const glyphs = plan.positions.flatMap((p) => {
         const glyph = resolved.get(p.character)
         return glyph ? [placeGlyph(glyph, p.x, p.y, plan.size)] : []
@@ -114,12 +129,18 @@ export function BatchComposer({ active }: { active: boolean }) {
           background: previousProject.canvas.background,
         },
         text,
-        { layout, columns, size, gap, margin, punctuation, style, source, policy },
+        settingsFor(policy, source),
       )
+      const fallbackFonts = [...new Set(glyphs.filter((g) => policy.font_id &&
+        g.metadata?.font_id !== policy.font_id).map((g) => g.source.work).filter(Boolean))]
+      const fallbackMessage = [
+        glyphs.some((g) => g.source.source_role === 'coverage-fallback') ? '部分汉字使用日文覆盖字体。' : '',
+        fallbackFonts.length ? `缺字由 ${fallbackFonts.join('、')} 补字。` : '',
+      ].join('')
       setStatus(
         missing.length
-          ? `已排入 ${glyphs.length}/${count} 字，缺字「${missing.join('、')}」已留空位。可换书体重新集字。`
-          : `已排入 ${glyphs.length} 字。${glyphs.some((g) => g.source.source_role === 'coverage-fallback') ? '部分汉字使用日文覆盖字体。' : ''}${plan.fit < 1 ? '纸面已等比缩小；可调整每行或列字数改善阅读。' : ''}`,
+          ? `已排入 ${glyphs.length}/${count} 字，缺字「${missing.join('、')}」已留空位。${missingHint}${fallbackMessage}`
+          : `已排入 ${glyphs.length} 字。${fallbackMessage}${plan.fit < 1 ? '纸面已等比缩小；可调整每行或列字数改善阅读。' : ''}`,
       )
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '集字失败，请重试')
@@ -140,16 +161,16 @@ export function BatchComposer({ active }: { active: boolean }) {
         rows={5}
         placeholder="输入文字，换行分句"
       />
-      <SourcePolicyControls policy={policy} onChange={setPolicy} />
+      <SourcePolicyControls policy={policy} onChange={updatePolicy} />
       <div className="field-grid">
-        <label>
+        {japanese ? <JapaneseFontSelect policy={policy} onChange={(next) => saveFontPreference(next, 'fonts')} /> : <label>
           书体
-          <select aria-label="书体" value={style} disabled={source === 'private' || !!policy.dataset || policy.writing_tradition === 'Japanese'} onChange={(e) => setStyle(e.target.value)}>
+          <select aria-label="书体" value={style} disabled={source === 'private' || !!policy.dataset} onChange={(e) => setStyle(e.target.value)}>
             <option>楷书</option>
             <option>行书</option>
             <option>草书</option>
           </select>
-        </label>
+        </label>}
         <label>
           来源
           <select
@@ -157,8 +178,10 @@ export function BatchComposer({ active }: { active: boolean }) {
             value={source === 'all' && policy.dataset ? 'pack:' + policy.dataset : source}
             onChange={(e) => {
               const value = e.target.value
-              setSource(value.startsWith('pack:') ? 'all' : value as CandidateSource)
-              setPolicy({ ...policy, dataset: value.startsWith('pack:') ? value.slice(5) : undefined })
+              const nextSource = value.startsWith('pack:') ? 'all' : value as CandidateSource
+              const next = { ...policy, dataset: value.startsWith('pack:') ? value.slice(5) : undefined }
+              if (japanese) saveFontPreference({ ...next, font_id: undefined, allow_font_fallback: undefined }, nextSource)
+              else { setSource(nextSource); setPolicy(next) }
             }}
           >
             <option value="fonts">字体</option>
@@ -171,6 +194,8 @@ export function BatchComposer({ active }: { active: boolean }) {
           </select>
         </label>
       </div>
+      {japanese && (source === 'fonts' || (source === 'all' && !policy.dataset)) &&
+        <JapaneseFontFallback policy={policy} onChange={(next) => saveFontPreference(next)} />}
       <div className="segmented" aria-label="排版方向">
         {(
           [

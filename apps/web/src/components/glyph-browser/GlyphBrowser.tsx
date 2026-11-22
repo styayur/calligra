@@ -4,15 +4,25 @@ import { getMetadata, searchGlyphs } from '../../api/client'
 import { fontGlyphs } from '../../api/fonts'
 import { useEditorStore } from '../../stores/editor'
 import type { Glyph, MetadataResponse } from '../../types'
+import { JapaneseFontFallback, JapaneseFontSelect } from './JapaneseFontSelect'
 import { SourcePolicyControls } from './SourcePolicyControls'
 import { DEFAULT_POLICY, candidateCompatible, type CandidatePolicy } from '../../lib/candidatePolicy'
+import { textCharacters } from '../../lib/identity'
 import { packedGlyphs, installedPacks, privateGlyphs, PRIVATE_DATASET } from '../../lib/privateLibrary'
 import { historicalSample } from '../../api/historical'
+
+function initialSearchPolicy(project?: CandidatePolicy): CandidatePolicy {
+  if (!project) return DEFAULT_POLICY
+  const { writing_tradition, locale, mode, font_id, allow_font_fallback } = project
+  return { writing_tradition, locale, mode, font_id, allow_font_fallback }
+}
 
 export const GLYPH_DRAG_TYPE = 'application/x-calligraphy-glyph'
 export function GlyphBrowser({ active: visible }: { active: boolean }) {
   const [query, setQuery] = useState('山')
-  const [policy, setPolicy] = useState<CandidatePolicy>(DEFAULT_POLICY)
+  const projectPolicy = useEditorStore((s) => s.project.composition?.policy)
+  const vertical = useEditorStore((s) => s.project.composition?.layout === 'vertical-rtl')
+  const [policy, setPolicy] = useState<CandidatePolicy>(() => initialSearchPolicy(projectPolicy))
   const [style, setStyle] = useState('')
   const [dataset, setDataset] = useState('')
   const [calligrapher, setCalligrapher] = useState('')
@@ -25,6 +35,17 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
   const [retry, setRetry] = useState(0)
   const [packNames, setPackNames] = useState<string[]>([])
   const addGlyph = useEditorStore((s) => s.addGlyph)
+  const japanese = policy.writing_tradition === 'Japanese'
+  function clearFilters() {
+    setStyle('')
+    setDataset('')
+    setCalligrapher('')
+    setLimit(40)
+  }
+  useEffect(() => {
+    setPolicy(initialSearchPolicy(projectPolicy))
+    clearFilters()
+  }, [projectPolicy])
   useEffect(() => {
     if (!visible) return
     void installedPacks().then((packs) => setPackNames(packs.filter((pack) => pack.enabled).map((pack) => pack.name))).catch(() => undefined)
@@ -38,16 +59,19 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
     setLoading(true)
     const timer = setTimeout(async () => {
       const term = query.trim()
-      const effectiveStyle = policy.writing_tradition === 'Japanese' ? '' : style
+      const effectiveStyle = japanese ? '' : style
+      const fontOnly = Boolean(policy.font_id)
+      const fontPolicy = { ...policy, dataset: dataset || undefined, vertical: japanese && vertical }
+      if (dataset === 'Japanese Coverage Fonts') fontPolicy.allow_font_fallback = true
       const [library, fonts, historical, local] = await Promise.allSettled([
-        dataset === PRIVATE_DATASET || packNames.includes(dataset)
+        fontOnly || dataset === PRIVATE_DATASET || packNames.includes(dataset)
           ? Promise.resolve({ items: [], total: 0 })
           : searchGlyphs({ q: term, style: effectiveStyle, dataset, calligrapher, limit, ...policy, writing_tradition: policy.mode === 'cross-tradition' ? undefined : policy.writing_tradition }),
-        [...term].length === 1 && (!dataset || ['OFL Calligraphy Fonts', 'Yuji Japanese Fonts', 'Klee One', 'Japanese Coverage Fonts'].includes(dataset))
-          ? fontGlyphs(term, effectiveStyle, calligrapher, { ...policy, dataset: dataset || undefined })
+        textCharacters(term).length === 1
+          ? fontGlyphs(term, effectiveStyle, calligrapher, fontPolicy)
           : Promise.resolve([]),
-        historicalSample().then((items) => items.filter((g) => (!term || g.character === term || g.source.work?.includes(term)) && (!dataset || g.source.dataset === dataset) && candidateCompatible(g, policy))),
-        Promise.all([
+        fontOnly ? Promise.resolve([]) : historicalSample().then((items) => items.filter((g) => (!term || g.character === term || g.source.work?.includes(term)) && (!dataset || g.source.dataset === dataset) && candidateCompatible(g, policy))),
+        fontOnly ? Promise.resolve([]) : Promise.all([
           !dataset || dataset === PRIVATE_DATASET ? privateGlyphs(undefined, policy) : Promise.resolve([]),
           dataset === PRIVATE_DATASET ? Promise.resolve([]) : packedGlyphs(undefined, { ...policy, dataset: dataset || undefined }),
         ]).then((groups) => groups.flat()).then((items) =>
@@ -69,13 +93,13 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
             !generated.some((f) => f.character === g.character && f.source.work === g.source.work),
         ),
       ]
-      setResults(Array.from(new Map(items.filter((g) => candidateCompatible(g, policy)).map((g) => [g.variant?.id || g.id,g])).values()))
+      setResults(Array.from(new Map(items.filter((g) => fontOnly || candidateCompatible(g, fontPolicy)).map((g) => [g.variant?.id || g.id,g])).values()))
       setTotal(Math.max(privateItems.length, library.status === 'fulfilled' ? library.value.total : 0))
       setMessage(
         library.status === 'rejected'
           ? (generated.length || privateItems.length)
             ? '原帖服务未连接，当前显示本机字形。'
-            : '字库未连接，请检查服务，或输入单个汉字查询内置字体。'
+            : '字库未连接，请检查服务，或输入单个汉字或假名查询内置字体。'
           : fonts.status === 'rejected'
             ? '内置字体加载失败，请重试。'
             : '',
@@ -86,7 +110,7 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
       active = false
       clearTimeout(timer)
     }
-  }, [query, style, dataset, calligrapher, limit, retry, policy, visible, packNames])
+  }, [query, style, dataset, calligrapher, limit, retry, policy, visible, packNames, japanese, vertical])
   return (
     <div className="glyph-browser panel-scroll">
       <div className="section-title">
@@ -101,15 +125,22 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
             setQuery(e.target.value)
             setLimit(40)
           }}
-          placeholder="汉字、书家或作品"
+          placeholder={japanese ? '汉字、假名、书家或作品' : '汉字、书家或作品'}
         />
       </div>
       <div className="field-grid">
-        <label>来源类型 / Source type<select aria-label="Source type" value={policy.provenance_type || ''} onChange={(e) => setPolicy({ ...policy, provenance_type: e.target.value || undefined })}><option value="">全部 / All</option><option value="font">字体 / Font</option><option value="original">原帖 / Historical original</option><option value="fallback">结构 / Structural fallback</option></select></label>
+        <label>来源类型 / Source type<select aria-label="Source type" value={policy.provenance_type || ''} onChange={(e) => setPolicy({ ...policy, provenance_type: e.target.value || undefined, font_id: e.target.value === 'font' ? policy.font_id : undefined })}><option value="">全部 / All</option><option value="font">字体 / Font</option><option value="original">原帖 / Historical original</option><option value="fallback">结构 / Structural fallback</option></select></label>
       </div>
-      <SourcePolicyControls policy={policy} onChange={(value) => { setPolicy(value); setLimit(40) }} />
+      <SourcePolicyControls policy={policy} onChange={(value) => {
+        if (value.writing_tradition !== policy.writing_tradition) clearFilters()
+        setPolicy(value)
+        setLimit(40)
+      }} />
       <div className="field-grid">
-        <label>
+        {japanese ? <JapaneseFontSelect policy={policy} onChange={(next) => {
+          setPolicy(next)
+          clearFilters()
+        }} /> : <label>
           书体
           <select aria-label="书体" value={style} onChange={(e) => setStyle(e.target.value)}>
             <option value="">全部书体</option>
@@ -117,11 +148,12 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
             <option>行书</option>
             <option>草书</option>
           </select>
-        </label>
+        </label>}
         <label>
           来源
           <select
             aria-label="字库来源"
+            disabled={!!policy.font_id}
             value={dataset}
             onChange={(e) => setDataset(e.target.value)}
           >
@@ -132,10 +164,12 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
           </select>
         </label>
       </div>
+      {japanese && !dataset && <JapaneseFontFallback policy={policy} onChange={setPolicy} />}
       <details className="advanced">
         <summary>筛选书家</summary>
         <select
           aria-label="书家筛选"
+          disabled={!!policy.font_id}
           value={calligrapher}
           onChange={(e) => setCalligrapher(e.target.value)}
         >
@@ -158,7 +192,9 @@ export function GlyphBrowser({ active: visible }: { active: boolean }) {
             </div>
           )}
           {!results.length && !message && (
-            <p className="feedback">未找到字形。试试输入单个汉字，或清除筛选条件。</p>
+            <p className="feedback">{policy.font_id
+              ? '所选字体未找到匹配字形。可更换字体，或允许缺字补字。'
+              : '未找到字形。试试输入单个字，或修改筛选条件。'}</p>
           )}
           <div className="glyph-grid">
             {results.map((glyph) => (
