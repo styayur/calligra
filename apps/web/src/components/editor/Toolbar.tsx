@@ -10,11 +10,14 @@ import { Button } from '../ui'
 import { assertExportRights, attributionFiles, hasShareAlike } from '../../lib/rights'
 import { zipFiles } from '../../lib/longRoll'
 import { APP_VERSION } from '../../lib/version'
+import { PdfSettings, PDF_PAPER } from './PdfSettings'
 
-export function Toolbar() {
+export function Toolbar({ onCreateFont }: { onCreateFont: () => void }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [status, setStatus] = useState('')
   const [exportOpen, setExportOpen] = useState(false)
+  const [pdfPaper, setPdfPaper] = useState(PDF_PAPER)
+  const [pdfBusy, setPdfBusy] = useState(false)
   const [transparent, setTransparent] = useState(false)
   const [scale, setScale] = useState(2)
   const [commercialOnly, setCommercialOnly] = useState(false)
@@ -62,6 +65,22 @@ export function Toolbar() {
       setStatus(error instanceof Error ? error.message : uiText("导出失败，请重试"))
     }
   }
+  const exportPdf = async () => {
+    setPdfBusy(true)
+    try {
+      const { buildHybridPdf } = await import('../../lib/hybridPdf')
+      const pdf = await buildHybridPdf([{ ...project.canvas, glyphs: project.glyphs }], {
+        ...pdfPaper, commercialOnly, originalText: project.text, restoration: project.restorations,
+      })
+      await saveFile(`${projectName || 'Calligra'}.pdf`, pdf.blob)
+      setStatus(uiText('PDF 已导出，最低图像分辨率 {{dpi}} DPI', { dpi: pdf.statistics.minimumDpi?.toFixed(0) ?? '—' }))
+      setExportOpen(false)
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : uiText("导出失败，请重试"))
+    } finally {
+      setPdfBusy(false)
+    }
+  }
   const loadFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -88,18 +107,7 @@ export function Toolbar() {
   return (
     <header className="studio-header">
       <div className="brand-mark" aria-label="Calligra">
-        <svg viewBox="0 0 96 96" role="img" aria-hidden="true">
-          <rect width="96" height="96" rx="20" fill="#0f172a" />
-          <rect x="3.5" y="3.5" width="89" height="89" rx="17.5" fill="none" stroke="#d946ef" strokeWidth="3" />
-          <path
-            d="M48 14 C28 26 22 42 28 58 C31 66 38 72 48 76 C62 72 68 64 70 52 C56 50 47 48 45 41 C62 35 70 25 74 16 Z"
-            fill="none"
-            stroke="#d946ef"
-            strokeWidth="4"
-            strokeLinejoin="round"
-          />
-          <circle cx="48" cy="55" r="5" fill="#d946ef" />
-        </svg>
+        <img width="32" height="32" src={`${import.meta.env.BASE_URL}icons/calligra.svg`} alt="" />
       </div>
       <span className="brand-name" aria-hidden="true">Calligra</span>
       <div className="project-heading">
@@ -151,6 +159,7 @@ export function Toolbar() {
         <div className="menu-popover">
           <button onClick={exportJson}>{uiText("下载项目文件")}</button>
           <button onClick={() => fileRef.current?.click()}>{uiText("载入项目文件")}</button>
+          <button onClick={onCreateFont} disabled={!project.glyphs.length}>{uiText('从作品制作字体')}</button>
           <button disabled={!past.length} onClick={undo}>
             {uiText("撤销上一步")}
           </button>
@@ -195,7 +204,7 @@ export function Toolbar() {
         {exportOpen && (
           <div className="export-popover" role="dialog" aria-label={uiText("导出作品设置")}>
             <div className="section-title">
-              <h3>{uiText("导出 PNG")}</h3>
+              <h3>{uiText("导出作品")}</h3>
               <button aria-label={uiText("关闭导出设置")} onClick={() => setExportOpen(false)}>
                 ×
               </button>
@@ -226,7 +235,9 @@ export function Toolbar() {
             <p className="field-hint">{uiText("导出不包含选框。图片字形的清晰度受原图分辨率限制。")}</p>
             <label className="check-field"><input type="checkbox" checked={commercialOnly} onChange={(e) => setCommercialOnly(e.target.checked)} />{uiText("商用导出 / Commercial-only export")}</label>
             <p className="field-hint">{uiText("附机器可读与文字来源清单；含 CC BY-SA 字形时，PNG 与授权清单一起打包为 ZIP。")}</p>
-            <Button className="w-full" onClick={exportPng}>
+            <PdfSettings value={pdfPaper} onChange={setPdfPaper} />
+            <Button className="w-full" disabled={pdfBusy} onClick={() => void exportPdf()}>{uiText('下载 PDF')}</Button>
+            <Button className="w-full" disabled={pdfBusy} onClick={exportPng}>
               {uiText("下载 PNG")}
             </Button>
           </div>

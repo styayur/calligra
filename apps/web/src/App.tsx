@@ -22,6 +22,8 @@ import type { Draft } from './lib/project'
 export default function App() {
   useTranslation()
   const [mode, setMode] = useState<'studio' | 'roll' | 'materials' | 'fonts' | 'documents'>('studio')
+  const [fontFromProject, setFontFromProject] = useState(false)
+  const [createdFont, setCreatedFont] = useState<File>()
   const [rollVisited, setRollVisited] = useState(false)
   const [tab, setTab] = useState('compose')
   const [searchVisited, setSearchVisited] = useState(false)
@@ -137,12 +139,12 @@ export default function App() {
 
   return (
     <div className="studio-shell">
-      {mode === 'studio' && <Toolbar />}
+      {mode === 'studio' && <Toolbar onCreateFont={() => { setFontFromProject(true); setMode('fonts') }} />}
       <nav className="mode-switch" aria-label={uiText("创作模式")}>
         <button aria-pressed={mode === 'studio'} onClick={() => setMode('studio')}>
           {uiText("集字工作台")}
         </button>
-        <button aria-pressed={mode === 'fonts'} onClick={() => setMode('fonts')}>{uiText("字体")}</button>
+        <button aria-pressed={mode === 'fonts'} onClick={() => { setFontFromProject(false); setMode('fonts') }}>{uiText("字体")}</button>
         <button aria-pressed={mode === 'documents'} onClick={() => setMode('documents')}>{uiText("文档")}</button>
         <div className="mode-secondary" role="group" aria-label={uiText("工作台工具")}>
           <button
@@ -237,8 +239,9 @@ export default function App() {
         <div className="loading-workspace">{uiText("正在恢复工作台…")}</div>
       )}
       {rollVisited && <LongRoll active={mode === 'roll'} />}
-      {ready && mode === 'fonts' && <FontStudio projectGlyphs={projectGlyphs} />}
-      {ready && mode === 'documents' && <DocumentTypesetting />}
+      {ready && mode === 'fonts' && <FontStudio projectGlyphs={projectGlyphs} fromProject={fontFromProject}
+        onDocument={(font) => { setCreatedFont(font); setMode('documents') }} />}
+      {ready && mode === 'documents' && <DocumentTypesetting createdFont={createdFont} />}
       {ready && mode === 'materials' && <Materials addGlyph={(glyph) => {
         addGlyph(glyph)
         setMobilePanel('canvas')

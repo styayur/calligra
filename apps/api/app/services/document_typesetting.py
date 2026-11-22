@@ -34,6 +34,7 @@ class Selection:
     paragraphs: frozenset[int] = frozenset()
     original_font: str | None = None
     han_only: bool = True
+    body_only: bool = False
 
 
 def children(node, ns, name):
@@ -309,7 +310,7 @@ def convert(data, kind, family, coverage, options=Selection(), *, variations=fro
             "".join(c.data for c in node.childNodes if c.nodeType == Node.TEXT_NODE)
             for node in paragraph.getElementsByTagNameNS(WORD, "t") if not inside(node, WORD, {"txbxContent"}))
         report["paragraphs"].append({"number": number, "heading": heading, "text": plain})
-        if (options.headings_only and not heading) or (options.paragraphs and number not in options.paragraphs):
+        if (options.headings_only and not heading) or (options.body_only and heading) or (options.paragraphs and number not in options.paragraphs):
             continue
         report["selected_paragraphs"].append(number)
         if not odt and any(paragraph.getElementsByTagNameNS(WORD, item)

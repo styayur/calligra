@@ -4,12 +4,21 @@ import { traditionLocale, type CandidatePolicy, type ExplorationMode } from '../
 export function SourcePolicyControls({ policy, onChange }: { policy: CandidatePolicy; onChange: (value: CandidatePolicy) => void }) {
   const update = (key: keyof CandidatePolicy, value: string) => onChange({ ...policy, [key]: value || undefined })
   return <div className="source-policy">
-    <div className="field-grid">
-      <label>{uiText("传统 / Tradition")}
-        <select aria-label={uiText("Tradition")} value={policy.writing_tradition || 'Chinese'} onChange={(e) => onChange({ writing_tradition: e.target.value, locale: traditionLocale(e.target.value), mode: 'strict' })}>
-          <option value="Chinese">{uiText("Chinese · 中文")}</option><option value="Japanese">{uiText("Japanese · 日本")}</option><option value="Korean">{uiText("Korean · 한국")}</option>
-        </select>
-      </label>
+    <label>{uiText('集字模式')}
+      <select aria-label={uiText("Tradition")} value={policy.smart_mix ? 'mixed' : policy.writing_tradition || 'Chinese'}
+        onChange={(event) => {
+          const smart_mix = event.target.value === 'mixed'
+          const writing_tradition = smart_mix ? 'Chinese' : event.target.value
+          onChange({ writing_tradition, smart_mix, locale: traditionLocale(writing_tradition), mode: 'strict' })
+        }}>
+        <option value="mixed">{uiText('智能混排')}</option>
+        <option value="Chinese">{uiText('中国书法')}</option>
+        <option value="Japanese">{uiText('日本書道')}</option>
+        <option value="Korean">{uiText('한국 서예')}</option>
+      </select>
+    </label>
+    <details className="advanced">
+      <summary>{uiText("字形与跨传统探索 / Variants & exploration")}</summary>
       <label>{uiText("文字 / Script")}
         <select aria-label={uiText("Script")} value={policy.script || ''} onChange={(e) => update('script',e.target.value)}>
           <option value="">{uiText("全部 / All scripts")}</option><option value="Han">{uiText("漢字 / Han · Kanji")}</option>
@@ -17,9 +26,6 @@ export function SourcePolicyControls({ policy, onChange }: { policy: CandidatePo
           {policy.writing_tradition === 'Japanese' && <><option value="Hiragana">{uiText("ひらがな / Hiragana")}</option><option value="Katakana">{uiText("カタカナ / Katakana")}</option></>}
         </select>
       </label>
-    </div>
-    <details className="advanced">
-      <summary>{uiText("字形与跨传统探索 / Variants & exploration")}</summary>
       <label>{uiText("语言 / Language")}<select aria-label={uiText("Language")} value={policy.language || ''} onChange={(e) => update('language',e.target.value)}><option value="">{uiText("未限定 / Any or unknown")}</option><option value="zh">{uiText("中文 / zh")}</option><option value="ja">{uiText("日本語 / ja")}</option><option value="ko">{uiText("한국어 / ko")}</option></select></label>
       <label>{uiText("选择规则 / Candidate mode")}
         <select aria-label={uiText("Candidate mode")} value={policy.mode || 'strict'} onChange={(e) => onChange({ ...policy, mode: e.target.value as ExplorationMode })}>

@@ -4,7 +4,7 @@ import { ArrowRight, Loader2 } from 'lucide-react'
 import { initialCandidates, resolveCharacters, type CandidateSource } from '../../api/candidates'
 import { RegionalFontFallback, RegionalFontSelect } from './RegionalFontSelect'
 import { SourcePolicyControls } from './SourcePolicyControls'
-import { TypographyControls } from './TypographyControls'
+import { DEFAULT_TYPOGRAPHY, TypographyControls } from './TypographyControls'
 import { usesRegionalFonts, DEFAULT_POLICY, type CandidatePolicy } from '../../lib/candidatePolicy'
 import { layoutText, placeGlyph, textLines, validLayoutDimensions } from '../../lib/composition'
 import { useEditorStore } from '../../stores/editor'
@@ -14,10 +14,16 @@ import { installedPacks } from '../../lib/privateLibrary'
 import type { AdvancedTypography } from '../../types/typesetting'
 import { segmentText } from '../../lib/textLayout'
 import { composeTypeset } from '../../lib/typesetComposition'
+import type { GlyphInstance } from '../../types'
+import { hasEditorialRelations, isLacuna, restorationCandidates, restorationDecision,
+  type RestorationRecord, type RestorationSlot } from '../../lib/glyphRestoration'
+import { RestorationPanel } from './RestorationPanel'
+
+const NEW_POLICY = { ...DEFAULT_POLICY, smart_mix: true }
 
 const DEFAULT_SETTINGS: CompositionSettings = {
   layout: 'vertical-rtl', columns: 5, size: 160, gap: 12, margin: 64,
-  punctuation: false, style: '行书', source: 'fonts', policy: DEFAULT_POLICY,
+  punctuation: false, style: '行书', source: 'fonts', policy: NEW_POLICY,
 }
 
 export function BatchComposer({ active }: { active: boolean }) {
@@ -41,7 +47,7 @@ export function BatchComposer({ active }: { active: boolean }) {
   const [margin, setMargin] = useState(64)
   const [style, setStyle] = useState('行书')
   const [source, setSource] = useState<CandidateSource>('fonts')
-  const [policy, setPolicy] = useState<CandidatePolicy>(DEFAULT_POLICY)
+  const [policy, setPolicy] = useState<CandidatePolicy>(NEW_POLICY)
   const textInput = useRef<HTMLTextAreaElement>(null)
   const [typography, setTypography] = useState<AdvancedTypography | undefined>(settings?.typography)
   useEffect(() => setTypography(settings?.typography), [settings?.typography])
@@ -82,7 +88,7 @@ export function BatchComposer({ active }: { active: boolean }) {
     setPunctuation(settings?.punctuation ?? DEFAULT_SETTINGS.punctuation)
     setStyle(settings?.style ?? DEFAULT_SETTINGS.style)
     setSource(settings?.source ?? DEFAULT_SETTINGS.source)
-    setPolicy(settings?.policy || DEFAULT_POLICY)
+    setPolicy(settings?.policy || (settings ? DEFAULT_POLICY : NEW_POLICY))
   }, [settings])
   const textLanguage = settings?.textLanguage || 'und'
   const count = typography ? segmentText(text).length : textLines(text, punctuation).flat().length
@@ -102,8 +108,58 @@ export function BatchComposer({ active }: { active: boolean }) {
     }
   }
   function updatePolicy(next: CandidatePolicy) {
-    if (next.writing_tradition !== policy.writing_tradition) saveFontPreference(next, 'fonts')
+    if (next.writing_tradition !== policy.writing_tradition || next.smart_mix !== policy.smart_mix) saveFontPreference(next, 'fonts')
     else setPolicy(next)
+  }
+
+  const restore = async (glyphs: GlyphInstance[], slots: RestorationSlot[], previous: ReturnType<typeof useEditorStore.getState>['project']) => {
+    const past = previous.text === text ? previous.restorations || [] : []
+    const anchor = glyphs.find((glyph) => glyph.provenance.type === 'original')?.source ||
+      { dataset: '', work: policy.work, calligrapher: policy.designer, style }
+    const requests = new Map(slots.map((slot) => [slot.start, slot]))
+    for (const glyph of glyphs) {
+      if (!glyph.textRange) continue
+      const tradition = glyph.source.writing_tradition
+      if (tradition !== 'Chinese' && tradition !== 'Japanese' && tradition !== 'Korean') continue
+      const slot: RestorationSlot = { ...glyph.textRange, text: glyph.character, x: glyph.transform.x, y: glyph.transform.y,
+        size: Math.max(glyph.asset.width * glyph.transform.scaleX, glyph.asset.height * glyph.transform.scaleY), tradition }
+      if (hasEditorialRelations(text, slot) || past.some((item) => item.start === slot.start)) requests.set(slot.start, slot)
+    }
+    const results: RestorationRecord[] = []
+    const recovered: GlyphInstance[] = []
+    const replaced = new Set<number>()
+    const candidatesByText = new Map<string, Promise<Awaited<ReturnType<typeof restorationCandidates>>>>()
+    for (const slot of requests.values()) {
+      const prior = past.find((item) => item.start === slot.start && item.end === slot.end)
+      const last = prior?.decisions.at(-1)
+      const saved = last?.confirmed && previous.glyphs.find((glyph) => glyph.glyph_id === last.glyphId && glyph.textRange?.start === slot.start)
+      if (saved) {
+        recovered.push({ ...placeGlyph(saved, slot.x, slot.y, slot.size), glyph_id: saved.glyph_id,
+          textRange: { start: slot.start, end: slot.end } })
+        replaced.add(slot.start)
+      }
+      const decisions = [...(prior?.decisions || [])]
+      if (!saved && slots.some((item) => item.start === slot.start) && !isLacuna(slot.text)) {
+        const key = JSON.stringify([slot.text, slot.tradition])
+        let pending = candidatesByText.get(key)
+        if (!pending) {
+          pending = restorationCandidates(text, slot, { ...policy, vertical: layout === 'vertical-rtl' }, anchor)
+          candidatesByText.set(key, pending)
+        }
+        const match = (await pending).find((candidate) => candidate.automatic)
+        if (match) {
+          const decision = restorationDecision(match, false)
+          if (last?.glyphId !== decision.glyphId) decisions.push(decision)
+          recovered.push({ ...placeGlyph(match.glyph, slot.x, slot.y, slot.size),
+            textRange: { start: slot.start, end: slot.end } })
+          replaced.add(slot.start)
+        }
+      }
+      results.push({ ...slot, decisions })
+    }
+    const composed = [...glyphs.filter((glyph) => !replaced.has(glyph.textRange?.start ?? -1)), ...recovered]
+      .sort((a,b) => (a.textRange?.start ?? 0) - (b.textRange?.start ?? 0))
+    return { glyphs: composed, records: results, missing: slots.filter((slot) => !replaced.has(slot.start)) }
   }
 
   const create = async () => {
@@ -111,30 +167,30 @@ export function BatchComposer({ active }: { active: boolean }) {
     setLoading(true)
     setStatus(uiText("正在加载字库…"))
     try {
-      if (typography) {
+      const mixed = policy.smart_mix && /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(text)
+      const advanced = typography || (mixed ? { ...DEFAULT_TYPOGRAPHY, mixed: true } : undefined)
+      if (advanced) {
         const base = settingsFor(policy, source)
         if (!validLayoutDimensions(base)) throw new Error(uiText('请填写有效的排版数值'))
         const tradition = policy.writing_tradition === 'Chinese' || policy.writing_tradition === 'Korean'
           ? policy.writing_tradition : policy.writing_tradition === 'Japanese' ? 'Japanese' : 'Chinese'
         const result = await composeTypeset(text, {
-          ...typography, layout, measure: columns, size, gap, margin, style, source, policy,
+          ...advanced, mixed: advanced.mixed || Boolean(mixed), layout, measure: columns, size, gap, margin, style, source, policy,
           tradition, language: textLanguage,
         })
+        const restored = await restore(result.glyphs, result.missingPositions, previousProject)
         if (useEditorStore.getState().project !== previousProject)
           throw new Error(uiText('作品已更改，请重新生成以应用这段文字。'))
-        const missing = [...new Set(result.missing.map((unit) => unit.text))]
+        const missing = [...new Set(restored.missing.map((unit) => unit.text))]
         const missingHint = uiText('可选择其他字体，或启用缺字补字。')
-        if (!result.glyphs.length) throw new Error(uiText('未找到可用字形：{{v0}}。{{v1}}', {
-          v0: missing.join('、'), v1: missingHint,
-        }))
-        compose(result.glyphs, {
+        compose(restored.glyphs, {
           width: result.width, height: result.height, background: previousProject.canvas.background,
-        }, text, { ...base, typography, shapedRuns: result.runs, flowCosts: result.flowCosts })
+        }, text, { ...base, typography: advanced, shapedRuns: result.runs, flowCosts: result.flowCosts }, restored.records)
         setStatus(missing.length
           ? uiText('已排入 {{v0}}/{{v1}} 字，缺字「{{v2}}」已留空位。{{v3}}{{v4}}', {
-            v0: result.glyphs.length, v1: count, v2: missing.join('、'), v3: missingHint, v4: '',
+            v0: restored.glyphs.length, v1: count, v2: missing.join('、'), v3: missingHint, v4: '',
           })
-          : uiText('已排入 {{v0}} 字。{{v1}}{{v2}}', { v0: result.glyphs.length, v1: '', v2: '' }))
+          : uiText('已排入 {{v0}} 字。{{v1}}{{v2}}', { v0: restored.glyphs.length, v1: '', v2: '' }))
         return
       }
       const plan = layoutText(text, {
@@ -148,6 +204,7 @@ export function BatchComposer({ active }: { active: boolean }) {
       const found = await resolveCharacters(
         plan.positions.map((p) => p.character),
         async (character) => {
+          if (isLacuna(character)) return undefined
           // Initial composition fetches a small page; further variants load only on selection.
           const page = await initialCandidates(character, source, (regional || policy.dataset) ? '' : style, 4, undefined, { ...policy, vertical: layout === 'vertical-rtl' })
           return page.items[0]
@@ -158,18 +215,22 @@ export function BatchComposer({ active }: { active: boolean }) {
       found.forEach((glyph, character) => {
         if (glyph) resolved.set(character, glyph)
       })
-      const missing = [
-        ...new Set(
-          plan.positions.filter((p) => !resolved.has(p.character)).map((p) => p.character),
-        ),
-      ]
       const missingHint = regional ? uiText("可选择其他字体，或启用缺字补字。") : uiText("可换书体或字形来源。")
-      if (!resolved.size)
-        throw new Error(uiText("未找到可用字形：{{v0}}。{{v1}}", { v0: missing.join('、'), v1: missingHint }))
-      const glyphs = plan.positions.flatMap((p) => {
+      let offset = 0
+      const slots: RestorationSlot[] = []
+      const tradition = policy.writing_tradition === 'Korean' || policy.writing_tradition === 'Japanese'
+        ? policy.writing_tradition : 'Chinese'
+      const initial = plan.positions.flatMap((p) => {
+        const start = text.indexOf(p.character, offset)
+        const end = start + p.character.length
+        if (start >= 0) offset = end
         const glyph = resolved.get(p.character)
-        return glyph ? [placeGlyph(glyph, p.x, p.y, plan.size)] : []
+        const range = start >= 0 ? { start, end } : undefined
+        if (!glyph && range) slots.push({ ...range, text: p.character, x: p.x, y: p.y, size: plan.size, tradition })
+        return glyph ? [{ ...placeGlyph(glyph, p.x, p.y, plan.size), textRange: range }] : []
       })
+      const { glyphs, records, missing: pending } = await restore(initial, slots, previousProject)
+      const missing = [...new Set(pending.map((slot) => slot.text))]
       if (useEditorStore.getState().project !== previousProject)
         throw new Error(uiText("作品已更改，请重新生成以应用这段文字。"))
       compose(
@@ -181,6 +242,7 @@ export function BatchComposer({ active }: { active: boolean }) {
         },
         text,
         settingsFor(policy, source),
+        records,
       )
       const fallbackFonts = [...new Set(glyphs.filter((g) => policy.font_id &&
         g.metadata?.font_id !== policy.font_id).map((g) => g.source.work).filter(Boolean))]
@@ -361,6 +423,7 @@ export function BatchComposer({ active }: { active: boolean }) {
           {status}
         </p>
       )}
+      <RestorationPanel />
     </fieldset>
   )
 }

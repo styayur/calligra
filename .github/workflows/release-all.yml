@@ -211,9 +211,9 @@ jobs:
           CALLIGRAPHY_ANDROID_CERT_SHA256: ${{ vars.ANDROID_CERT_SHA256 }}
         run: |
           mkdir -p work/android-baseline
-          gh release download v0.9.0 --dir work/android-baseline --pattern 'CalligraphyStudio-Android-0.9.0.apk' --pattern 'SHA256SUMS.txt'
-          (cd work/android-baseline && grep '  CalligraphyStudio-Android-0.9.0.apk$' SHA256SUMS.txt | sha256sum --strict --check -)
-          cert="$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs work/android-baseline/CalligraphyStudio-Android-0.9.0.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')"
+          gh release download v0.10.0 --dir work/android-baseline --pattern 'CalligraphyStudio-Android-0.10.0.apk' --pattern 'SHA256SUMS.txt'
+          (cd work/android-baseline && grep '  CalligraphyStudio-Android-0.10.0.apk$' SHA256SUMS.txt | sha256sum --strict --check -)
+          cert="$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs work/android-baseline/CalligraphyStudio-Android-0.10.0.apk | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')"
           [[ "$cert" == "$(printf '%s' "$CALLIGRAPHY_ANDROID_CERT_SHA256" | tr -d ':' | tr '[:upper:]' '[:lower:]')" ]]
       - name: Enable KVM on the hosted Android runner
         if: needs.prepare.outputs.signed == 'true'
@@ -240,7 +240,7 @@ jobs:
           python-version: '3.12'
       - name: Test font selection from the packaged Android web assets
         run: |
-          python -m pip install playwright pillow
+          python -m pip install playwright pillow pypdf==6.14.0 pypdfium2==5.15.2
           python -m playwright install --with-deps chromium
           python -m zipfile -e apps/web/android/app/build/outputs/apk/release/app-release.apk work/android-bundle
           python -m http.server 5180 --bind 127.0.0.1 --directory work/android-bundle/assets/public > /tmp/calligraphy-apk-http.log 2>&1 &
@@ -250,6 +250,7 @@ jobs:
           args=()
           if [ -f "$native_project" ]; then args=(--native-project "$native_project"); fi
           python scripts/test_typesetting_browser.py --url http://127.0.0.1:5180/ --output work/typesetting-android.json "${args[@]}"
+          python scripts/test_hybrid_pdf_browser.py --url http://127.0.0.1:5180/ --output work/hybrid-pdf-android
       - uses: actions/upload-artifact@v7
         with:
           name: android-japanese-font-evidence
@@ -257,6 +258,7 @@ jobs:
             work/japanese-fonts-android.json
             work/korean-fonts-android.json
             work/typesetting-android.json
+            work/hybrid-pdf-android/*
           if-no-files-found: error
       - name: Prepare APK
         env:
@@ -301,7 +303,7 @@ jobs:
           python ../../scripts/audit_dependencies.py
       - name: Browser regression tests
         run: |
-          python -m pip install playwright pillow
+          python -m pip install playwright pillow pypdf==6.14.0 pypdfium2==5.15.2
           python -m playwright install --with-deps chromium
           python -m http.server 5178 --directory apps/web/dist > /tmp/calligraphy-http.log 2>&1 &
           python scripts/test_studio_browser.py --url http://127.0.0.1:5178
@@ -337,6 +339,8 @@ jobs:
           python scripts/test_typesetting_browser.py --url http://127.0.0.1:5179/ --output work/typesetting-web.json --gallery work/typesetting-gallery
           python scripts/test_pwa_browser.py --url http://127.0.0.1:5179/ --output work/pwa-linux.json
           python scripts/test_i18n_browser.py --url http://127.0.0.1:5179/ --output work/i18n-web.json
+          python scripts/test_restoration_browser.py --url http://127.0.0.1:5179/ --output work/restoration-web.json
+          python scripts/test_hybrid_pdf_browser.py --url http://127.0.0.1:5179/ --output work/hybrid-pdf-web
       - uses: actions/upload-artifact@v7
         with:
           name: web-japanese-font-evidence
@@ -348,6 +352,8 @@ jobs:
             work/typesetting-gallery/*.png
             work/pwa-linux.json
             work/i18n-web.json
+            work/restoration-web.json
+            work/hybrid-pdf-web/*
           if-no-files-found: error
       - uses: actions/upload-artifact@v7
         with:

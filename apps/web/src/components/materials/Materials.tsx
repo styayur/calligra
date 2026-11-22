@@ -269,7 +269,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
             language: { Japanese: 'ja', Korean: 'ko' }[tradition] || 'zh', script: unicodeScript(character),
             source_checksum: checksum, dataset_version: edition.trim(),
             rights: { derivatives_allowed: permission, redistribution_allowed: permission },
-            license: permission ? uiText("用户确认可改作及再分发") : '限本机使用',
+            license: permission ? '用户确认可改作及再分发' : '限本机使用',
           },
           asset: { type: 'raster', url, width: image.width, height: image.height, checksum: asset,
             bbox: [0, 0, image.width, image.height], ...(options.mode !== 'original' && { processing: 'ink-mask' }) },

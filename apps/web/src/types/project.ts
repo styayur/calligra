@@ -2,6 +2,7 @@ import type { GlyphInstance } from './glyph'
 import type { BatchLayout } from './composition'
 import type { CandidatePolicy } from '../lib/candidatePolicy'
 import type { AdvancedTypography, TextRun } from './typesetting'
+import type { RestorationRecord } from '../lib/glyphRestoration'
 
 export type TextLanguage = 'und' | 'zh' | 'ja' | 'ko' | 'en'
 
@@ -35,6 +36,7 @@ export interface ProjectDocument {
   glyphs: GlyphInstance[]
   text?: string
   composition?: CompositionSettings
+  restorations?: RestorationRecord[]
 }
 
 export interface ProjectRecord {

@@ -16,6 +16,7 @@ import {
 import {
   paginateRoll,
   renderRollPage,
+  rollArtwork,
   zipFiles,
   type RollOptions,
   type RollPage,
@@ -28,6 +29,7 @@ import { usesRegionalFonts, DEFAULT_POLICY, type CandidatePolicy } from '../../l
 import { RegionalFontFallback, RegionalFontSelect } from '../glyph-browser/RegionalFontSelect'
 import { SourcePolicyControls } from '../glyph-browser/SourcePolicyControls'
 import { assertExportRights, attributionFiles } from '../../lib/rights'
+import { PDF_PAPER, PdfSettings } from '../editor/PdfSettings'
 import type { TextLanguage } from '../../types'
 import type { AdvancedTypography } from '../../types/typesetting'
 import { TypographyControls } from '../glyph-browser/TypographyControls'
@@ -79,6 +81,7 @@ function PagePreview({
   )
 }
 export function LongRoll({ active }: { active: boolean }) {
+  const [pdfPaper, setPdfPaper] = useState(PDF_PAPER)
   const [policy, setPolicy] = useState<CandidatePolicy>(() => useEditorStore.getState().project.composition?.policy || DEFAULT_POLICY)
   const [text, setText] = useState(
     () => useEditorStore.getState().project.text || '明月松间照\n清泉石上流',
@@ -320,6 +323,27 @@ export function LongRoll({ active }: { active: boolean }) {
       setBusy(false)
     }
   }
+  const exportPdf = async () => {
+    if (!result) return
+    const abort = new AbortController()
+    controller.current = abort
+    setBusy(true)
+    try {
+      const { buildHybridPdf } = await import('../../lib/hybridPdf')
+      const pdf = await buildHybridPdf(result.pages.map((page) => rollArtwork(page, result.options)), {
+        ...pdfPaper, commercialOnly: result.policy.commercial_only, signal: abort.signal,
+        originalText: result.text, restoration: result.missing,
+        progress: (page, total) => setStatus(uiText("导出第 {{v0}}/{{v1}} 页…", { v0: page, v1: total })),
+      })
+      abort.signal.throwIfAborted()
+      await saveFile('Calligra-Scroll.pdf', pdf.blob)
+      setStatus(uiText('PDF 已导出，最低图像分辨率 {{dpi}} DPI', { dpi: pdf.statistics.minimumDpi?.toFixed(0) ?? '—' }))
+    } catch (error) {
+      setStatus(abort.signal.aborted ? uiText("导出已取消。") : String(error))
+    } finally {
+      setBusy(false)
+    }
+  }
   const first = Math.max(0, Math.floor(scroll / 580) - 1),
     last = Math.min(result?.pages.length || 0, Math.ceil((scroll + viewport) / 580) + 1)
   const anomalies =
@@ -472,7 +496,9 @@ export function LongRoll({ active }: { active: boolean }) {
         </p>
         {result && (
           <>
-            <button className="roll-primary" disabled={busy} onClick={exportAll}>
+            <button className="roll-primary" disabled={busy} onClick={exportPdf}>{uiText('导出多页 PDF')}</button>
+            <PdfSettings value={pdfPaper} onChange={setPdfPaper} />
+            <button className="load-more" disabled={busy} onClick={exportAll}>
               {uiText("批量导出 ZIP")}
             </button>
             <p className="field-hint">

@@ -3,6 +3,7 @@ import type { Glyph } from '../types'
 import type { TextRun } from '../types/typesetting'
 import { textLines } from './composition'
 import { loadImage } from './featureCache'
+import type { ArtworkPage } from './hybridPdf'
 
 export interface RollOptions {
   rows: number
@@ -25,6 +26,21 @@ export interface RollPage {
   measured?: boolean
   runs?: TextRun[]
   flowCosts?: number[]
+}
+
+export function rollArtwork(page: RollPage, options: RollOptions): ArtworkPage {
+  const size = Math.min(704 / options.columns, 980 / options.rows)
+  return { width: 800, height: 1100, background: '#ffffff', glyphs: page.slots.flatMap((slot) => {
+    if (!slot.glyph) return []
+    const glyph = slot.glyph
+    if (page.measured) return [glyph]
+    const factor = size * .86 / Math.max(glyph.asset.width, glyph.asset.height)
+    return [{ ...glyph, transform: {
+      x: 48 + (slot.column + .5) * 704 / options.columns,
+      y: 50 + (slot.row + .5) * 980 / options.rows,
+      scaleX: factor, scaleY: factor, rotation: 0, skewX: 0, skewY: 0,
+    } }]
+  }) }
 }
 export function paginateRoll(text: string, options: RollOptions): RollPage[] {
   const { rows, columns, vertical } = options
@@ -74,21 +90,13 @@ export async function renderRollPage(
   ctx.scale(scale, scale)
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(0, 0, 800, 1100)
-  const size = Math.min(704 / options.columns, 980 / options.rows),
-    gapX = 704 / options.columns,
-    gapY = 980 / options.rows
   const images = new Map<string, HTMLImageElement>()
-  for (const slot of page.slots) {
+  for (const g of rollArtwork(page, options).glyphs) {
     signal?.throwIfAborted()
-    const x = 48 + (slot.column + 0.5) * gapX,
-      y = 50 + (slot.row + 0.5) * gapY
-    if (!slot.glyph) continue // The manifest records missing cells; exported artwork keeps them blank.
-    const g = slot.glyph
     if (!images.has(g.asset.url)) images.set(g.asset.url, await loadImage(g.asset.url))
     signal?.throwIfAborted()
     const image = images.get(g.asset.url)!
-    const factor = (size * 0.86) / Math.max(image.naturalWidth, image.naturalHeight)
-    const transform = page.measured ? g.transform : { x, y, rotation: 0, scaleX: factor, scaleY: factor }
+    const transform = g.transform
     ctx.save()
     ctx.translate(transform.x, transform.y)
     ctx.rotate(transform.rotation * Math.PI / 180)

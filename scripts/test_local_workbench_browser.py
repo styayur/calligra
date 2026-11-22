@@ -48,6 +48,9 @@ def exercise_workbench(page, *, verify_gdi=False):
     expect(page.get_by_text("目标覆盖 1/2")).to_be_visible()
     expect(page.get_by_text("缺字 月")).to_be_visible()
     page.get_by_label("确认私人来源允许生成和分发字体").check()
+    page.get_by_text("筛选字形与高级格式", exact=True).click()
+    page.get_by_label("OTF", exact=True).check()
+    page.get_by_label("WOFF2", exact=True).check()
     with page.expect_download() as event:
         page.get_by_role("button", name="生成并下载字体").click()
     with ZipFile(event.value.path()) as font_package:
@@ -58,10 +61,10 @@ def exercise_workbench(page, *, verify_gdi=False):
         assert {"CalligraCollection-Regular.otf", "CalligraCollection-Regular.woff2"}.issubset(font_package.namelist())
     if verify_gdi:
         verify_windows_font(data)
-    page.get_by_role("button", name="文档", exact=True).click()
-    page.get_by_label("字体文件", exact=True).set_input_files({
-        "name": "CalligraCollection-Regular.ttf", "mimeType": "font/ttf", "buffer": data,
-    })
+    expect(page.get_by_label("已生成字体预览")).to_be_visible()
+    page.get_by_role("button", name="在文档中使用此字体").click()
+    page.get_by_text("文档替换范围与高级选项", exact=True).click()
+    page.get_by_label("仅汉字").check()
     for extension, create in (("docx", docx), ("odt", odt)):
         page.get_by_label("文档", exact=True).set_input_files({
             "name": f"report.{extension}", "mimeType": "application/octet-stream", "buffer": create(),
@@ -115,7 +118,7 @@ def main():
                 page = browser.new_page(locale="zh-CN", viewport={"width": 1120, "height": 960}, accept_downloads=True)
                 page.goto(args.url)
                 page.get_by_role("button", name="文档", exact=True).click()
-                expect(page.get_by_label("文档", exact=True)).to_be_disabled()
+                expect(page.get_by_role("button", name="分析覆盖")).to_be_disabled()
                 password = page.get_by_label("连接码")
                 button = page.get_by_role("button", name="连接 Companion", exact=True)
                 password.fill(code[:-1] + ("1" if code[-1] == "0" else "0"))

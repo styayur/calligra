@@ -7,6 +7,8 @@ import type {
   GlyphTransform,
   ProjectDocument,
 } from '../types'
+import type { RestorationRecord, RestorationDecision } from '../lib/glyphRestoration'
+import { placeGlyph } from '../lib/composition'
 
 const HISTORY_LIMIT = 60
 
@@ -37,7 +39,9 @@ interface EditorState {
     canvas: ProjectDocument['canvas'],
     text: string,
     composition: ProjectDocument['composition'],
+    restorations?: RestorationRecord[],
   ) => void
+  applyRestoration: (slot: RestorationRecord, decision: RestorationDecision, glyph: Glyph) => void
   setComposition: (composition: NonNullable<ProjectDocument['composition']>) => void
   replaceGlyph: (id: string, glyph: Glyph) => void
   duplicateGlyph: (id: string) => void
@@ -85,7 +89,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   dirty: false,
   localStatus: "正在恢复草稿…",
   setLocalStatus: (localStatus) => set({ localStatus }),
-  compose: (glyphs, canvas, text, composition) =>
+  compose: (glyphs, canvas, text, composition, restorations) =>
     set((state) => ({
       ...pushHistory(state, {
         ...state.project,
@@ -93,9 +97,25 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         glyphs,
         text,
         composition,
+        restorations,
       }),
       selectedId: null,
     })),
+  applyRestoration: (slot, decision, glyph) => set((state) => {
+    if (state.project.text?.slice(slot.start, slot.end) !== slot.text || decision.character !== glyph.character ||
+      (!decision.confirmed && slot.text !== glyph.character)) return state
+    const entry = state.project.restorations?.find((item) => item.start === slot.start && item.end === slot.end)
+    if (entry !== slot || state.project.glyphs.length >= 1000 && !state.project.glyphs.some((g) => g.textRange?.start === slot.start)) return state
+    const item = placeGlyph(glyph, slot.x, slot.y, slot.size)
+    item.textRange = { start: slot.start, end: slot.end }
+    const glyphs = state.project.glyphs.filter((g) => g.textRange?.start !== slot.start)
+    const index = glyphs.findIndex((g) => (g.textRange?.start ?? -1) > slot.start)
+    glyphs.splice(index < 0 ? glyphs.length : index, 0, item)
+    return { ...pushHistory(state, { ...state.project, glyphs,
+      restorations: state.project.restorations?.map((record) => record === slot ?
+        { ...record, decisions: [...record.decisions, decision] } : record),
+    }), selectedId: item.id }
+  }),
   setCanvas: (patch) =>
     set((state) =>
       pushHistory(state, {

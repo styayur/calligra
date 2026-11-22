@@ -124,13 +124,13 @@ async def build_font(request: Request):
 @router.post("/documents/{kind}", response_class=Response)
 async def typeset_document(
         kind: str, request: Request, font_bytes: int = Query(ge=1, le=MAX_ARCHIVE),
-        headings: bool = False, han_only: bool = True, original_font: str | None = Query(None, max_length=120),
+        headings: bool = False, body_only: bool = False, han_only: bool = True, original_font: str | None = Query(None, max_length=120),
         paragraphs: list[int] = Query(default=[], max_length=500), analyze: bool = False, pdf: bool = False):
     data = await read_bounded(request, MAX_ARCHIVE + font_bytes, "application/octet-stream")
-    if kind not in {"docx", "odt"} or font_bytes >= len(data) or any(number < 1 for number in paragraphs):
+    if kind not in {"docx", "odt"} or font_bytes >= len(data) or (headings and body_only) or any(number < 1 for number in paragraphs):
         raise HTTPException(422, "Unsupported document type or invalid selection")
     try:
-        options = Selection(headings, frozenset(paragraphs), original_font, han_only)
+        options = Selection(headings, frozenset(paragraphs), original_font, han_only, body_only)
         output, report = await run_in_threadpool(
             convert_with_font, data[font_bytes:], kind, data[:font_bytes], options,
         )
