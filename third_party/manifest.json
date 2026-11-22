@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "version": "0.9.0",
+  "version": "0.10.0",
   "components": [
     {
       "id": "application",
       "name": "Calligra",
       "category": "application",
-      "version": "0.9.0",
+      "version": "0.10.0",
       "source_uri": "https://github.com/styayur/calligra",
       "license": "GPL-3.0-or-later",
       "license_text": {

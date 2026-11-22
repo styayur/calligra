@@ -16,6 +16,7 @@ export interface BeamOptions {
   weights?: CandidateWeights
   choicesAt?: ProfileCandidate[][]
   adjacentCost?: (previous: VisualProfile, next: VisualProfile) => number
+  onCost?: (cost: number) => void
 }
 interface State {
   cost: number
@@ -98,6 +99,7 @@ export async function selectSequence(
   }
   const chosen: (string | null)[] = []
   let node: State | null = beam[0]
+  options.onCost?.(node.cost)
   while (node?.parent) {
     chosen.push(node.candidate?.id || null)
     node = node.parent

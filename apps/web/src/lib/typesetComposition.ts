@@ -106,7 +106,7 @@ function choicesFor(unit: LayoutUnit, options: SourceOptions, cache: SourceCache
 }
 
 async function optimizeLine(line: TextLine, options: SourceOptions, cache: SourceCache, vertical: boolean) {
-  const result = new Map<number, GlyphSourceChoice>()
+  const result = { choices: new Map<number, GlyphSourceChoice>(), score: null as number | null }
   if (!options.flow) return result
   const { intensity, pins, mode } = options.flow
   const lookup = new Map<string, GlyphSourceChoice>()
@@ -121,7 +121,7 @@ async function optimizeLine(line: TextLine, options: SourceOptions, cache: Sourc
     const eligible = unit.kind === 'glyph' && (mode === 'fluent' && intensity > 0 || pin) &&
       ['Han', 'Hiragana', 'Katakana', 'Hangul'].includes(unit.script || '')
     if (!eligible) {
-      if (matches[0]) result.set(unit.start, matches[0])
+      if (matches[0]) result.choices.set(unit.start, matches[0])
       choicesAt.push([])
       continue
     }
@@ -144,13 +144,14 @@ async function optimizeLine(line: TextLine, options: SourceOptions, cache: Sourc
       lookup.set(id, choice)
       profiled.push({ id, character: unit.text, profile: visual })
     }
-    if (!profiled.length && matches[0]) result.set(unit.start, matches[0])
+    if (!profiled.length && matches[0]) result.choices.set(unit.start, matches[0])
     choicesAt.push(profiled)
   }
   const context = choicesAt.flatMap((items) => items[0] ? [items[0].profile] : []).slice(0, 24)
   if (!context.length) return result
   const selected = await selectSequence(line.units.map((unit) => unit.text), new Map(), context, {
     width: 8, variation: intensity * .15, choicesAt, signal: options.signal,
+    onCost: (cost) => { result.score = cost / choicesAt.filter((item) => item.length).length },
     adjacentCost: (previous, next) => {
       const exit = previous.flowEdges[vertical ? 3 : 1]
       const entry = next.flowEdges[vertical ? 2 : 0]
@@ -160,7 +161,7 @@ async function optimizeLine(line: TextLine, options: SourceOptions, cache: Sourc
         .14 * Math.abs(exit[3] + entry[3]))
     },
   })
-  for (const [index, id] of selected.entries()) if (id) result.set(line.units[index].start, lookup.get(id)!)
+  for (const [index, id] of selected.entries()) if (id) result.choices.set(line.units[index].start, lookup.get(id)!)
   return result
 }
 
@@ -218,7 +219,7 @@ async function placeLine(
     options.signal?.throwIfAborted()
     const from = byStart.get(run.start)!
     const until = line.units.findIndex((unit, index) => index >= from && unit.end === run.end)
-    for (const piece of await piecesForRun(run, line.units.slice(from, until + 1), options, cache, optimized)) {
+    for (const piece of await piecesForRun(run, line.units.slice(from, until + 1), options, cache, optimized.choices)) {
       const unit = piece.units[0]
       const optical = unit.kind === 'glyph' && !run.tcy && ['Han', 'Hiragana', 'Katakana', 'Hangul'].includes(run.script || '')
       const approximate = piece.units.reduce((total, current) => total + current.advanceEm, 0)
@@ -239,25 +240,26 @@ async function placeLine(
       }
       const compressed = !run.tcy && piece.units.every((item) => item.advanceEm === .5)
       const factor = compressed && shaped.advance > approximate ? approximate / shaped.advance : 1
-      for (const group of shaped.clusters) {
+      for (const [index, group] of shaped.clusters.entries()) {
         const glyph = await fontGlyphForCluster(piece.font!, group)
         const width = group.width / group.pixelsPerEm
         const height = group.height / group.pixelsPerEm
         const centerX = group.originX + width / 2
         const centerY = group.originY + height / 2
         const tcyScale = Math.min(1, .92 / Math.max(.01, width, height))
-        const x = run.tcy ? cross + .5 : !vertical ? cursor + centerX * factor
+        const advance = cursor + gapEm * index
+        const x = run.tcy ? cross + .5 : !vertical ? advance + centerX * factor
           : shaped.rotation ? cross + .5 - (centerY + .35) : cross + .5 + centerX * factor
         const y = run.tcy ? cursor + .5 : !vertical ? cross + .8 + centerY * factor
-          : cursor + (shaped.rotation ? centerX : centerY) * factor
+          : advance + (shaped.rotation ? centerX : centerY) * factor
         results.push({ glyph, x, y, scale: (run.tcy ? tcyScale : factor) / group.pixelsPerEm,
           rotation: shaped.rotation, start: group.sequence.start, end: group.sequence.end, optical })
       }
-      cursor += (run.tcy ? 1 : compressed ? approximate : Math.max(.1, shaped.advance)) + gapEm
+      cursor += (run.tcy ? 1 : compressed ? approximate : Math.max(.1, shaped.advance)) + gapEm * shaped.clusters.length
     }
   }
   if (options.flow?.intensity) cursor += adjustRhythm(results, vertical, options.flow.intensity, gapEm)
-  return { results, missing, runs, advance: cursor }
+  return { results, missing, runs, advance: cursor, flowCost: optimized.score }
 }
 
 function materialize(record: Placement, marginX: number, marginY: number, em: number): GlyphInstance {
@@ -313,6 +315,7 @@ export async function composeTypeset(
   const fit = Math.min(1, 8000 / width, 8000 / height, Math.sqrt(20_000_000 / (width * height)))
   const glyphs = records.map((record) => materialize(record, margin * fit, margin * fit, options.size * fit))
   return { glyphs, missing: lines.flatMap((line) => line.missing), runs: lines.flatMap((line) => line.runs),
+    flowCosts: lines.flatMap(({ flowCost }) => flowCost === null ? [] : [flowCost]),
     clusters: layout.clusters, width: Math.max(100, width * fit), height: Math.max(100, height * fit) }
 }
 
@@ -347,7 +350,8 @@ export async function typesetScroll(text: string, options: TypesettingOptions & 
       glyph: materialize(record, marginX, 50, em), cost: null, start: record.start, end: record.end,
     })))
     unresolved.push(...lines.flatMap((line) => line.missing))
-    pages.push({ slots, runs: lines.flatMap((line) => line.runs), measured: true })
+    pages.push({ slots, runs: lines.flatMap((line) => line.runs), measured: true,
+      flowCosts: lines.flatMap(({ flowCost }) => flowCost === null ? [] : [flowCost]) })
     await new Promise((resolve) => setTimeout(resolve, 0))
   }
   const missing = new Map<string, number[]>()

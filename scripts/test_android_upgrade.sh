@@ -56,4 +56,5 @@ for field in 'appId|userId' 'dataDir' 'firstInstallTime'; do
   [[ "$before" == "$after" ]]
 done
 python scripts/test_android_update_screen.py --output "$evidence"
+python scripts/test_android_typesetting.py --output "$evidence"
 echo 'PASS: existing production certificate accepted an in-place Android emulator upgrade; app ID, data path, and original install time preserved.'

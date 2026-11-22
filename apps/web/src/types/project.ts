@@ -20,6 +20,7 @@ export interface CompositionSettings {
   policy?: CandidatePolicy
   typography?: AdvancedTypography
   shapedRuns?: TextRun[]
+  flowCosts?: number[]
 }
 
 export interface CanvasConfig {

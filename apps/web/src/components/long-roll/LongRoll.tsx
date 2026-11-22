@@ -289,6 +289,7 @@ export function LongRoll({ active }: { active: boolean }) {
         glyphs,
         pages: result.pages.map((p) => ({
           runs: p.runs,
+          flowCosts: p.flowCosts,
           slots: p.slots.map((s) => ({
             ...s, glyph: s.glyph?.id || null, position: p.measured ? s.glyph?.transform : undefined,
           })),

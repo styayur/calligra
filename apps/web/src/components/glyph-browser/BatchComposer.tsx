@@ -89,7 +89,7 @@ export function BatchComposer({ active }: { active: boolean }) {
   const regional = usesRegionalFonts(policy.writing_tradition)
   const settingsFor = (nextPolicy: CandidatePolicy, nextSource: CandidateSource) =>
     ({ layout, columns, size, gap, margin, punctuation, style, source: nextSource, policy: nextPolicy, textLanguage,
-      typography: settings?.typography, shapedRuns: settings?.shapedRuns })
+      typography: settings?.typography, shapedRuns: settings?.shapedRuns, flowCosts: settings?.flowCosts })
 
   function saveFontPreference(nextPolicy: CandidatePolicy, nextSource = source) {
     setPolicy(nextPolicy)
@@ -129,7 +129,7 @@ export function BatchComposer({ active }: { active: boolean }) {
         }))
         compose(result.glyphs, {
           width: result.width, height: result.height, background: previousProject.canvas.background,
-        }, text, { ...base, typography, shapedRuns: result.runs })
+        }, text, { ...base, typography, shapedRuns: result.runs, flowCosts: result.flowCosts })
         setStatus(missing.length
           ? uiText('已排入 {{v0}}/{{v1}} 字，缺字「{{v2}}」已留空位。{{v3}}{{v4}}', {
             v0: result.glyphs.length, v1: count, v2: missing.join('、'), v3: missingHint, v4: '',

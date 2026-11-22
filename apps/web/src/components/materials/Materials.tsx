@@ -72,6 +72,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
   const [gridColumns, setGridColumns] = useState(1)
   const [traditionalChinese, setTraditionalChinese] = useState(true)
   const [tradition, setTradition] = useState('Chinese')
+  const [material, setMaterial] = useState('historical')
   const [work, setWork] = useState('')
   const [page, setPage] = useState('')
   const [edition, setEdition] = useState('')
@@ -95,6 +96,10 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
     void refresh().catch(() => setStatus(uiText("无法读取个人字库")))
   }, [])
   const current = crops.find((crop) => crop.id === active)
+  const ocrLanguage = tradition === 'Japanese' ? 'jpn' : tradition === 'Korean' ? 'kor'
+    : traditionalChinese ? 'chi_tra' : 'chi_sim'
+  const canRecognize = material === 'print' && companion.ocr &&
+    (companion.ocr_models?.includes(ocrLanguage) ?? ocrLanguage !== 'kor')
   const matches = (glyph: Glyph) => [glyph.character, glyph.source.work, glyph.source.calligrapher,
     glyph.source.style, glyph.source.period, glyph.source.dataset].some((value) => value?.includes(query.trim()))
   const available = glyphs.filter(matches)
@@ -127,6 +132,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
     setNextId(1)
     setPermission(false)
     setRestoration(false)
+    setMaterial('historical')
   })
 
   const locate = () => {
@@ -158,7 +164,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
   }
 
   const recognize = () => {
-    if (!scan) return
+    if (!scan || !canRecognize) return
     const unreviewed = crops.filter((crop) => !crop.character.trim() && !crop.connectedKana)
     if (!unreviewed.length) return
     void run(async () => {
@@ -174,8 +180,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
         context.drawImage(glyph, 20, 20, canvas.width - 40, canvas.height - 40)
         return canvas.toDataURL().split(',')[1]
       })
-      const language = tradition === 'Japanese' ? 'jpn' : traditionalChinese ? 'chi_tra' : 'chi_sim'
-      const body = new Blob([JSON.stringify({ language, crops: images })], { type: 'application/json' })
+      const body = new Blob([JSON.stringify({ language: ocrLanguage, crops: images })], { type: 'application/json' })
       if (body.size > 32 * 1024 * 1024) throw new Error(uiText("识别数据上限为 32 MiB，请减少切框数量"))
       const response = await localWorkbench('scan-recognition', body)
       const data = await response.json() as Omit<Recognition, 'suggestion' | 'confidence'> & {
@@ -271,6 +276,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
           provenance: { type: 'original' },
           metadata: { original_filename: file.name, page: page.trim(), source_bbox: box,
             glyph_review: 'user-confirmed', history_unverified: true, extraction: options,
+            material_class: material,
             crop_location: location || 'manual',
             original_group: grouped ? { text: character, region: box } : undefined,
             recognition: recognition ? { ...recognition, corrected: recognition.suggestion !== character } : undefined },
@@ -350,7 +356,7 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
         }} /></label>
         {scan && <>
           <div className="field-grid">
-            <label>{uiText("传统")}<select value={tradition} onChange={(event) => setTradition(event.target.value)}>
+            <label>{uiText("传统")}<select aria-label={uiText("传统")} value={tradition} onChange={(event) => setTradition(event.target.value)}>
               <option value="Chinese">{uiText("中文")}</option><option value="Japanese">{uiText("日本語")}</option><option value="Korean">{uiText("한국어")}</option>
             </select></label>
             <label>{uiText("切字方向")}<select value={vertical ? 'vertical' : 'horizontal'} onChange={(event) => setVertical(event.target.value === 'vertical')}>
@@ -375,11 +381,22 @@ export function Materials({ addGlyph }: { addGlyph: (glyph: Glyph) => void }) {
             <CompanionControls onStatus={setCompanion} />
             {companion.ready && !companion.ocr && <p className="field-hint">{uiText("需要在独立 Companion 中配置本机 OCR 模型。请参阅教程。")}</p>}
             {companion.ocr && <>
+              <label>{uiText('素材类型')}
+                <select aria-label={uiText('素材类型')} value={material} onChange={(event) => setMaterial(event.target.value)}>
+                  <option value="print">{uiText('现代印刷')}</option>
+                  <option value="historical">{uiText('古籍手稿')}</option>
+                  <option value="rubbing">{uiText('碑刻拓片')}</option>
+                  <option value="cursive">{uiText('行草手写')}</option>
+                </select>
+              </label>
               {tradition === 'Chinese' && <label className="check-field">
                 <input type="checkbox" checked={traditionalChinese} onChange={(event) => setTraditionalChinese(event.target.checked)} />{uiText("识别繁体")}
               </label>}
-              <div className="scan-actions"><button type="button" disabled={tradition === 'Korean' || crops.every((crop) => crop.character.trim())} onClick={recognize}>{uiText("实验识别待校对字")}</button></div>
-              {tradition === 'Korean' && <p className="field-hint">{uiText("韩文素材支持手动切框、校对和入库。")}</p>}
+              {material !== 'print' && <p className="field-hint">{uiText('此素材类型请手工切框和校对。')}</p>}
+              {material === 'print' && !canRecognize && <p className="field-hint">{uiText('请为所选文字安装对应的本机 OCR 模型。')}</p>}
+              <div className="scan-actions"><button type="button"
+                disabled={!canRecognize || crops.every((crop) => crop.character.trim() || crop.connectedKana)}
+                onClick={recognize}>{uiText("实验识别待校对字")}</button></div>
             </>}
           </details>
           <div className="scan-page">

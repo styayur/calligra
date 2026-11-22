@@ -650,5 +650,16 @@
   "辅助等分切框": "Divide a selected region",
   "切框行数": "Crop rows",
   "切框列数": "Crop columns",
-  "等分当前切框": "Divide current box"
+  "等分当前切框": "Divide current box",
+  "所选文字的语言": "Language of selected text",
+  "为所选文字指定语言": "Set language for selected text",
+  "撤销上一个语言范围": "Undo last language range",
+  "请选中一个或多个完整文字单元。": "Select one or more complete text units.",
+  "素材类型": "Source material",
+  "现代印刷": "Modern print",
+  "古籍手稿": "Classical book or manuscript",
+  "碑刻拓片": "Inscription rubbing",
+  "行草手写": "Cursive manuscript",
+  "此素材类型请手工切框和校对。": "Mark and review each glyph manually for this material.",
+  "请为所选文字安装对应的本机 OCR 模型。": "Install the local OCR model for the selected script."
 }

@@ -10,7 +10,7 @@ Use the original scan, choose a text region and review each crop against the ori
 | Classical Japanese books | Review the original and draw or refine boxes; optionally record connected kana as a group. | Local NDL Kotenseki OCR-Lite. CODH RURI can be evaluated on publicly shareable IIIF pages. |
 | Chinese rubbings | Start from the inscription region. Use the grid for regular rows and columns, then correct each box and label. | Train or evaluate layout and recognition separately on rights-cleared rubbings using Kraken/eScriptorium. |
 | Cursive handwriting | Review connected marks, split or merge boxes, and confirm the sequence manually. | Kraken/eScriptorium with a verified model for the source, or primary-source benchmarks such as CalligraphicOCR. |
-| Modern and historical Korean | Manual proofreading and crop entry. | Script-specific modern printed models. Historical Hanja and Jamo require separate references and evaluations. |
+| Korean | Modern printed Hangul can use a separately installed `kor` Tesseract model. Historical Hanja and Jamo remain in the manual review workflow. | Historical sources require separate references and evaluations. |
 
 ## Upstream options and rights
 
@@ -23,3 +23,28 @@ Use the original scan, choose a text region and review each crop against the ori
 | [Multi-Stage-KCR](https://github.com/RuiyangJu/Multi-Stage-KCR) | Whole-page detection, crops, classification, reading order and an optional network-based correction stage. Authors report separate real and synthetic metrics. | The stated CC BY-SA 4.0 terms cover the dataset. Review detector checkpoints, the Metom classifier and code independently. |
 
 No new OCR weights are included. The benchmark baseline is 0/20 on historical CODH crops and 0/6 automatic original-page localizations at IoU ≥ 0.5 across the two baseline fixtures. The original-page labels are partial. An unmatched proposal cannot be confidently counted as a false positive. Keep results from manually guided regions separate from whole-page automation.
+
+### Original-page results
+
+| Fixture | Whole-page projection at IoU ≥ 0.5 | Editor-guided grid | Manual crop reopened and pixels checked |
+| --- | ---: | ---: | ---: |
+| CODH ぢぐち page 2 | 0/3 | — | 3/3 |
+| National Palace Museum, Wang epitaph heading | 0/3 | 3/3 (IoU 0.7133–0.8202) | 3/3 |
+| CODH ぢぐち page 7, held out from positioning changes | 0/2 | — | 2/2 |
+
+On the same three images, the optional NDL 1.4.3 CPU command produced 10, 4 and 10 lines, respectively. It covered the labelled character centers in 3/3, 0/3 and 2/2 cases. Each classically printed label was present somewhere in its intersecting predicted line. These counts measure line coverage and character presence. They cannot be compared directly with exact character transcription or character IoU. The epitaph did not produce suitable text-line proposals.
+
+Retesting the same 20 CODH crops with tesserocr 2.13.0 and tessdata_fast 4.1.0 yielded 0/20 exact hits, with five incorrect suggestions and 15 abstentions. The two manually boxed holdout samples yielded 0/2, one incorrect suggestion and one abstention. All 22 historical labels required manual entry or correction. On synthetic controls, the engine yielded 3/8 exact printed Chinese labels and 8/8 exact Hangul labels. These small controls exercise the local model route.
+
+The evaluated NDL source was `008c09838cfefec8fdcac72982d5d54a5051aefc`. Model files and SHA-256 digests are recorded below for reproduction. Run its upstream `src/ocr.py --sourcedir <fixture-dir> --output <existing-results-dir> --device cpu`. Then run `python scripts/evaluate_ndl_layout.py --ndl-results <results-dir>`.
+
+| NDL model | SHA-256 |
+| --- | --- |
+| `parseq-ndl-32x384-tiny-10.onnx` | `fd75b2c435d053fab9f9e563393ee5b6654a41434b2358b50fb63498a2c85b79` |
+| `rtmdet-s-1280x1280.onnx` | `f46267754d406431f6e035f9e20b8552af8ff1ab5ca13bcac8f4b1abbd02090c` |
+
+| Optional tessdata_fast 4.1.0 model | SHA-256 |
+| --- | --- |
+| `chi_tra.traineddata` | `529c5b5797d64b126065cd55f2bb4c7fd7b15790798091b1ff259941a829330b` |
+| `jpn.traineddata` | `1f5de9236d2e85f5fdf4b3c500f2d4926f8d9449f28f5394472d9e8d83b91b4d` |
+| `kor.traineddata` | `6b85e11d9bbf07863b97b3523b1b112844c43e713df8b66418a081fd1060b3b2` |

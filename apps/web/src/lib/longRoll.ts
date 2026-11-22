@@ -24,6 +24,7 @@ export interface RollPage {
   slots: RollSlot[]
   measured?: boolean
   runs?: TextRun[]
+  flowCosts?: number[]
 }
 export function paginateRoll(text: string, options: RollOptions): RollPage[] {
   const { rows, columns, vertical } = options

@@ -5,7 +5,7 @@ import { codepoints, migrateGlyph, textCharacters } from './identity'
 
 function checkTypography(text: string, settings: NonNullable<ProjectDocument['composition']>) {
   const typography = settings.typography
-  if (!typography) return settings.shapedRuns === undefined
+  if (!typography) return settings.shapedRuns === undefined && settings.flowCosts === undefined
   if (typeof typography !== 'object' ||
       !(['mixed', 'kinsoku', 'compressPunctuation', 'automaticTcy', 'discretionary'] as const)
         .every((key) => typeof typography[key] === 'boolean') ||
@@ -27,6 +27,9 @@ function checkTypography(text: string, settings: NonNullable<ProjectDocument['co
     (item.language === undefined || ['und', 'zh', 'ja', 'ko', 'en'].includes(item.language)) &&
     (item.tradition === undefined || ['Chinese', 'Japanese', 'Korean'].includes(item.tradition)))) return false
   const runs = settings.shapedRuns
+  const costs = settings.flowCosts
+  if (costs !== undefined && (!Array.isArray(costs) || costs.length > 1000 ||
+    !costs.every((cost) => Number.isFinite(cost) && cost >= 0))) return false
   if (runs === undefined) return true
   return Array.isArray(runs) && runs.length <= 1000 && runs.every((run) => range(run) &&
     run.text === text.slice(run.start, run.end) && ['ltr', 'ttb'].includes(run.direction) &&

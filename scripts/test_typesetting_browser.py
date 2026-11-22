@@ -8,7 +8,7 @@ from pathlib import Path
 from zipfile import ZipFile
 
 from playwright.sync_api import expect, sync_playwright
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageDraw
 
 
 def exercise(page, gallery=None):
@@ -92,11 +92,31 @@ def exercise(page, gallery=None):
     reloaded = save()
     assert reloaded["composition"]["shapedRuns"] == variation["composition"]["shapedRuns"]
     assert reloaded["glyphs"] == variation["glyphs"]
+    tradition.select_option("Japanese")
+    font.select_option("yuji-boku")
+    composer.get_by_role("button", name="竖排", exact=True).click()
+    composer.get_by_label("每行或列字数", exact=True).fill("20")
+    composer.get_by_label("混合文字传统").check()
+    field.fill("山水 かな 한漢 AI")
+    field.evaluate("(field) => field.setSelectionRange(0, 2)")
+    composer.get_by_label("所选文字的语言").select_option("zh")
+    composer.get_by_role("button", name="为所选文字指定语言").click()
+    mixed = compose(None)
+    assert mixed["composition"]["typography"]["spans"] == [
+        {"start": 0, "end": 2, "language": "zh", "tradition": "Chinese"},
+    ]
+    assert [glyph["source"]["writing_tradition"] for glyph in mixed["glyphs"][:5]] == [
+        "Chinese", "Chinese", "Japanese", "Japanese", "Korean",
+    ]
+    assert next(glyph for glyph in mixed["glyphs"] if glyph["character"] == "AI")["transform"]["rotation"] == 0
     flow = exercise_flow(page, composer, compose, gallery)
+    reviewed_group = exercise_reviewed_group(page, composer, compose)
     scroll = exercise_scroll(page)
     return {"horizontal_ligature": first["metadata"]["shaping"], "horizontal_groups": ["12", "AI", "No.1", "xyz"],
             "scroll": scroll,
             "flow": flow,
+            "mixed_languages": [run["language"] for run in mixed["composition"]["shapedRuns"]],
+            "reviewed_group": reviewed_group,
             "variation_glyph_id": mapped, "nominal_glyph_id": nominal, "project_round_trip": True}
 
 def exercise_flow(page, composer, compose, gallery):
@@ -108,6 +128,7 @@ def exercise_flow(page, composer, compose, gallery):
         ("Chinese", "草书", "山水日月山水", False),
         ("Japanese", "yuji-boku", "日かな月かな 山水", True),
         ("Korean", "kr-coverage-serif", "한漢 한글", True),
+        ("Japanese", "", "風かな月かな日", False),
     ]
     results = []
     for index, (culture, font, raw, mixed) in enumerate(cases):
@@ -131,6 +152,14 @@ def exercise_flow(page, composer, compose, gallery):
                 assert all(raw[glyph["textRange"]["start"]:glyph["textRange"]["end"]] == glyph["character"]
                            for glyph in glyphs)
                 assert all(glyph["transform"]["rotation"] == 0 for glyph in glyphs)
+            if index == 0 and mode == "fluent":
+                page.get_by_role("button", name="选择第1字山", exact=True).click()
+                composer.get_by_role("button", name="固定所选字形", exact=True).click()
+                pinned = compose(None)
+                assert pinned["composition"]["typography"]["flow"]["pins"] == [
+                    {"start": 0, "end": 1, "glyphId": glyphs[0]["metadata"]["font_id"]},
+                ]
+                assert pinned["glyphs"][0]["glyph_id"] == glyphs[0]["glyph_id"]
             ids = [glyph["metadata"]["font_id"] for glyph in glyphs]
             page.get_by_role("button", name="导出作品", exact=True).click()
             with page.expect_download() as event:
@@ -156,9 +185,41 @@ def exercise_flow(page, composer, compose, gallery):
             if mode != "grid":
                 assert not gaps or min(gaps) >= -3, (culture, mode, gaps)
             results.append({"case": culture, "requested_font_or_style": font, "text": raw, "mode": mode,
+                            "flow_line_costs": project["composition"].get("flowCosts", []),
                             "font_ids": ids, "png_sha256": sha256(data).hexdigest(),
                             "ink_bounds": bounds, "horizontal_box_gaps_px": [round(gap, 2) for gap in gaps]})
+    assert all(item["flow_line_costs"] for item in results if item["mode"] == "fluent")
     return results
+
+
+def exercise_reviewed_group(page, composer, compose):
+    scan = Image.new("RGB", (80, 120), "white")
+    draw = ImageDraw.Draw(scan)
+    draw.line([(15, 10), (50, 30), (20, 45), (57, 80), (22, 105)], fill="black", width=4)
+    original = BytesIO()
+    scan.save(original, format="PNG")
+    page.get_by_role("button", name="素材", exact=True).click()
+    page.get_by_label("原图", exact=True).set_input_files(
+        {"name": "synthetic-group-test.png", "mimeType": "image/png", "buffer": original.getvalue()})
+    page.get_by_label("传统", exact=True).select_option("Japanese")
+    page.get_by_label("同一原图切框内的连绵假名").check()
+    page.get_by_label("确认文字", exact=True).fill("あい")
+    page.get_by_role("button", name="保存确认字形").click()
+    expect(page.locator("form > [role=status]")).to_contain_text("已保存 1 个确认字形")
+    page.get_by_role("button", name="集字工作台", exact=True).click()
+    composer.get_by_label("Tradition", exact=True).select_option("Japanese")
+    composer.get_by_label("字形来源", exact=True).select_option("private")
+    composer.get_by_label("启用 OpenType 排版", exact=True).check()
+    composer.get_by_label("使用已校对的原帖连绵假名（个人字库或全部来源）").check()
+    project = compose("あい")
+    assert len(project["glyphs"]) == 1
+    glyph = project["glyphs"][0]
+    assert glyph["textRange"] == {"start": 0, "end": 2}
+    assert glyph["character"] == "あい" and glyph["provenance"]["type"] == "original"
+    assert glyph["source"]["source_checksum"] == sha256(original.getvalue()).hexdigest()
+    assert glyph["metadata"]["original_group"]["region"] == {"x": 0, "y": 0, "width": 80, "height": 120}
+    assert not glyph["source"]["rights"]["redistribution_allowed"]
+    return {"synthetic_UI_fixture": True, "range": glyph["textRange"], "confirmed_text": glyph["character"]}
 
 
 
@@ -198,11 +259,36 @@ def exercise_scroll(page):
     return {"pages": len(manifest["pages"]), "source_ranges": len(slots), "preview_matches_png": True}
 
 
+def compare_native(page, path):
+    native = json.loads(path.read_text(encoding="utf-8"))
+    fixture = {**native, "glyphs": []}
+    page.locator('input[type=file]').set_input_files(
+        {"name": "native-source.json", "mimeType": "application/json",
+         "buffer": json.dumps(fixture, ensure_ascii=False).encode()})
+    composer = page.locator(".composer")
+    composer.get_by_role("button", name="生成作品", exact=True).click()
+    expect(composer.locator(".feedback")).to_contain_text("已排入 7 字", timeout=60_000)
+    with page.expect_download() as event:
+        page.get_by_role("button", name="保存项目", exact=True).click()
+    web = json.loads(Path(event.value.path()).read_text(encoding="utf-8"))
+    assert native["text"] == web["text"]
+    assert native["composition"]["shapedRuns"] == web["composition"]["shapedRuns"]
+    assert len(native["glyphs"]) == len(web["glyphs"]) == 7
+    for android, chromium in zip(native["glyphs"], web["glyphs"], strict=True):
+        assert android["textRange"] == chromium["textRange"] and android["identity"] == chromium["identity"]
+        assert android["metadata"]["font_id"] == chromium["metadata"]["font_id"]
+        assert android["asset"]["bbox"] == chromium["asset"]["bbox"]
+        for key in ("x", "y", "scaleX", "scaleY", "rotation"):
+            assert abs(android["transform"][key] - chromium["transform"][key]) <= .05
+    return {"glyphs": 7, "position_tolerance_px": .05, "open_type_metrics_equal": True}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", required=True)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--gallery", type=Path)
+    parser.add_argument("--native-project", type=Path)
     args = parser.parse_args()
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
@@ -211,7 +297,15 @@ def main():
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.goto(args.url, wait_until="networkidle")
+        native = compare_native(page, args.native_project) if args.native_project else None
+        if native:
+            page = browser.new_page(locale="zh-CN", viewport={"width": 1440, "height": 960}, accept_downloads=True)
+            page.on("dialog", lambda dialog: dialog.accept())
+            page.on("pageerror", lambda error: errors.append(str(error)))
+            page.goto(args.url, wait_until="networkidle")
         evidence = exercise(page, args.gallery)
+        if native:
+            evidence["native_webview_comparison"] = native
         assert not errors, errors
         browser.close()
     if args.output:

@@ -77,6 +77,21 @@ def test_select_paragraph_original_font_and_unsafe_package():
         convert(package(original), "docx", "New font", {ord("日")})
 
 
+@pytest.mark.parametrize("kind,factory,part", [("docx", docx, "word/document.xml"), ("odt", odt, "content.xml")])
+def test_ivs_coverage_in_document_round_trip(kind, factory, part):
+    covered, missing = "日\U000E0102", "月\U000E0102"
+    original = archive_entries(factory())
+    original[part] = original[part].decode().replace("日", covered).replace("月", missing)
+    files, _ = compile_font([glyph(covered), glyph("月")], covered + "月",
+                            "Calligra Test", {"ttf"}, approved_work=True)
+    output, report = convert_with_font(package(original), kind, files["CalligraTest-Regular.ttf"])
+    assert report["required_characters"] == [covered, missing]
+    assert report["missing_characters"] == [missing]
+    assert report["changed_segments"] == 2
+    text = "".join(ET.fromstring(archive_entries(output)[part]).itertext())
+    assert covered in text and missing in text
+
+
 def test_local_route_analyze_convert_and_reject_external_origin(font_bytes):
     app = FastAPI()
     app.state.settings = Settings()

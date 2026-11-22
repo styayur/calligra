@@ -1,14 +1,35 @@
 """Opt-in single-glyph OCR. Predictions are tentative annotations."""
 import base64
 from hashlib import sha256
+from importlib.util import find_spec
 from io import BytesIO
 from pathlib import Path
 
 from PIL import Image
 import regex
 
-MODELS = {"chi_sim", "chi_tra", "jpn"}
+MODELS = {
+    "chi_sim": r"\p{Script=Han}",
+    "chi_tra": r"\p{Script=Han}",
+    "jpn": r"[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]",
+    "kor": r"\p{Script=Hangul}",
+}
 MIN_CONFIDENCE = 65
+MODEL_SIZE_LIMIT = 80 * 1024 * 1024
+
+
+def available_models(root: Path | None) -> list[str]:
+    if root is None or not root.is_dir() or not find_spec("tesserocr"):
+        return []
+    present = []
+    for language in MODELS:
+        path = root / f"{language}.traineddata"
+        try:
+            if path.is_file() and 0 < path.stat().st_size <= MODEL_SIZE_LIMIT:
+                present.append(language)
+        except OSError:
+            continue
+    return present
 
 
 def recognize_glyphs(images: list[str], language: str, model_root: Path):
@@ -19,11 +40,11 @@ def recognize_glyphs(images: list[str], language: str, model_root: Path):
     except ImportError as error:
         raise ValueError("Install the optional local OCR dependencies") from error
     model = model_root / f"{language}.traineddata"
-    if not model.is_file() or model.stat().st_size > 80 * 1024 * 1024:
+    if not model.is_file() or not 0 < model.stat().st_size <= MODEL_SIZE_LIMIT:
         raise ValueError("The selected local OCR model is absent or excessive")
     model_checksum = sha256(model.read_bytes()).hexdigest()
     suggestions = []
-    script = r"\p{Script=Han}" if language != "jpn" else r"[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]"
+    script = MODELS[language]
     try:
         with PyTessBaseAPI(path=str(model_root), lang=language, psm=PSM.SINGLE_CHAR, oem=OEM.LSTM_ONLY) as engine:
             for encoded in images:

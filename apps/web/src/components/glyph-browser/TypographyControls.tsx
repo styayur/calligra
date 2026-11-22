@@ -1,6 +1,7 @@
-import type { RefObject } from 'react'
-import type { AdvancedTypography, GlyphPin } from '../../types/typesetting'
+import { useState, type RefObject } from 'react'
+import type { AdvancedTypography, GlyphPin, TextSpan } from '../../types/typesetting'
 import { uiText } from '../../i18n'
+import { segmentText } from '../../lib/textLayout'
 
 export const DEFAULT_TYPOGRAPHY: AdvancedTypography = {
   mixed: false, kinsoku: true, compressPunctuation: false,
@@ -14,6 +15,23 @@ export function TypographyControls({ value, onChange, input, vertical, pin }: {
   vertical: boolean
   pin?: GlyphPin
 }) {
+  const [spanLanguage, setSpanLanguage] = useState<'zh' | 'ja' | 'ko' | 'en'>('ja')
+  const [rangeError, setRangeError] = useState(false)
+  const applyLanguage = () => {
+    const field = input.current
+    if (!field || !value) return
+    const { selectionStart: start, selectionEnd: end } = field
+    const boundaries = new Set([0, ...segmentText(field.value).map((cluster) => cluster.end)])
+    const invalid = start === end || !boundaries.has(start) || !boundaries.has(end)
+    setRangeError(invalid)
+    if (invalid) return
+    const traditions: Record<typeof spanLanguage, TextSpan['tradition']> = {
+      zh: 'Chinese', ja: 'Japanese', ko: 'Korean', en: undefined,
+    }
+    const spans = (value.spans || []).filter((item) => item.end <= start || item.start >= end)
+    const span = { start, end, language: spanLanguage, tradition: traditions[spanLanguage] }
+    onChange({ ...value, spans: [...spans, span] })
+  }
   const toggles: Array<['mixed' | 'kinsoku' | 'compressPunctuation' | 'discretionary' | 'automaticTcy' | 'connectedKana', string]> = [
     ['mixed', '混合文字传统'],
     ['kinsoku', '遵守断行禁则'],
@@ -62,6 +80,20 @@ export function TypographyControls({ value, onChange, input, vertical, pin }: {
           onChange={(event) => onChange({ ...value, [option]: event.target.checked })} />
         {uiText(label)}
       </label>)}
+      {value.mixed && <>
+        <label>
+          {uiText('所选文字的语言')}
+          <select aria-label={uiText('所选文字的语言')} value={spanLanguage}
+            onChange={(event) => setSpanLanguage(event.target.value as typeof spanLanguage)}>
+            <option value="zh">中文</option><option value="ja">日本語</option>
+            <option value="ko">한국어</option><option value="en">English</option>
+          </select>
+        </label>
+        <button type="button" onClick={applyLanguage}>{uiText('为所选文字指定语言')}</button>
+        {value.spans?.length ? <button type="button"
+          onClick={() => onChange({ ...value, spans: value.spans!.slice(0, -1) })}>{uiText('撤销上一个语言范围')}</button> : null}
+        {rangeError && <p role="status">{uiText('请选中一个或多个完整文字单元。')}</p>}
+      </>}
       {vertical && <>
         <p className="field-hint">{uiText('在正文中选中最多八个拉丁字符或数字，再指定纵中横。')}</p>
         <button type="button" onClick={() => {
